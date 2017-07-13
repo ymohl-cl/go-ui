@@ -25,7 +25,7 @@ N/A for moment
 Because the first version is not finished.
 
 #### How do I contribute ?
-Waiting the first version or please contact me first by mail: mohl.clauzade@gmail.com
+Waiting the first version or please contact me first by mail: `mohl.clauzade@gmail.com`
 After the first version, i will implement patch and pull request.
 
 # Acknowledgment
