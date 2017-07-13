@@ -1,0 +1,37 @@
+syntax = "proto3";
+package database;
+
+message Player {
+	string name = 1;
+	Stat stats = 2;
+	repeated Session saves = 3;
+}
+
+message Session {
+	repeated Cell board = 1;
+	Player p1 = 2;
+	Player p2 = 3;
+	repeated Move historicP1 = 4;
+	repeated Move historicP2 = 5;
+}
+
+message Cell {
+	int32 value = 1;
+	int32 weight = 2;
+}
+
+message Stat {
+	int32 nbGame = 1;
+	int32 nbWin = 2;
+}
+
+message Move {
+	int32 x = 1;
+	int32 y = 2;
+	int64 reflex = 3;
+}
+
+message Data {
+	repeated Player players = 1;
+	Session current = 2;
+}
