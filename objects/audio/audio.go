@@ -4,9 +4,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/42MrPiou42/game-builder/objects"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/objects"
 )
 
 type Audio struct {

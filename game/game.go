@@ -1,9 +1,9 @@
 package game
 
 import (
-	"github.com/42MrPiou42/game-builder/scenes"
-	"github.com/42MrPiou42/game-builder/uigame"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/scenes"
+	"github.com/ymohl-cl/game-builder/uigame"
 )
 
 const (

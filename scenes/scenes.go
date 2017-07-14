@@ -1,12 +1,12 @@
 package scenes
 
 import (
-	"github.com/42MrPiou42/game-builder/database"
-	"github.com/42MrPiou42/game-builder/objects"
-	"github.com/42MrPiou42/game-builder/scenes/sgame"
-	"github.com/42MrPiou42/game-builder/scenes/sinfos"
-	"github.com/42MrPiou42/game-builder/scenes/sstat"
-	"github.com/42MrPiou42/game-builder/scenes/suser"
+	"github.com/anisg/42collab01/scenes/suser"
+	"github.com/ymohl-cl/game-builder/database"
+	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/game-builder/scenes/sgame"
+	"github.com/ymohl-cl/game-builder/scenes/sinfos"
+	"github.com/ymohl-cl/game-builder/scenes/sstat"
 )
 
 // Scenes manage the specific game.

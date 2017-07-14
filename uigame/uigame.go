@@ -1,10 +1,10 @@
 package uigame
 
 import (
-	"github.com/42MrPiou42/game-builder/scenes/sinfos"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
+	"github.com/ymohl-cl/game-builder/scenes/sinfos"
 )
 
 type Drivers struct {

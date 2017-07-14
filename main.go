@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/42MrPiou42/game-builder/game"
-	"github.com/42MrPiou42/game-builder/uigame"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/game"
+	"github.com/ymohl-cl/game-builder/uigame"
 )
 
 // defer Destroy is call begin check err because Destroy() is safe

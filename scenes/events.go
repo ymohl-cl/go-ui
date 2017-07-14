@@ -3,9 +3,9 @@ package scenes
 import (
 	"fmt"
 
-	"github.com/42MrPiou42/game-builder/objects"
-	"github.com/42MrPiou42/game-builder/scenes/sinfos"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/game-builder/scenes/sinfos"
 )
 
 func (S *Scenes) Events(E sdl.Event) {

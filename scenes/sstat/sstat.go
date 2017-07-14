@@ -1,9 +1,9 @@
 package sstat
 
 import (
-	"github.com/42MrPiou42/game-builder/database"
-	"github.com/42MrPiou42/game-builder/objects"
-	I "github.com/42MrPiou42/game-builder/scenes/sinfos"
+	"github.com/ymohl-cl/game-builder/database"
+	"github.com/ymohl-cl/game-builder/objects"
+	I "github.com/ymohl-cl/game-builder/scenes/sinfos"
 )
 
 type SStat struct {
