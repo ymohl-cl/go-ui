@@ -1,4 +1,4 @@
-package suser
+package menu
 
 import (
 	"fmt"

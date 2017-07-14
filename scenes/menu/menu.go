@@ -1,4 +1,4 @@
-package suser
+package menu
 
 import (
 	"github.com/42MrPiou42/game-builder/database"
