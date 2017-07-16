@@ -4,21 +4,21 @@ import (
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/game"
-	"github.com/ymohl-cl/game-builder/uigame"
+	"github.com/ymohl-cl/game-builder/drivers"
+	"github.com/ymohl-cl/game-builder/loop"
 )
 
-// defer Destroy is call begin check err because Destroy() is safe
+// Drivers.Destroy is safe.
 func main() {
-	DriversUI, err := uigame.Init()
-	defer DriversUI.Destroy()
+	Drivers, err := drivers.Init()
+	defer Drivers.Destroy()
 	if err != nil {
 		panic(err)
 	}
 
-	// SDL.Main allow use sdl.Do()
+	// SDL.Main allow use sdl.Do() to queue sdl instructions.
 	sdl.Main(func() {
-		if err := game.Start(DriversUI); err != nil {
+		if err := loop.Start(Drivers); err != nil {
 			panic(err)
 		}
 		os.Exit(0)

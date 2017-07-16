@@ -1,15 +1,6 @@
 package menu
 
-import (
-	"fmt"
-
-	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/database"
-	"github.com/ymohl-cl/game-builder/objects"
-	"github.com/ymohl-cl/game-builder/scenes/sinfos"
-)
-
-func (S *SUser) AddUser(values ...interface{}) string {
+/*func (S *SUser) AddUser(values ...interface{}) string {
 	var data *database.Data
 	for idx, v := range values {
 		switch idx {
@@ -132,3 +123,4 @@ func (S *SUser) Quit(values ...interface{}) string {
 	fmt.Println("Coucou c'est moi Quit!")
 	return ""
 }
+*/

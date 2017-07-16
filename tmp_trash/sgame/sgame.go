@@ -1,12 +1,6 @@
 package sgame
 
-import (
-	"github.com/ymohl-cl/game-builder/database"
-	"github.com/ymohl-cl/game-builder/objects"
-	I "github.com/ymohl-cl/game-builder/scenes/sinfos"
-)
-
-type SGame struct {
+/*type SGame struct {
 	input  string
 	notice string
 
@@ -67,3 +61,4 @@ func (s *SGame) GetDynamicObjs() []*objects.ObjectType {
 func (s *SGame) SetNotice(str string) {
 	return
 }
+*/

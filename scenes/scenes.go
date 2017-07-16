@@ -1,12 +1,12 @@
 package scenes
 
 import (
-	"github.com/anisg/42collab01/scenes/suser"
+	"errors"
+
+	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/database"
-	"github.com/ymohl-cl/game-builder/objects"
-	"github.com/ymohl-cl/game-builder/scenes/sgame"
-	"github.com/ymohl-cl/game-builder/scenes/sinfos"
-	"github.com/ymohl-cl/game-builder/scenes/sstat"
+	"github.com/ymohl-cl/game-builder/scenes/menu"
 )
 
 // Scenes manage the specific game.
@@ -15,30 +15,36 @@ type Scenes struct {
 	list map[uint8]Scene
 }
 
+func (S Scenes) Draw() {
+	S.list[conf.Current].Draw()
+}
+
 // Scene is a interface and define the design model to your scenes.
 type Scene interface {
 	// Init the scene. Create static objects. Data is provide if you need.
-	Init(*database.Data) error
-	// Update dynamical objects
-	Update(*database.Data) error
-	// GetObjects return concatenation of static and dynamical objects.
-	GetObjs() []*objects.ObjectType
+	Init(*database.Data, *sdl.Renderer) error
 
-	/*
-	** follow functions are needest to interact by Events
-	 */
+	// Run start the scene
+	Run() error
+
+	// Close the scene
+	Close() error
+
+	// Draw the scene
+	Draw()
+
 	// Add txt string typed by player to the input field
-	AddLetterToInput(string)
+	//	AddLetterToInput(string)
 	// GetStaticObjs provide the static objects
-	GetStaticObjs() []*objects.ObjectType
+	//	GetStaticObjs() []*objects.ObjectType
 	// GetDynamicObjs provide the dynamic objects
-	GetDynamicObjs() []*objects.ObjectType
+	//	GetDynamicObjs() []*objects.ObjectType
 	// SetNotice provide a information to the user when a bad usage is done.
-	SetNotice(string)
+	//SetNotice(string)
 }
 
 // Build create a new scene manager. Define here all scenes which you want use.
-func Build() (*Scenes, error) {
+func Build(r *sdl.Renderer) (*Scenes, error) {
 	var err error
 	s := new(Scenes)
 
@@ -48,25 +54,44 @@ func Build() (*Scenes, error) {
 	}
 
 	s.list = make(map[uint8]Scene)
-	s.list[sinfos.SceneUser] = new(suser.SUser)
-	s.list[sinfos.SceneStat] = new(sstat.SStat)
-	s.list[sinfos.SceneGame] = new(sgame.SGame)
+	s.list[conf.SMenu] = new(menu.Menu)
+	//s.list[sinfos.SceneStat] = new(sstat.SStat)
+	//s.list[sinfos.SceneGame] = new(sgame.SGame)
 
-	if err = s.list[sinfos.SceneUser].Init(s.Data); err != nil {
+	if err = s.list[conf.SMenu].Init(s.Data, r); err != nil {
 		return nil, err
 	}
-	if err = s.list[sinfos.SceneStat].Init(s.Data); err != nil {
+	/*if err = s.list[sinfos.SceneStat].Init(s.Data); err != nil {
 		return nil, err
 	}
 	if err = s.list[sinfos.SceneGame].Init(s.Data); err != nil {
 		return nil, err
-	}
+	}*/
 
-	sinfos.Current = sinfos.SceneUser
-	s.list[sinfos.Current].Update(s.Data)
+	conf.Current = conf.SMenu
+	//s.list[conf.Current].Update(s.Data)
 	return s, nil
 }
 
-func (S *Scenes) GetObjects() []*objects.ObjectType {
-	return S.list[sinfos.Current].GetObjs()
+func (S Scenes) Run() error {
+	if _, ok := S.list[conf.Current]; ok == false {
+		return errors.New("Scene tried to execute don't exist")
+	}
+	S.list[conf.Current].Run()
+	return nil
 }
+
+func (S Scenes) Close() error {
+	var err error
+
+	if _, ok := S.list[conf.Current]; ok == false {
+		return errors.New("Scene tried to execute don't exist")
+	}
+
+	err = S.list[conf.Current].Close()
+	return err
+}
+
+/*func (S *Scenes) GetObjects() []*objects.ObjectType {
+	return S.list[sinfos.Current].GetObjs()
+}*/

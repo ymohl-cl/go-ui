@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/ymohl-cl/game-builder/conf"
 )
 
 const (
-	fileData       = "Ressources/saveGomoku.patouch"
 	defaultPlayer1 = "Unknow-1"
 	defaultPlayer2 = "Unknow-2"
 )
@@ -17,15 +17,15 @@ const (
 func Get() (*Data, error) {
 	D := new(Data)
 
-	f, err := os.OpenFile(fileData, os.O_RDWR|os.O_CREATE, 0755)
+	f, err := os.OpenFile(conf.ProtoBufFile, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
 	}
-	if err := f.Close(); err != nil {
+	if err = f.Close(); err != nil {
 		return nil, err
 	}
 
-	buf, err := ioutil.ReadFile(fileData)
+	buf, err := ioutil.ReadFile(conf.ProtoBufFile)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package image
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/img"
@@ -23,8 +24,9 @@ type Image struct {
 	position *objects.Position
 
 	// sdl objects
-	texture *sdl.Texture
-	rect    sdl.Rect
+	texture  *sdl.Texture
+	rect     sdl.Rect
+	renderer *sdl.Renderer
 }
 
 /*
@@ -32,10 +34,11 @@ type Image struct {
  */
 
 // New create a new image object
-func New() (*Image, error) {
+func New(url string) (*Image, error) {
 	i := new(Image)
 
 	i.status = objects.SFix
+	i.url = url
 	return i, nil
 }
 
@@ -83,6 +86,9 @@ func (I *Image) Init(r *sdl.Renderer) error {
 	var surface *sdl.Surface
 	var err error
 
+	if r == nil {
+		return errors.New("Can't init object because renderer is nil")
+	}
 	if I.size == nil {
 		return errors.New("Size block not define")
 	}
@@ -109,6 +115,7 @@ func (I *Image) Init(r *sdl.Renderer) error {
 	I.rect.W = I.size.W
 	I.rect.H = I.size.H
 
+	I.renderer = r
 	I.initialized = true
 	return nil
 }
@@ -145,22 +152,17 @@ func (I *Image) SetStatus(s uint8) {
 }
 
 // Draw the object Image.
-func (I *Image) Draw(r *sdl.Renderer, wg *sync.WaitGroup) error {
-	if r == nil {
-		return errors.New("Can't draw image because renderer is nil")
-	}
-	if wg == nil {
-		return errors.New("Can't draw image because sync WaitGroup not define")
-	}
-	if I.initialized == false {
-		return errors.New("Can't draw image object is not initialized")
-	}
-
+func (I *Image) Draw(wg *sync.WaitGroup) error {
 	wg.Add(1)
 	defer wg.Done()
 
+	if I.initialized == false {
+		fmt.Println("...")
+		return errors.New("Can't draw image object is not initialized")
+	}
+
 	sdl.Do(func() {
-		r.Copy(I.texture, nil, &I.rect)
+		I.renderer.Copy(I.texture, nil, &I.rect)
 	})
 	return nil
 }

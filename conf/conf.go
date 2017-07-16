@@ -1,25 +1,74 @@
-package sinfos
+package conf
 
-// This package define the parameters to the scenes and the scenes list.
+/*
+** This package define the configuration to the scenes and the scenes list.
+** Define everything you need.
+ */
 
+// Current is a global value to define the current scene.
+var Current uint8
+
+// Scenes list
+const (
+	SMenu = 0
+	SStat = 1
+	SGame = 2
+	Sload = 3
+)
+
+// Global
+const (
+	Title        = "Gomoku"
+	WindowWidth  = 1280
+	WindowHeight = 800
+	ressources   = "Ressources/"
+	ProtoBufFile = ressources + "saveGomoku.patouch"
+	OriginX      = 0
+	OriginY      = 0
+)
+
+// Menu
+const (
+	MenuMusic      = ressources + "ambiant.wav"
+	MenuBackground = ressources + "background.bmp"
+)
+
+// Stat
+const ()
+
+// Game
+const ()
+
+// Load
+const ()
+
+/*
+** define design
+ */
+
+// Buttun
+const ()
+
+// Text
+const ()
+
+//////////////////////////////////////////////////////////
 const (
 	/*
 	** list scenes on the uint8 values. Define by current of Scenes while
 	** the game is running
 	 */
-	SceneUser = 0
-	SceneStat = 1
-	SceneGame = 2
+	//SMenu     = 0
+	//SceneStat = 1
+	//SceneGame = 2
 
 	/* view const (global) */
-	ScreenWidth        = 1280
-	ScreenHeight       = 800
 	FontText           = "leadcoat.ttf"
 	GlobalOriginX      = 0
 	GlobalOriginY      = 0
 	MarginTop          = 30
 	MarginLeft         = 50
-	MarginRight        = ScreenWidth - MarginLeft
+	MarginRight        = WindowWidth - MarginLeft
 	MarginBot          = 25
 	Padding            = 15
 	HeightHeaderFooter = 105
@@ -92,5 +141,3 @@ const (
 	UserHeightElemList     = 30
 	UserSpaceUserElemListY = 5
 )
-
-var Current uint8

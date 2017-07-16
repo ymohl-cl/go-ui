@@ -18,7 +18,8 @@ type Audio struct {
 	url string
 
 	// sdl objects
-	music *mix.Music
+	music    *mix.Music
+	renderer *sdl.Renderer
 }
 
 /*
@@ -30,7 +31,7 @@ func New(url string) (*Audio, error) {
 	a := new(Audio)
 
 	if url == "" {
-		return errors.New("Audio url is empty")
+		return nil, errors.New("Audio url is empty")
 	}
 
 	a.url = url
@@ -50,6 +51,11 @@ func (A Audio) IsInit() bool {
 // Init audio object
 func (A *Audio) Init(r *sdl.Renderer) error {
 	var err error
+
+	if r == nil {
+		return errors.New("Can't init object because renderer is nil")
+	}
+	A.renderer = r
 
 	A.music, err = mix.LoadMUS(A.url)
 	if err != nil {
@@ -88,10 +94,7 @@ func (A *Audio) SetStatus(s uint8) {
 }
 
 // Draw the object audio.
-func (A *Audio) Draw(r *sdl.Renderer, wg *sync.WaitGroup) error {
-	if r == nil {
-		return errors.New("Can't draw image because renderer is nil")
-	}
+func (A *Audio) Draw(wg *sync.WaitGroup) error {
 	if wg == nil {
 		return errors.New("Can't draw image because sync WaitGroup not define")
 	}
