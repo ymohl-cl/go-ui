@@ -2,7 +2,6 @@ package image
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/img"
@@ -152,17 +151,13 @@ func (I *Image) SetStatus(s uint8) {
 }
 
 // Draw the object Image.
-func (I *Image) Draw(wg *sync.WaitGroup) error {
-	wg.Add(1)
+func (I *Image) Draw(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	if I.initialized == false {
-		fmt.Println("...")
-		return errors.New("Can't draw image object is not initialized")
-	}
-
 	sdl.Do(func() {
+		if I.initialized == false {
+			panic(errors.New("Can't draw image object is not initialized"))
+		}
 		I.renderer.Copy(I.texture, nil, &I.rect)
 	})
-	return nil
 }

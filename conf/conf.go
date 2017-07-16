@@ -25,12 +25,33 @@ const (
 	ProtoBufFile = ressources + "saveGomoku.patouch"
 	OriginX      = 0
 	OriginY      = 0
+
+	/* margin - padding */
+	MarginTop    = 31
+	MarginLeft   = 50
+	MarginRight  = 50
+	MarginBot    = 29
+	PaddingBlock = 18
+
+	/* Color */
+	ClearRGBO = 0
+
+	ColorBlockRed     = 42
+	ColorBlockGreen   = 42
+	ColorBlockBlue    = 42
+	ColorBlockOpacity = 155
 )
 
 // Menu
 const (
 	MenuMusic      = ressources + "ambiant.wav"
 	MenuBackground = ressources + "background.bmp"
+
+	/* position elements */
+	MenuHeaderHeight       = 102
+	MenuFooterHeight       = 102
+	MenuContentBlockWidth  = 500
+	MenuContentBlockHeight = 500
 )
 
 // Stat
@@ -63,22 +84,17 @@ const (
 	//SceneGame = 2
 
 	/* view const (global) */
-	FontText           = "leadcoat.ttf"
-	GlobalOriginX      = 0
-	GlobalOriginY      = 0
-	MarginTop          = 30
-	MarginLeft         = 50
-	MarginRight        = WindowWidth - MarginLeft
-	MarginBot          = 25
-	Padding            = 15
-	HeightHeaderFooter = 105
-	WidthButton        = 150
-	WidthLargeButton   = 300
-	HeightButton       = 40
-	WidthIcon          = 30
-	HeightIcon         = 30
-	WidthInput         = 300
-	HeightInput        = 30
+	FontText      = "leadcoat.ttf"
+	GlobalOriginX = 0
+	GlobalOriginY = 0
+	//	HeightHeaderFooter = 105
+	WidthButton      = 150
+	WidthLargeButton = 300
+	HeightButton     = 40
+	WidthIcon        = 30
+	HeightIcon       = 30
+	WidthInput       = 300
+	HeightInput      = 30
 
 	DrawFilled    = true
 	DrawNotFilled = false
@@ -99,12 +115,6 @@ const (
 	CBTG = 0
 	CBTB = 0
 	CBTO = 20
-
-	/* Color Grey Light - Red - Green - Blue - Opacity */
-	CGLR = 42
-	CGLG = 42
-	CGLB = 42
-	CGLO = 155
 
 	/* Color Grey strong - Red - Green - Blue - Opacity */
 	CGSR = 57
@@ -136,8 +146,6 @@ const (
 	CRO = 255
 
 	/* view const (user) */
-	UserWidthBloc          = 500
-	UserheightBloc         = 500
 	UserHeightElemList     = 30
 	UserSpaceUserElemListY = 5
 )

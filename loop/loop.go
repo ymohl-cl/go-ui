@@ -32,7 +32,7 @@ func Start(v drivers.VSdl) error {
 		return err
 	}
 
-	if err = LGame.script.Run(); err != nil {
+	if err = LGame.script.Run(v.GetRenderer()); err != nil {
 		return err
 	}
 	for LGame.close == false {
@@ -47,8 +47,10 @@ func Start(v drivers.VSdl) error {
 				}
 			}
 		})
-		LGame.script.Draw()
-		sdl.Delay(1000 / 60)
+		LGame.script.Draw(v.GetRenderer())
+		sdl.Do(func() {
+			sdl.Delay(1000 / 60)
+		})
 	}
 	return nil
 }

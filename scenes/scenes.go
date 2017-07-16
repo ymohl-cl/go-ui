@@ -2,10 +2,12 @@ package scenes
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/database"
+	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/ymohl-cl/game-builder/scenes/menu"
 )
 
@@ -15,8 +17,43 @@ type Scenes struct {
 	list map[uint8]Scene
 }
 
-func (S Scenes) Draw() {
-	S.list[conf.Current].Draw()
+func (S Scenes) Draw(r *sdl.Renderer) {
+	layers := S.list[conf.Current].GetLayers()
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go S.clearDraw(r, &wg)
+	wg.Wait()
+	for i := 0; layers[uint8(i)] != nil; i++ {
+		layer := layers[uint8(i)]
+		for _, object := range layer {
+			wg.Add(1)
+			go object.Draw(&wg)
+		}
+		wg.Wait()
+	}
+	S.activeDraw(r)
+}
+
+func (S Scenes) activeDraw(r *sdl.Renderer) {
+	sdl.Do(func() {
+		r.Present()
+	})
+}
+
+func (S Scenes) clearDraw(r *sdl.Renderer, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var err error
+
+	sdl.Do(func() {
+		if err = r.SetDrawColor(conf.ClearRGBO, conf.ClearRGBO, conf.ClearRGBO, conf.ClearRGBO); err != nil {
+			panic(err)
+		}
+		if err = r.Clear(); err != nil {
+			panic(err)
+		}
+	})
 }
 
 // Scene is a interface and define the design model to your scenes.
@@ -30,8 +67,8 @@ type Scene interface {
 	// Close the scene
 	Close() error
 
-	// Draw the scene
-	Draw()
+	// GetLayers get objects list by layers order
+	GetLayers() map[uint8][]objects.Object
 
 	// Add txt string typed by player to the input field
 	//	AddLetterToInput(string)
@@ -73,11 +110,12 @@ func Build(r *sdl.Renderer) (*Scenes, error) {
 	return s, nil
 }
 
-func (S Scenes) Run() error {
+func (S Scenes) Run(r *sdl.Renderer) error {
 	if _, ok := S.list[conf.Current]; ok == false {
 		return errors.New("Scene tried to execute don't exist")
 	}
 	S.list[conf.Current].Run()
+	S.Draw(r)
 	return nil
 }
 

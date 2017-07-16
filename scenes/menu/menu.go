@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"fmt"
+	"errors"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -12,7 +12,7 @@ import (
 const (
 	// order layers of scene
 	layerBackground = 0
-	layer1          = 1
+	layerStructure  = 1
 	layer2          = 2
 	layer3          = 3
 	layerPlayers    = 4
@@ -21,8 +21,6 @@ const (
 type Menu struct {
 	layers map[uint8][]objects.Object
 
-	p1     string
-	p2     string
 	input  objects.Object
 	notice objects.Object
 	music  objects.Object
@@ -51,16 +49,13 @@ func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
 }
 
 func (M Menu) Run() error {
-	var err error
 	var wg sync.WaitGroup
 
 	if ok := M.music.IsInit(); ok {
-		if err = M.music.Draw(&wg); err != nil {
-			return err
-		}
+		wg.Add(1)
+		go M.music.Draw(&wg)
 		wg.Wait()
 	}
-	M.Draw()
 	return nil
 }
 
@@ -75,7 +70,11 @@ func (M Menu) Close() error {
 	return nil
 }
 
-func (M Menu) Draw() {
+func (M Menu) GetLayers() map[uint8][]objects.Object {
+	return M.layers
+}
+
+/*func (M Menu) Draw() {
 	var wg sync.WaitGroup
 
 	for _, layer := range M.layers {
@@ -85,26 +84,23 @@ func (M Menu) Draw() {
 		}
 		wg.Wait()
 	}
-}
+}*/
 
 /*
 ** Private function scene
  */
 
 func (M Menu) check() error {
-	/*	if M.layers == nil {
-			return errors.New("Objects not define for menu scene")
-		}
-		if M.input == nil {
+	if M.layers == nil {
+		return errors.New("Objects not define for menu scene")
+	}
+	/*	if M.input == nil {
 			return errors.New("Object to input not define")
 		}
 		if M.notice == nil {
 			return errors.New("Object to notice not define")
-		}
-
-		if M.p1 == "" || M.p2 == "" {
-			return errors.New("No players defaults selected to the menu scene")
 		}*/
+
 	return nil
 }
 

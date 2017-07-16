@@ -4,13 +4,13 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/objects"
 )
 
 const (
 	Filled = 1
-	Empty = 2
+	Empty  = 2
 )
 
 type Block struct {
@@ -24,7 +24,8 @@ type Block struct {
 	color    *objects.Color
 
 	// objects of sdl
-	rect     sdl.Rect{}
+	rect     sdl.Rect
+	renderer *sdl.Renderer
 }
 
 /*
@@ -49,7 +50,7 @@ func New(bStyle uint8) (*Block, error) {
 
 // SetSize
 func (B *Block) SetSize(sz *objects.Size) error {
-	if !sz {
+	if sz == nil {
 		return errors.New("Can't add size because is nil")
 	}
 
@@ -59,7 +60,7 @@ func (B *Block) SetSize(sz *objects.Size) error {
 
 // SetPosition
 func (B *Block) SetPosition(p *objects.Position) error {
-	if !p {
+	if p == nil {
 		return errors.New("Can't add position because is nil")
 	}
 
@@ -69,7 +70,7 @@ func (B *Block) SetPosition(p *objects.Position) error {
 
 // SetColor
 func (B *Block) SetColor(c *objects.Color) error {
-	if !c {
+	if c == nil {
 		return errors.New("Can't add color because is nil")
 	}
 
@@ -102,6 +103,9 @@ func (B Block) IsInit() bool {
 }
 
 func (B *Block) Init(r *sdl.Renderer) error {
+	if r == nil {
+		return errors.New("Can't init object because renderer is nil")
+	}
 	if B.size == nil {
 		return errors.New("Size block not define")
 	}
@@ -116,6 +120,8 @@ func (B *Block) Init(r *sdl.Renderer) error {
 	B.rect.Y = B.position.Y
 	B.rect.W = B.size.W
 	B.rect.H = B.size.H
+
+	B.renderer = r
 	B.initialized = true
 	return nil
 }
@@ -144,31 +150,24 @@ func (B *Block) SetStatus(s uint8) {
 }
 
 // Draw the object block.
-func (B *Block) Draw(r *sdl.Renderer, wg *sync.WaitGroup) error {
-	if r == nil {
-		return errors.New("Can't draw block because renderer is nil")
-	}
-	if wg == nil {
-		return errors.New("Can't draw block because sync WaitGroup not define")
-	}
-	if B.initialized == false {
-		return errors.New("Can't draw block object is not initialized")
-	}
-
-	wg.Add(1)
+func (B *Block) Draw(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	sdl.Do(func() {
-		err := r.SetDrawColor(B.color.Red, B.color.Gree, B.color.Blue, B.color.Opacity)
+		if B.initialized == false {
+			panic(errors.New("Can't draw block object is not initialized"))
+		}
+
+		err := B.renderer.SetDrawColor(B.color.Red, B.color.Green, B.color.Blue, B.color.Opacity)
 		if err != nil {
 			panic(err)
 		}
 
 		switch B.style {
 		case Filled:
-			err = r.FillRect(&B.rect)
+			err = B.renderer.FillRect(&B.rect)
 		case Empty:
-			err = r.DrawRect(&B.rect)
+			err = B.renderer.DrawRect(&B.rect)
 		default:
 			err = errors.New("Draw block type no recognized")
 		}

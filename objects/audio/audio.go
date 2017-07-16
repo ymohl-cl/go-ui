@@ -94,19 +94,13 @@ func (A *Audio) SetStatus(s uint8) {
 }
 
 // Draw the object audio.
-func (A *Audio) Draw(wg *sync.WaitGroup) error {
-	if wg == nil {
-		return errors.New("Can't draw image because sync WaitGroup not define")
-	}
-	if A.initialized == false {
-		return errors.New("Can't draw image object is not initialized")
-	}
-
-	wg.Add(1)
+func (A *Audio) Draw(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	sdl.Do(func() {
+		if A.initialized == false {
+			panic(errors.New("Can't draw image object is not initialized"))
+		}
 		A.music.Play(1)
 	})
-	return nil
 }
