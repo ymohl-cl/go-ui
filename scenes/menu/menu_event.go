@@ -1,6 +1,6 @@
 package menu
 
-/*func (S *SUser) AddUser(values ...interface{}) string {
+func (M *Menu) AddUser(values ...interface{}) string {
 	var data *database.Data
 	for idx, v := range values {
 		switch idx {

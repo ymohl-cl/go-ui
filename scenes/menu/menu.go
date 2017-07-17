@@ -13,7 +13,7 @@ const (
 	// order layers of scene
 	layerBackground = 0
 	layerStructure  = 1
-	layer2          = 2
+	layerButton     = 2
 	layer3          = 3
 	layerPlayers    = 4
 )

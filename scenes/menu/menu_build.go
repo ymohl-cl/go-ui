@@ -7,7 +7,9 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/ymohl-cl/game-builder/objects/audio"
 	"github.com/ymohl-cl/game-builder/objects/block"
+	"github.com/ymohl-cl/game-builder/objects/button"
 	"github.com/ymohl-cl/game-builder/objects/image"
+	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
 func (M *Menu) build(d *database.Data, r *sdl.Renderer) error {
@@ -22,14 +24,41 @@ func (M *Menu) build(d *database.Data, r *sdl.Renderer) error {
 	if err = M.addStructuresPage(r); err != nil {
 		return err
 	}
-	/*		if err = M.addButtons(); err != nil {
-				return err
-			}
-			if err = M.addPlayers(); err != nil {
+	if err = M.addButtons(r, d); err != nil {
+		return err
+	}
+	/*			if err = M.addPlayers(); err != nil {
 				return err
 			}*/
 
 	return nil
+}
+
+func (M *Menu) addButtons(r *sdl.Renderer, d *database.Data) error {
+	var x, y int32
+
+	// Create button create new Player
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock/2
+	x = conf.WindowWidth - conf.MarginRight - (conf.MenuContentBlockWidth - (conf.ButtonWidth * 2 + conf.PaddingBlock)
+	t, err := text.New("NEW PLAYER", conf.TxtMedium, conf.Font)
+	c := new(objects.Color)
+	c.SetColor(conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	underC := new(objects.Color)
+	underC.SetColor(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity)
+	p := new(objects.Position)
+	p.SetPosition(x, y)
+	b := button.New(r, M.AddUser, d)
+	// Create button reset new Player
+	// Create button Play
+	// Create button default player
+}
+
+func (M *Menu) addButton() (*button, error) {
+	var b *button.Button
+	var err error
+	var x, y int32
+
+	return b, err
 }
 
 func (M *Menu) addStructuresPage(r *sdl.Renderer) error {
@@ -38,10 +67,10 @@ func (M *Menu) addStructuresPage(r *sdl.Renderer) error {
 	var x, y int32
 
 	// Create blockheader
-	b, err = M.addStructurePage(conf.OriginX, conf.MarginTop, conf.WindowWidth, conf.MenuHeaderHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
-	if err != nil {
+	if b, err = block.New(block.Filled); err != nil {
 		return err
 	}
+	b.SetParams(conf.OriginX, conf.MarginTop, conf.WindowWidth, conf.MenuHeaderHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
 	if err = b.Init(r); err != nil {
 		return nil
 	}
@@ -49,21 +78,32 @@ func (M *Menu) addStructuresPage(r *sdl.Renderer) error {
 
 	// Create blockLeft
 	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock
-	b, err = M.addStructurePage(conf.MarginLeft, y, conf.MenuContentBlockWidth, conf.MenuContentBlockHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
-	if err != nil {
+	if b, err = block.New(block.Filled); err != nil {
 		return err
 	}
+	b.SetParams(conf.MarginLeft, y, conf.MenuContentBlockWidth, conf.MenuContentLargeBlockHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
 	if err = b.Init(r); err != nil {
 		return nil
 	}
 	M.layers[layerStructure] = append(M.layers[layerStructure], b)
 
-	// Create blockRight
+	// Create blockTopRight
 	x = conf.WindowWidth - conf.MarginRight - conf.MenuContentBlockWidth
-	b, err = M.addStructurePage(x, y, conf.MenuContentBlockWidth, conf.MenuContentBlockHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
-	if err != nil {
+	if b, err = block.New(block.Filled); err != nil {
 		return err
 	}
+	b.SetParams(x, y, conf.MenuContentBlockWidth, conf.MenuContentMediumBlockHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
+	if err = b.Init(r); err != nil {
+		return nil
+	}
+	M.layers[layerStructure] = append(M.layers[layerStructure], b)
+
+	// Create blockBottomRight
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight + conf.PaddingBlock
+	if b, err = block.New(block.Filled); err != nil {
+		return err
+	}
+	b.SetParams(x, y, conf.MenuContentBlockWidth, conf.MenuContentMediumBlockHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
 	if err = b.Init(r); err != nil {
 		return nil
 	}
@@ -71,41 +111,16 @@ func (M *Menu) addStructuresPage(r *sdl.Renderer) error {
 
 	// Create blockFooter
 	y = conf.WindowHeight - conf.MarginBot - conf.MenuFooterHeight
-	b, err = M.addStructurePage(conf.OriginX, y, conf.WindowWidth, conf.MenuHeaderHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
-	if err != nil {
+	if b, err = block.New(block.Filled); err != nil {
 		return err
 	}
+	b.SetParams(conf.OriginX, y, conf.WindowWidth, conf.MenuHeaderHeight, conf.ColorBlockRed, conf.ColorBlockGreen, conf.ColorBlockBlue, conf.ColorBlockOpacity)
 	if err = b.Init(r); err != nil {
 		return nil
 	}
 	M.layers[layerStructure] = append(M.layers[layerStructure], b)
+
 	return nil
-}
-
-func (M *Menu) addStructurePage(x, y, w, h int32, red, green, blue, opacity uint8) (*block.Block, error) {
-	b, err := block.New(block.Filled)
-	if err != nil {
-		return nil, err
-	}
-
-	p := new(objects.Position)
-	p.SetPosition(x, y)
-	s := new(objects.Size)
-	s.SetSize(w, h)
-	c := new(objects.Color)
-	c.SetColor(red, green, blue, opacity)
-
-	if err = b.SetPosition(p); err != nil {
-		return nil, err
-	}
-	if err = b.SetSize(s); err != nil {
-		return nil, err
-	}
-	if err = b.SetColor(c); err != nil {
-		return nil, err
-	}
-
-	return b, nil
 }
 
 func (M *Menu) addBackground(r *sdl.Renderer) error {

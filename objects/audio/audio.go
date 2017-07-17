@@ -22,38 +22,12 @@ type Audio struct {
 	renderer *sdl.Renderer
 }
 
-/*
-** Functions audio specifications
- */
-
-// New create a new audio object
-func New(url string) (*Audio, error) {
-	a := new(Audio)
-
-	if url == "" {
-		return nil, errors.New("Audio url is empty")
-	}
-
-	a.url = url
-	a.status = objects.SFix
-	return a, nil
-}
-
-/*
-** Interface objects functions
- */
-
-// IsInit return status initialize
-func (A Audio) IsInit() bool {
-	return A.initialized
-}
-
 // Init audio object
 func (A *Audio) Init(r *sdl.Renderer) error {
 	var err error
 
 	if r == nil {
-		return errors.New("Can't init object because renderer is nil")
+		return errors.New(objects.ErrorRenderer)
 	}
 	A.renderer = r
 
@@ -64,6 +38,11 @@ func (A *Audio) Init(r *sdl.Renderer) error {
 
 	A.initialized = true
 	return nil
+}
+
+// IsInit return status initialize
+func (A Audio) IsInit() bool {
+	return A.initialized
 }
 
 // Close sdl objects
@@ -99,7 +78,7 @@ func (A *Audio) Draw(wg *sync.WaitGroup) {
 
 	sdl.Do(func() {
 		if A.initialized == false {
-			panic(errors.New("Can't draw image object is not initialized"))
+			panic(errors.New(objects.ErrorNotInit))
 		}
 		A.music.Play(1)
 	})

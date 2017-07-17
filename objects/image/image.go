@@ -28,74 +28,24 @@ type Image struct {
 	renderer *sdl.Renderer
 }
 
-/*
-** Functions image specifications
- */
-
-// New create a new image object
-func New(url string) (*Image, error) {
-	i := new(Image)
-
-	i.status = objects.SFix
-	i.url = url
-	return i, nil
-}
-
-// SetSize define the size
-func (I *Image) SetSize(sz *objects.Size) error {
-	if sz == nil {
-		return errors.New("Can't add size because is nil")
-	}
-
-	I.size = sz
-	return nil
-}
-
-// SetPosition define the position
-func (I *Image) SetPosition(p *objects.Position) error {
-	if p == nil {
-		return errors.New("Can't add position because is nil")
-	}
-
-	I.position = p
-	return nil
-}
-
-// GetSize provide size object
-func (I Image) GetSize() *objects.Size {
-	return I.size
-}
-
-// GetPosition provide position object
-func (I Image) GetPosition() *objects.Position {
-	return I.position
-}
-
-/*
-** Interface objects functions
- */
-
-// IsInit return status initialize
-func (I Image) IsInit() bool {
-	return I.initialized
-}
-
 // Init image object
 func (I *Image) Init(r *sdl.Renderer) error {
 	var surface *sdl.Surface
 	var err error
 
 	if r == nil {
-		return errors.New("Can't init object because renderer is nil")
+		return errors.New(objects.ErrorRenderer)
 	}
+	I.renderer = r
+
 	if I.size == nil {
-		return errors.New("Size block not define")
+		return errors.New(objects.ErrorSize)
 	}
 	if I.position == nil {
-		return errors.New("Posisition block not define")
+		return errors.New(objects.ErrorPosition)
 	}
 	if I.url == "" {
-		return errors.New("Image not specified")
+		return errors.New(objects.ErrorTargetURL)
 	}
 
 	surface, err = img.Load(I.url)
@@ -114,9 +64,13 @@ func (I *Image) Init(r *sdl.Renderer) error {
 	I.rect.W = I.size.W
 	I.rect.H = I.size.H
 
-	I.renderer = r
 	I.initialized = true
 	return nil
+}
+
+// IsInit return status initialize
+func (I Image) IsInit() bool {
+	return I.initialized
 }
 
 // Close sdl objects
@@ -156,7 +110,7 @@ func (I *Image) Draw(wg *sync.WaitGroup) {
 
 	sdl.Do(func() {
 		if I.initialized == false {
-			panic(errors.New("Can't draw image object is not initialized"))
+			panic(errors.New(objects.ErrorNotInit))
 		}
 		I.renderer.Copy(I.texture, nil, &I.rect)
 	})

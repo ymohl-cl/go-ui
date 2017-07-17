@@ -13,14 +13,22 @@ const (
 	SOver  = 2
 	SClick = 3
 
-	path = "Ressources/"
+	path             = "Ressources/"
+	ErrorRenderer    = "sdl.Renderer is nil"
+	ErrorNotInit     = "object not initialized"
+	ErrorColor       = "object has no defined color"
+	ErrorTxt         = "object has no defined text"
+	ErrorPosition    = "object has no defined position"
+	ErrorSize        = "object has no defined size"
+	ErrorObjectStyle = "object does not know this style"
+	ErrorTargetURL   = "object does not know url target"
 )
 
 type Object interface {
-	// IsInit provide a bool value to inisialization value
-	IsInit() bool
 	// Init initialize object with SDL
 	Init(r *sdl.Renderer) error
+	// IsInit provide a bool value to inisialization value
+	IsInit() bool
 	// Close close Sdl elements
 	Close() error
 	// GetStatus object
