@@ -1,6 +1,43 @@
 package menu
 
-func (M *Menu) AddUser(values ...interface{}) string {
+import (
+	"fmt"
+	"time"
+)
+
+func (M *Menu) NewPlayer(values ...interface{}) {
+	fmt.Println("New Player")
+	go M.setNotice("New Player")
+}
+
+func (M *Menu) Play(values ...interface{}) {
+	fmt.Println("Play")
+	go M.setNotice("Play")
+}
+
+func (M *Menu) ResetName(values ...interface{}) {
+	fmt.Println("ResetName")
+	go M.setNotice("ResetName")
+}
+
+func (M *Menu) DefaultPlayer(values ...interface{}) {
+	fmt.Println("Default Player")
+	go M.setNotice("Default Player")
+}
+
+func (M *Menu) setNotice(str string) {
+	var err error
+
+	if err = M.notice.UpdateTxt(str); err != nil {
+		panic(err)
+	}
+	time.Sleep(3 * time.Second)
+	if err = M.notice.UpdateTxt(""); err != nil {
+		panic(err)
+	}
+}
+
+/*func (M *Menu) AddUser(values ...interface{}) string {
 	var data *database.Data
 	for idx, v := range values {
 		switch idx {

@@ -51,10 +51,10 @@ const (
 	ColorOverButtonBlue    = 25
 	ColorOverButtonOpacity = 255
 
-	ColorClickButtonRed     = 95
-	ColorClickButtonGreen   = 74
-	ColorClickButtonBlue    = 29
-	ColorClickButtonOpacity = 200
+	ColorClickButtonRed     = 21
+	ColorClickButtonGreen   = 34
+	ColorClickButtonBlue    = 33
+	ColorClickButtonOpacity = 255
 
 	ColorTxtRed     = 255
 	ColorTxtGreen   = 255
@@ -67,7 +67,7 @@ const (
 	ColorUnderTxtOpacity = 20
 
 	/* Text */
-	Font      = "leadcoat.ttf"
+	Font      = ressources + "leadcoat.ttf"
 	TxtLittle = 14
 	TxtMedium = 20
 	TxtLarge  = 78

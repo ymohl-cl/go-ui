@@ -31,15 +31,19 @@ type Text struct {
 	texture      *sdl.Texture
 	underTexture *sdl.Texture
 	renderer     *sdl.Renderer
+	font         *ttf.Font
 }
 
 func (T *Text) Init(r *sdl.Renderer) error {
-	if T.txt == "" {
-		return errors.New(objects.ErrorTxt)
+	var err error
+	var surface *sdl.Surface
+	var uSurface *sdl.Surface
+
+	if r == nil {
+		return errors.New(objects.ErrorRenderer)
 	}
-	if T.size <= 0 {
-		return errors.New(objects.ErrorSize)
-	}
+	T.renderer = r
+
 	if T.position == nil {
 		return errors.New(objects.ErrorPosition)
 	}
@@ -50,11 +54,9 @@ func (T *Text) Init(r *sdl.Renderer) error {
 		return errors.New(objects.ErrorTargetURL)
 	}
 
-	font, err := ttf.OpenFont(T.fontURL, T.size)
-	if err != nil {
+	if T.font, err = ttf.OpenFont(T.fontURL, T.size); err != nil {
 		return err
 	}
-	defer font.Close()
 
 	color := sdl.Color{
 		R: T.color.Red,
@@ -62,7 +64,7 @@ func (T *Text) Init(r *sdl.Renderer) error {
 		B: T.color.Blue,
 		A: T.color.Opacity,
 	}
-	surface, err := font.RenderUTF8_Solid(T.txt, color)
+	surface, err = T.font.RenderUTF8_Solid(T.txt, color)
 	if err != nil {
 		return err
 	}
@@ -87,7 +89,7 @@ func (T *Text) Init(r *sdl.Renderer) error {
 			B: T.underColor.Blue,
 			A: T.underColor.Opacity,
 		}
-		uSurface, err := font.RenderUTF8_Solid(T.txt, uColor)
+		uSurface, err = T.font.RenderUTF8_Solid(T.txt, uColor)
 		if err != nil {
 			return err
 		}
@@ -124,6 +126,9 @@ func (T *Text) Close() error {
 	}
 	if T.underTexture != nil {
 		T.underTexture.Destroy()
+	}
+	if T.font != nil {
+		T.font.Close()
 	}
 
 	T.initialized = false

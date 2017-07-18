@@ -27,38 +27,234 @@ func (M *Menu) build(d *database.Data, r *sdl.Renderer) error {
 	if err = M.addButtons(r, d); err != nil {
 		return err
 	}
-	/*			if err = M.addPlayers(); err != nil {
-				return err
-			}*/
+	if err = M.addNotice(r); err != nil {
+		return err
+	}
+
+	/*	if err = M.addPlayers(); err != nil {
+		return err
+	}*/
 
 	return nil
 }
 
-func (M *Menu) addButtons(r *sdl.Renderer, d *database.Data) error {
-	var x, y int32
+func (M *Menu) addNotice(r *sdl.Renderer) error {
+	var t *text.Text
+	var err error
 
-	// Create button create new Player
-	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock/2
-	x = conf.WindowWidth - conf.MarginRight - (conf.MenuContentBlockWidth - (conf.ButtonWidth * 2 + conf.PaddingBlock)
-	t, err := text.New("NEW PLAYER", conf.TxtMedium, conf.Font)
-	c := new(objects.Color)
-	c.SetColor(conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
-	underC := new(objects.Color)
-	underC.SetColor(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity)
-	p := new(objects.Position)
-	p.SetPosition(x, y)
-	b := button.New(r, M.AddUser, d)
-	// Create button reset new Player
-	// Create button Play
-	// Create button default player
+	if t, err = text.New("", conf.TxtLittle, conf.Font); err != nil {
+		return err
+	}
+	t.SetParams(conf.WindowWidth/2, conf.WindowHeight-conf.MarginBot-(conf.MenuFooterHeight/2), conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+	if err = t.Init(r); err != nil {
+		return err
+	}
+	M.notice = t
+	return nil
 }
 
-func (M *Menu) addButton() (*button, error) {
+func (M *Menu) addButtons(r *sdl.Renderer, d *database.Data) error {
+	var err error
+	var b *button.Button
+
+	if b, err = M.getButtonNewPlayer(r, d); err != nil {
+		return err
+	}
+	if err = b.Init(r); err != nil {
+		return err
+	}
+	M.layers[layerButton] = append(M.layers[layerButton], b)
+
+	if b, err = M.getButtonResetName(r, d); err != nil {
+		return err
+	}
+	if err = b.Init(r); err != nil {
+		return err
+	}
+	M.layers[layerButton] = append(M.layers[layerButton], b)
+
+	if b, err = M.getButtonPlay(r, d); err != nil {
+		return err
+	}
+	if err = b.Init(r); err != nil {
+		return err
+	}
+	M.layers[layerButton] = append(M.layers[layerButton], b)
+
+	if b, err = M.getButtonDefaultPlayers(r, d); err != nil {
+		return err
+	}
+	if err = b.Init(r); err != nil {
+		return err
+	}
+	M.layers[layerButton] = append(M.layers[layerButton], b)
+
+	return nil
+}
+
+func (M *Menu) getButtonDefaultPlayers(r *sdl.Renderer, d *database.Data) (*button.Button, error) {
+	var x, y int32
+	var t *text.Text
+	var bl *block.Block
 	var b *button.Button
 	var err error
-	var x, y int32
 
-	return b, err
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock + conf.PaddingBlock/2
+	interval := int32((conf.MenuContentBlockWidth - (conf.ButtonWidth*2 + conf.PaddingBlock)) / 2)
+	x = conf.WindowWidth - conf.MarginRight - interval - conf.ButtonWidth
+
+	// Create button
+	b = button.New(M.DefaultPlayer, d)
+	if t, err = text.New("DEFAULT PLAYERS", conf.TxtMedium, conf.Font); err != nil {
+		return nil, err
+	}
+	t.SetParams(x+conf.ButtonWidth/2, y+conf.ButtonHeight/2, conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+	// block sBasic && sFix
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetContentBasic(t, nil, bl)
+	b.SetContentFix(t, nil, bl)
+	// block sOver
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetContentOver(t, nil, bl)
+	// block sClick
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetContentClick(t, nil, bl)
+
+	return b, nil
+}
+
+func (M *Menu) getButtonPlay(r *sdl.Renderer, d *database.Data) (*button.Button, error) {
+	var x, y int32
+	var t *text.Text
+	var bl *block.Block
+	var b *button.Button
+	var err error
+
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock + conf.PaddingBlock/2
+	interval := int32((conf.MenuContentBlockWidth - (conf.ButtonWidth*2 + conf.PaddingBlock)) / 2)
+	x = conf.WindowWidth - conf.MarginRight - conf.MenuContentBlockWidth + interval
+
+	// Create button
+	b = button.New(M.Play, d)
+	if t, err = text.New("PLAY !", conf.TxtMedium, conf.Font); err != nil {
+		return nil, err
+	}
+	t.SetParams(x+conf.ButtonWidth/2, y+conf.ButtonHeight/2, conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+	// block sBasic && sFix
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetContentBasic(t, nil, bl)
+	b.SetContentFix(t, nil, bl)
+	// block sOver
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetContentOver(t, nil, bl)
+	// block sClick
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetContentClick(t, nil, bl)
+
+	return b, nil
+}
+
+func (M *Menu) getButtonResetName(r *sdl.Renderer, d *database.Data) (*button.Button, error) {
+	var x, y int32
+	var t *text.Text
+	var bl *block.Block
+	var b *button.Button
+	var err error
+
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock/2
+	interval := int32((conf.MenuContentBlockWidth - (conf.ButtonWidth*2 + conf.PaddingBlock)) / 2)
+	x = conf.WindowWidth - conf.MarginRight - interval - conf.ButtonWidth
+
+	// Create button
+	b = button.New(M.ResetName, d)
+	if t, err = text.New("RESET NAME", conf.TxtMedium, conf.Font); err != nil {
+		return nil, err
+	}
+	t.SetParams(x+conf.ButtonWidth/2, y+conf.ButtonHeight/2, conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+	// block sBasic && sFix
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetContentBasic(t, nil, bl)
+	b.SetContentFix(t, nil, bl)
+	// block sOver
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetContentOver(t, nil, bl)
+	// block sClick
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetContentClick(t, nil, bl)
+
+	return b, nil
+}
+
+func (M *Menu) getButtonNewPlayer(r *sdl.Renderer, d *database.Data) (*button.Button, error) {
+	var x, y int32
+	var t *text.Text
+	var bl *block.Block
+	var b *button.Button
+	var err error
+
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight/2 + conf.PaddingBlock/2
+	interval := int32((conf.MenuContentBlockWidth - (conf.ButtonWidth*2 + conf.PaddingBlock)) / 2)
+	x = conf.WindowWidth - conf.MarginRight - conf.MenuContentBlockWidth + interval
+
+	// Create button
+	b = button.New(M.NewPlayer, d)
+	if t, err = text.New("NEW PLAYER", conf.TxtMedium, conf.Font); err != nil {
+		return nil, err
+	}
+	t.SetParams(x+conf.ButtonWidth/2, y+conf.ButtonHeight/2, conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+	// block sBasic && sFix
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetContentBasic(t, nil, bl)
+	b.SetContentFix(t, nil, bl)
+	// block sOver
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetContentOver(t, nil, bl)
+	// block sClick
+	if bl, err = block.New(block.Filled); err != nil {
+		return nil, err
+	}
+	bl.SetParams(x, y, conf.ButtonWidth, conf.ButtonHeight, conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetContentClick(t, nil, bl)
+
+	return b, nil
 }
 
 func (M *Menu) addStructuresPage(r *sdl.Renderer) error {

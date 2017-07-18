@@ -18,7 +18,7 @@ type Button struct {
 	cOver     Content
 	cClick    Content
 	cFix      Content
-	funcClick func(...interface{}) string
+	funcClick func(...interface{})
 	dataClick []interface{}
 
 	// sdl objects
@@ -136,7 +136,6 @@ func (B *Button) IsOver(x, y int32) bool {
 }
 
 func (B *Button) Click() {
-	B.SetStatus(objects.SClick)
 	B.funcClick(B.dataClick)
 }
 

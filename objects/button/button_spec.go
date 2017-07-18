@@ -2,12 +2,12 @@ package button
 
 import (
 	"errors"
-	"image"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/ymohl-cl/game-builder/objects/block"
+	"github.com/ymohl-cl/game-builder/objects/image"
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
@@ -18,10 +18,12 @@ type Content struct {
 }
 
 // New create a new Button object
-func New(f func(...interface{}) string, p []interface{}) *Button {
+func New(f func(...interface{}), d ...interface{}) *Button {
 	b := new(Button)
 
 	b.status = objects.SBasic
+	b.funcClick = f
+	b.dataClick = d
 	return b
 }
 
@@ -94,7 +96,6 @@ func (C Content) copyContent(s Content) {
 // checkContent and return err with the raison.
 func (C Content) checkContent() error {
 	var flag uint8
-	var err error
 
 	if C.block != nil {
 		flag++
@@ -161,15 +162,17 @@ func (C *Content) closeContent() error {
 }
 
 func (C Content) drawContent(wg *sync.WaitGroup) {
-	defer wg.Done()
 
 	if C.block != nil {
+		wg.Add(1)
 		C.block.Draw(wg)
 	}
 	if C.img != nil {
+		wg.Add(1)
 		C.img.Draw(wg)
 	}
 	if C.txt != nil {
+		wg.Add(1)
 		C.txt.Draw(wg)
 	}
 }
@@ -188,14 +191,14 @@ func (C Content) getPosition() (*objects.Position, error) {
 }
 
 func (C Content) getSize() (*objects.Size, error) {
-	if C.block {
-		return C.block.GetSize(), nil
+	if C.block != nil {
+		return C.block.GetSize()
 	}
-	if C.img {
-		return C.img.GetSize(), nil
+	if C.img != nil {
+		return C.img.GetSize()
 	}
-	if C.txt {
-		return C.txt.GetSize(), nil
+	if C.txt != nil {
+		return C.txt.GetSize()
 	}
 	return nil, errors.New(objects.ErrorEmpty)
 }

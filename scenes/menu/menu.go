@@ -7,6 +7,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
 const (
@@ -22,7 +23,7 @@ type Menu struct {
 	layers map[uint8][]objects.Object
 
 	input  objects.Object
-	notice objects.Object
+	notice *text.Text
 	music  objects.Object
 }
 

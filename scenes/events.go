@@ -1,6 +1,10 @@
 package scenes
 
-import "github.com/veandco/go-sdl2/sdl"
+import (
+	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/conf"
+	"github.com/ymohl-cl/game-builder/objects"
+)
 
 func (S *Scenes) Events(E sdl.Event) {
 	var err error
@@ -33,86 +37,50 @@ func (S *Scenes) textInputEvent(input *sdl.TextInputEvent) error {
 }
 
 func (S *Scenes) mouseMotionEvent(mouse *sdl.MouseMotionEvent) error {
-	//var ret bool
+	layers := S.list[conf.Current].GetLayers()
 
-	//ret = false
-	/*	objs := S.list[conf.Current].GetDynamicObjs()
-		_ = defineIsOver(objs, mouse.X, mouse.Y)
-		if ret == false {
-			objs = S.list[conf.Current].GetStaticObjs()
-			_ = defineIsOver(objs, mouse.X, mouse.Y)
-		}*/
-
-	return nil
-}
-
-/*func defineIsOver(slc []*objects.ObjectType, mx int32, my int32) bool {
-for _, tobj := range slc {
-	if len(tobj.Childs) > 0 {
-		_ = defineIsOver(tobj.GetChildsWithType(), mx, my)
-		/*			if ret == true {
-					return ret
-				}*/
-/*		}
-		if tobj.Status == objects.StatusFix {
-			fmt.Println("Status Fix")
-			continue
-		}
-		fmt.Println("Status traitment")
-		x, y, checkPos := tobj.GetPos()
-		w, h, checkSize := tobj.GetSize()
-		if checkPos == true && checkSize == true {
-			if mx >= x && mx <= x+w && my >= y && my <= y+h {
-				tobj.SetStatus(objects.StatusOver)
+	size := len(layers)
+	for i := size - 1; layers[uint8(i)] != nil; i-- {
+		layer := layers[uint8(i)]
+		for _, object := range layer {
+			if object.IsOver(mouse.X, mouse.Y) {
+				if object.GetStatus() != objects.SClick {
+					go object.SetStatus(objects.SOver)
+				}
 			} else {
-				tobj.SetStatus(objects.StatusNormal)
+				go object.SetStatus(objects.SBasic)
 			}
 		}
 	}
-	return false
-}*/
-
-func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
-	//var ret bool
-
-	//ret = false
-	/*	if button.Button == sdl.BUTTON_LEFT {
-		objs := S.list[conf.Current].GetDynamicObjs()
-		_ = S.defineIsPressed(objs, button.State)
-		if ret == false {
-			objs = S.list[conf.Current].GetStaticObjs()
-			ret = S.defineIsPressed(objs, button.State)
-		}
-	}*/
-
-	//S.list[sinfos.Current].Update(S.data)
-	/*	if ret == true {
-		S.list[sinfos.Current].Update(S.data)
-	}*/
 	return nil
 }
 
-/*func (S *Scenes) defineIsPressed(slc []*objects.ObjectType, state uint8) bool {
-for _, tobj := range slc {
-	if len(tobj.Childs) > 0 {
-		_ = S.defineIsPressed(tobj.GetChildsWithType(), state)
-		/*			if r == true {
-					return true
-				}*/
-/*		}
-		if tobj.Status == objects.StatusOver && state == sdl.PRESSED {
-			tobj.SetStatus(objects.StatusClicDown)
-			return true
-		} else if tobj.Status == objects.StatusClicDown && state == sdl.RELEASED {
-			tobj.SetStatus(objects.StatusOver)
-			str := tobj.Action(tobj.ActionDatas...)
-			S.list[conf.Current].SetNotice(str)
-			S.list[conf.Current].Update(S.Data)
-			return true
+func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
+	if button.Button == sdl.BUTTON_LEFT {
+
+		layers := S.list[conf.Current].GetLayers()
+
+		size := len(layers)
+		for i := size - 1; layers[uint8(i)] != nil; i-- {
+			layer := layers[uint8(i)]
+			for _, object := range layer {
+				if button.State == sdl.PRESSED {
+					if object.GetStatus() == objects.SOver {
+						go object.SetStatus(objects.SClick)
+						break
+					}
+				} else if button.State == sdl.RELEASED {
+					if object.GetStatus() == objects.SClick {
+						go object.SetStatus(objects.SOver)
+						go object.Click()
+						break
+					}
+				}
+			}
 		}
 	}
-	return false
-}*/
+	return nil
+}
 
 func (S *Scenes) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
 	//	fmt.Println("Key down: ", keyDown)
