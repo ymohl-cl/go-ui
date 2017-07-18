@@ -22,7 +22,7 @@ N/A for moment
 
 # FAQ
 #### Why it's not functional ?
-Because the first version is not finished.
+this first version is not finished, but you can check structure and make tests.
 
 #### How do I contribute ?
 Waiting the first version or please contact me first by mail: `mohl.clauzade@gmail.com`
