@@ -9,7 +9,7 @@ import (
 const (
 	// list of status
 	SFix   = 0
-	Sbasic = 1
+	SBasic = 1
 	SOver  = 2
 	SClick = 3
 
@@ -22,6 +22,8 @@ const (
 	ErrorSize        = "object has no defined size"
 	ErrorObjectStyle = "object does not know this style"
 	ErrorTargetURL   = "object does not know url target"
+	ErrorStatus      = "object does not know status"
+	ErrorEmpty       = "object is empty"
 )
 
 type Object interface {

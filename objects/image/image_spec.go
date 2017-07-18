@@ -45,11 +45,17 @@ func (I *Image) SetPosition(p *objects.Position) error {
 }
 
 // GetSize provide size object
-func (I Image) GetSize() *objects.Size {
-	return I.size
+func (I Image) GetSize() (*objects.Size, error) {
+	if I.size == nil {
+		return nil, errors.New(objects.ErrorSize)
+	}
+	return I.size, nil
 }
 
 // GetPosition provide position object
-func (I Image) GetPosition() *objects.Position {
-	return I.position
+func (I Image) GetPosition() (*objects.Position, error) {
+	if I.position == nil {
+		return nil, errors.New(objects.ErrorPosition)
+	}
+	return I.position, nil
 }

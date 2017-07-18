@@ -71,13 +71,19 @@ func (B *Block) SetColor(c *objects.Color) error {
 }
 
 // GetSize provide size object
-func (B Block) GetSize() *objects.Size {
-	return B.size
+func (B Block) GetSize() (*objects.Size, error) {
+	if B.size == nil {
+		return nil, errors.New(objects.ErrorSize)
+	}
+	return B.size, nil
 }
 
 // GetPosition provide position object
-func (B Block) GetPosition() *objects.Position {
-	return B.position
+func (B Block) GetPosition() (*objects.Position, error) {
+	if B.position == nil {
+		return nil, errors.New(objects.ErrorPosition)
+	}
+	return B.position, nil
 }
 
 // GetColor provide color object

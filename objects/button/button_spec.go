@@ -1,164 +1,56 @@
 package button
 
+import (
+	"errors"
+	"image"
+	"sync"
+
+	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/game-builder/objects/block"
+	"github.com/ymohl-cl/game-builder/objects/text"
+)
+
 type Content struct {
-	contentTxt *text.Text
-	contentImg *images.Img
-	block      *block.Block
+	txt   *text.Text
+	img   *image.Image
+	block *block.Block
 }
 
 // New create a new Button object
-func New(r *sdl.Renderer) *Button {
+func New(f func(...interface{}) string, p []interface{}) *Button {
 	b := new(Button)
 
-	b.renderer = r
 	b.status = objects.SBasic
 	return b
 }
 
-func (B *Button) SetContentBasic(t *text.Text, i *images.Img, b *block.Block) {
-	B.cBasic.contentTxt = t
-	B.cBasic.contentImg = i
+func (B *Button) SetContentBasic(t *text.Text, i *image.Image, b *block.Block) {
+	B.cBasic.txt = t
+	B.cBasic.img = i
 	B.cBasic.block = b
 }
 
-func (B *Button) SetContentOver(t *text.Text, i *images.Img, b *block.Block) {
-	B.cOver.contentTxt = t
-	B.cOver.contentImg = i
+func (B *Button) SetContentOver(t *text.Text, i *image.Image, b *block.Block) {
+	B.cOver.txt = t
+	B.cOver.img = i
 	B.cOver.block = b
 }
 
-func (B *Button) SetContentClick(t *text.Text, i *images.Img, b *block.Block) {
-	B.cClick.contentTxt = t
-	B.cClick.contentImg = i
+func (B *Button) SetContentClick(t *text.Text, i *image.Image, b *block.Block) {
+	B.cClick.txt = t
+	B.cClick.img = i
 	B.cClick.block = b
 }
 
-func (B *Button) SetContentFix(t *text.Text, i *images.Img, b *block.Block) {
-	B.cFix.contentTxt = t
-	B.cFix.contentImg = i
+func (B *Button) SetContentFix(t *text.Text, i *image.Image, b *block.Block) {
+	B.cFix.txt = t
+	B.cFix.img = i
 	B.cFix.block = b
 }
 
-// SetTxt to the status specified
-func (B *Button) SetTxt(t *text.Text, s uint8) error {
-	if !t {
-		return errors.New("Can't add txt because is nil")
-	}
-
-	switch s {
-	case objects.SFix:
-		B.cFix.contentTxt = t
-	case objects.SBasic:
-		B.cBasic.contentTxt = t
-	case objects.SOver:
-		B.cOver.contentTxt = t
-	case objects.SClick:
-		B.cClick.contentTxt = t
-	default:
-		return errors.New("Status not available")
-	}
-	return nil
-}
-
-// SetSize to the status specified
-func (B *Button) SetImg(i *images.Img, s uint8) error {
-	if !i {
-		return errors.New("Can't add img because is nil")
-	}
-
-	switch s {
-	case objects.SFix:
-		B.cFix.contentImg = i
-	case objects.SBasic:
-		B.cBasic.contentImg = i
-	case objects.SOver:
-		B.cOver.contentImg = i
-	case objects.SClick:
-		B.cClick.contentImg = i
-	default:
-		return errors.New("Status not available")
-	}
-	return nil
-}
-
-// SetSize to the status specified
-func (B *Button) SetSize(sz *objects.Size, st uint8) error {
-	var err error
-
-	if !s {
-		return errors.New("Can't add size because is nil")
-	}
-
-	switch st {
-	case objects.SFix:
-		err = B.cFix.block.SetSize(sz)
-	case objects.SBasic:
-		err = B.cBasic.block.SetSize(sz)
-	case objects.SOver:
-		err = B.cOver.block.SetSize(sz)
-	case objects.SClick:
-		err = B.cClick.block.SetSize(sz)
-	default:
-		return errors.New("Status not available")
-	}
-	return err
-}
-
-// SetPosition to the status specified
-func (B *Button) SetPosition(p *objects.Position, s uint8) error {
-	var err error
-
-	if !p {
-		return errors.New("Can't add position because is nil")
-	}
-
-	switch s {
-	case objects.SFix:
-		err = B.cFix.block.SetPosition(p)
-	case objects.SBasic:
-		err = B.cBasic.block.SetPostion(p)
-	case objects.SOver:
-		err = B.cOver.block.SetPosition(p)
-	case objects.SClick:
-		err = B.cClick.block.Setposition(p)
-	default:
-		return errors.New("Status not available")
-	}
-	return err
-}
-
-
-// SetAction define action when the element is click
-func (B *Button) SetAction(f func(...interface{})string, d []interface{}) {
-	B.funcClick = f
-	B.dataClick = d
-}
-
-// SetColor to the status specified
-func (B *Button) SetColor(c *objects.Color, s uint8) error {
-	var err error
-
-	if !c {
-		return errors.New("Can't add color because is nil")
-	}
-
-	switch s {
-	case objects.SFix:
-		err = B.cFix.SetColor(c)
-	case objects.SBasic:
-		err = B.cBasic.SetColor(c)
-	case objects.SOver:
-		err = B.cOver.SetColor(c)
-	case objects.SClick:
-		err = B.cClick.SetColor(c)
-	default:
-		return errors.New("Status not available")
-	}
-	return err
-}
-
 func (B *Button) CopyStateToStates(stateSource uint8, stDests []uint8) error {
-	var source Content{}
+	var source Content
 
 	switch stateSource {
 	case objects.SFix:
@@ -170,75 +62,76 @@ func (B *Button) CopyStateToStates(stateSource uint8, stDests []uint8) error {
 	case objects.SClick:
 		source = B.cClick
 	default:
-		return errors.New("Status not available")
+		return errors.New(objects.ErrorStatus)
 	}
 
 	for _, v := range stDests {
 		switch v {
 		case objects.SFix:
-			copy(B.cFix, source)
+			B.cFix.copyContent(source)
 		case objects.SBasic:
-			copy(B.cBasic, source)
+			B.cBasic.copyContent(source)
 		case objects.SOver:
-			copy(B.cOver, source)
+			B.cOver.copyContent(source)
 		case objects.SClick:
-			copy(B.cClick, source)
+			B.cClick.copyContent(source)
 		default:
-			return errors.New("Status to dest copy not available")
+			return errors.New(objects.ErrorStatus)
 		}
 	}
 	return nil
 }
 
-
-
 /*
 ** Private function Text objects
  */
+func (C Content) copyContent(s Content) {
+	C.txt = s.txt
+	C.img = s.img
+	C.block = s.block
+}
+
 // checkContent and return err with the raison.
 func (C Content) checkContent() error {
 	var flag uint8
 	var err error
 
-	if C.block {
+	if C.block != nil {
 		flag++
 	}
-	if C.contentImg {
+	if C.img != nil {
 		flag++
 	}
-	if C.contentTxt {
+	if C.txt != nil {
 		flag++
 	}
 
 	if flag == 0 {
-		return errors.New("Button isn't define by one Content")
+		return errors.New(objects.ErrorEmpty)
 	}
 	return nil
 }
 
-func (C *Content) initContent() error {
+func (C *Content) initContent(r *sdl.Renderer) error {
 	var err error
 
-	if C.block {
-		if C.block.IsInit() == false  {
-			err = C.block.Init()
-			if err != nil {
+	if C.block != nil {
+		if C.block.IsInit() == false {
+			if err = C.block.Init(r); err != nil {
 				return err
 			}
 		}
 	}
-	if C.contentImg {
-		if C.contentImg.IsInit() == false  {
-			err = C.contentImg.Init()
-			if err != nil {
+	if C.img != nil {
+		if C.img.IsInit() == false {
+			if err = C.img.Init(r); err != nil {
 				return err
 			}
 		}
 	}
-	if C.contentTxt {
-		if C.contentTxt.IsInit() == false  {
-			err = C.contentTxt.Init()
-			if err != nil {
+	if C.txt != nil {
+		if C.txt.IsInit() == false {
+			if err = C.txt.Init(r); err != nil {
 				return err
 			}
 		}
@@ -247,39 +140,62 @@ func (C *Content) initContent() error {
 }
 
 func (C *Content) closeContent() error {
-	if C.block {
-		if err := C.block.Close(); err != nil {
+	var err error
+
+	if C.block != nil {
+		if err = C.block.Close(); err != nil {
 			return err
 		}
 	}
-	if C.contentImg {
-		if err := C.contentImg.Close(); err != nil {
+	if C.img != nil {
+		if err = C.img.Close(); err != nil {
 			return err
 		}
 	}
-	if C.contentTxt {
-		if err := C.contentTxt.Close(); err != nil {
+	if C.txt != nil {
+		if err = C.txt.Close(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (C Content) drawContent() error {
+func (C Content) drawContent(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	if C.block != nil {
+		C.block.Draw(wg)
+	}
+	if C.img != nil {
+		C.img.Draw(wg)
+	}
+	if C.txt != nil {
+		C.txt.Draw(wg)
+	}
+}
+
+func (C Content) getPosition() (*objects.Position, error) {
+	if C.block != nil {
+		return C.block.GetPosition()
+	}
+	if C.img != nil {
+		return C.img.GetPosition()
+	}
+	if C.txt != nil {
+		return C.txt.GetPosition()
+	}
+	return nil, errors.New(objects.ErrorEmpty)
+}
+
+func (C Content) getSize() (*objects.Size, error) {
 	if C.block {
-		if err := C.block.Draw(); err != nil {
-			return err
-		}
+		return C.block.GetSize(), nil
 	}
-	if C.contentImg {
-		if err := C.contentImg.Draw(); err != nil {
-			return err
-		}
+	if C.img {
+		return C.img.GetSize(), nil
 	}
-	if C.contentTxt {
-		if err := C.contentTxt.Draw(); err != nil {
-			return err
-		}
+	if C.txt {
+		return C.txt.GetSize(), nil
 	}
-	return nil
+	return nil, errors.New(objects.ErrorEmpty)
 }

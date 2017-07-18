@@ -25,74 +25,62 @@ type Button struct {
 	renderer *sdl.Renderer
 }
 
+func (B *Button) Init(r *sdl.Renderer) error {
+	if r == nil {
+		return errors.New(objects.ErrorRenderer)
+	}
+	B.renderer = r
+
+	if err := B.cFix.checkContent(); err != nil {
+		return err
+	}
+	if err := B.cFix.initContent(r); err != nil {
+		return err
+	}
+	if err := B.cBasic.checkContent(); err != nil {
+		return err
+	}
+	if err := B.cBasic.initContent(r); err != nil {
+		return err
+	}
+	if err := B.cOver.checkContent(); err != nil {
+		return err
+	}
+	if err := B.cOver.initContent(r); err != nil {
+		return err
+	}
+	if err := B.cClick.checkContent(); err != nil {
+		return err
+	}
+	if err := B.cClick.initContent(r); err != nil {
+		return err
+	}
+
+	if B.funcClick == nil {
+		return errors.New(objects.ErrorTargetURL)
+	}
+
+	B.initialized = true
+	return nil
+}
+
 // IsInit return status initialize
 func (B *Button) IsInit() bool {
 	return B.initialized
 }
 
-func (B *Button) Init(r *sdl.Renderer) error {
-	if B.status == objects.SFix {
-		if err := B.cFix.checkContent(); err != nil {
-			return err
-		}
-		if err := B.cFix.initContent(r); err != nil {
-			return err
-		}
-	} else {
-		if B.funcClick == nil {
-			return errors.New("Function not define to the button")
-		}
-		if err := B.cBasic.checkContent(); err != nil {
-			return err
-		}
-		if err := B.cBasic.initContent(r); err != nil {
-			return err
-		}
-
-		if err := B.cOver.checkContent(); err != nil {
-			return err
-		}
-		if err := B.cOver.initContent(r); err != nil {
-			return err
-		}
-
-		if err := B.cClick.checkContent(); err != nil {
-			return err
-		}
-		if err := B.cClick.initContent(r); err != nil {
-			return err
-		}
-	}
-
-	B.initialized = true
-}
-
 func (B *Button) Close() error {
-	if B.status == objects.SFix {
-		if err := B.cFix.closeContent(); err != nil {
-			return err
-		}
-	} else {
-		if err := B.cBasic.closeContent(); err != nil {
-			return err
-		}
-		if err := B.cBasic.closeContent(r); err != nil {
-			return err
-		}
-
-		if err := B.cOver.closeContent(); err != nil {
-			return err
-		}
-		if err := B.cOver.closeContent(r); err != nil {
-			return err
-		}
-
-		if err := B.cClick.closeContent(); err != nil {
-			return err
-		}
-		if err := B.cClick.closeContent(r); err != nil {
-			return err
-		}
+	if err := B.cFix.closeContent(); err != nil {
+		return err
+	}
+	if err := B.cBasic.closeContent(); err != nil {
+		return err
+	}
+	if err := B.cOver.closeContent(); err != nil {
+		return err
+	}
+	if err := B.cClick.closeContent(); err != nil {
+		return err
 	}
 
 	B.initialized = false
@@ -106,25 +94,39 @@ func (B *Button) GetStatus() uint8 {
 func (B *Button) IsOver(x, y int32) bool {
 	var pos *objects.Position
 	var size *objects.Size
+	var err error
 
 	switch B.status {
 	case objects.SFix:
-		pos = B.cFix.block.GetPosition()
-		size = B.cFix.block.GetSize()
+		if pos, err = B.cFix.getPosition(); err != nil {
+			panic(err)
+		}
+		if size, err = B.cFix.getSize(); err != nil {
+			panic(err)
+		}
 	case objects.SBasic:
-		pos = B.cBasic.block.GetPosition()
-		size = B.cBasic.block.GetSize()
+		if pos, err = B.cBasic.getPosition(); err != nil {
+			panic(err)
+		}
+		if size, err = B.cBasic.getSize(); err != nil {
+			panic(err)
+		}
 	case objects.SOver:
-		pos = B.cOver.block.GetPosition()
-		size = B.cOver.block.GetSize()
-	case objects.Click:
-		pos = B.cClick.block.GetPosition()
-		size = B.cClick.block.GetSize()
+		if pos, err = B.cOver.getPosition(); err != nil {
+			panic(err)
+		}
+		if size, err = B.cOver.getSize(); err != nil {
+			panic(err)
+		}
+	case objects.SClick:
+		if pos, err = B.cClick.getPosition(); err != nil {
+			panic(err)
+		}
+		if size, err = B.cClick.getSize(); err != nil {
+			panic(err)
+		}
 	}
 
-	if !pos || size {
-		return false
-	}
 	if x > pos.X && x < pos.X+size.W {
 		if y > pos.Y && y < pos.Y+size.H {
 			return true
@@ -144,38 +146,21 @@ func (B *Button) SetStatus(s uint8) {
 	}
 }
 
-func (B *Button) Draw(r *sdl.Renderer, wg *sync.WaitGroup) error {
-	if r == nil {
-		return errors.New("Can't draw buttun because renderer is nil")
-	}
-	if wg == nil {
-		return errors.New("Can't draw buttun because sync WaitGroup not define")
-	}
-	if B.initialized == false {
-		return errors.New("Can't draw because object is not initialized")
-	}
-
-	wg.Add(1)
+func (B *Button) Draw(wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	if B.initialized == false {
+		panic(errors.New(objects.ErrorNotInit))
+	}
 
 	switch B.status {
 	case objects.SFix:
-		if err := B.cFix.drawContent(); err != nil {
-			return err
-		}
-	case objects.Sbasic:
-		if err := B.cBasic.drawContent(); err != nil {
-			return err
-		}
+		B.cFix.drawContent(wg)
+	case objects.SBasic:
+		B.cBasic.drawContent(wg)
 	case objects.SOver:
-		if err := B.cOver.drawContent(); err != nil {
-			return err
-		}
+		B.cOver.drawContent(wg)
 	case objects.SClick:
-		if err := B.cClick.drawContent(); err != nil {
-			return err
-		}
+		B.cClick.drawContent(wg)
 	}
-
-	return nil
 }
