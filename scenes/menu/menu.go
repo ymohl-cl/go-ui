@@ -15,10 +15,11 @@ const (
 	layerBackground = 0
 	layerStructure  = 1
 	layerButton     = 2
-	layerDynamique  = 3
-
-//	layer3          = 3
-//	layerPlayers    = 4
+	layerNotice     = 3
+	layerText       = 4
+	layerVS         = 5
+	layerInput      = 6
+	layerPlayers    = 7
 )
 
 type Menu struct {
@@ -27,6 +28,8 @@ type Menu struct {
 	input  objects.Object
 	notice *text.Text
 	music  objects.Object
+	vs     *text.Text
+	data   *database.Data
 
 	/* sdl objects */
 	renderer *sdl.Renderer
@@ -46,10 +49,11 @@ func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
 		return errors.New(objects.ErrorRenderer)
 	}
 	M.renderer = r
+	M.data = d
 
 	M.layers = make(map[uint8][]objects.Object)
 
-	if err = M.build(d, M.renderer); err != nil {
+	if err = M.build(); err != nil {
 		return err
 	}
 
@@ -260,7 +264,7 @@ notice string
 	TContainerFooter.SetStatus(objects.StatusFix)
 	x = I.ScreenWidth - I.ScreenWidth/3
 	y += I.HeightHeaderFooter - I.HeightHeaderFooter/6
-	textSign := "Gomuku is present you by Anis (agadhgad) and MrPiou (ymohl-cl), Enjoy !"
+	textSign :=
 	OSign := objects.NewText(I.CWTR, I.CWTG, I.CWTB, I.CWTO, x, y, I.SizeInfos, textSign, I.FontText)
 	TSign := objects.New(objects.TypeText, OSign)
 	TSign.SetStatus(objects.StatusFix)

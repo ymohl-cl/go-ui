@@ -24,6 +24,7 @@ const (
 	ErrorTargetURL   = "object does not know url target"
 	ErrorStatus      = "object does not know status"
 	ErrorEmpty       = "object is empty"
+	ErrorData        = "data is empty"
 )
 
 type Object interface {

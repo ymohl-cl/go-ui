@@ -8,6 +8,30 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
+/*
+** Endpoint action from objects click
+ */
+
+func (M *Menu) LoadGame(values ...interface{}) {
+	fmt.Println("Load Game")
+}
+
+func (M *Menu) DeletePlayer(values ...interface{}) {
+	fmt.Println("Delete Player")
+}
+
+func (M *Menu) DrawStat(values ...interface{}) {
+	fmt.Println("Draw stat")
+}
+
+func (M *Menu) SelectPlayer(values ...interface{}) {
+	fmt.Println("Selected player")
+}
+
+func (M *Menu) InputNewPlayer(values ...interface{}) {
+	fmt.Println("Input New player")
+}
+
 func (M *Menu) NewPlayer(values ...interface{}) {
 	fmt.Println("New Player")
 	go M.setNotice("New Player")
@@ -28,6 +52,9 @@ func (M *Menu) DefaultPlayer(values ...interface{}) {
 	go M.setNotice("Default Player")
 }
 
+/*
+** Change object from Endpoint management
+ */
 func (M *Menu) setNotice(str string) {
 	idSDL := M.notice.NewIDSDL()
 	if M.notice.IsInit() == true {

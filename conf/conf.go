@@ -41,46 +41,32 @@ const (
 	ColorBlockBlue    = 42
 	ColorBlockOpacity = 155
 
-	ColorButtonRed     = 95
-	ColorButtonGreen   = 74
-	ColorButtonBlue    = 29
-	ColorButtonOpacity = 200
+	ColorInputRed     = 255
+	ColorInputGreen   = 255
+	ColorInputBlue    = 255
+	ColorInputOpacity = 150
 
-	ColorOverButtonRed     = 116
-	ColorOverButtonGreen   = 108
-	ColorOverButtonBlue    = 25
-	ColorOverButtonOpacity = 255
+	ColorOverInputRed     = 255
+	ColorOverInputGreen   = 255
+	ColorOverInputBlue    = 255
+	ColorOverInputOpacity = 255
 
-	ColorClickButtonRed     = 21
-	ColorClickButtonGreen   = 34
-	ColorClickButtonBlue    = 33
-	ColorClickButtonOpacity = 255
-
-	ColorTxtRed     = 255
-	ColorTxtGreen   = 255
-	ColorTxtBlue    = 255
-	ColorTxtOpacity = 255
-
-	ColorUnderTxtRed     = 0
-	ColorUnderTxtGreen   = 0
-	ColorUnderTxtBlue    = 0
-	ColorUnderTxtOpacity = 20
-
-	/* Text */
-	Font      = ressources + "leadcoat.ttf"
-	TxtLittle = 14
-	TxtMedium = 20
-	TxtLarge  = 78
-
-	/* size elements */
-	ButtonHeight = 40
-	ButtonWidth  = 150
+	ColorClickInputRed     = 240
+	ColorClickInputGreen   = 240
+	ColorClickInputBlue    = 240
+	ColorClickInputOpacity = 250
 )
 
 // Menu
 const (
-	MenuMusic      = ressources + "ambiant.wav"
-	MenuBackground = ressources + "background.bmp"
+	MenuMusic          = ressources + "ambiant.wav"
+	MenuBackground     = ressources + "background.bmp"
+	MenuIconDelete     = ressources + "delete1.bmp"
+	MenuIconOverDelete = ressources + "delete2.bmp"
+	MenuIconTrophy     = ressources + "trophy.bmp"
+	MenuIconOverTrophy = ressources + "trophyOver.bmp"
+	MenuIconLoad       = ressources + "disk.bmp"
+	MenuIconOverLoad   = ressources + "diskOver.bmp"
 
 	/* size elements */
 	MenuHeaderHeight             = 102
@@ -88,6 +74,10 @@ const (
 	MenuContentBlockWidth        = 500
 	MenuContentLargeBlockHeight  = 500
 	MenuContentMediumBlockHeight = (MenuContentLargeBlockHeight - PaddingBlock) / 2
+	MenuElementPlayerHeight      = 30
+	MenuElementPlayerWidth       = 395
+	MenuElementPadding           = 5
+	MenuIconWidth                = 30
 )
 
 // Stat
@@ -104,65 +94,42 @@ const ()
  */
 
 // Buttun
-const ()
+const (
+	ButtonHeight = 40
+	ButtonWidth  = 150
+
+	/* Color */
+	ColorButtonRed     = 95
+	ColorButtonGreen   = 74
+	ColorButtonBlue    = 29
+	ColorButtonOpacity = 200
+
+	ColorOverButtonRed     = 116
+	ColorOverButtonGreen   = 108
+	ColorOverButtonBlue    = 25
+	ColorOverButtonOpacity = 255
+
+	ColorClickButtonRed     = 21
+	ColorClickButtonGreen   = 34
+	ColorClickButtonBlue    = 33
+	ColorClickButtonOpacity = 255
+)
 
 // Text
-const ()
-
-//////////////////////////////////////////////////////////
 const (
-	/*
-	** list scenes on the uint8 values. Define by current of Scenes while
-	** the game is running
-	 */
-	//SMenu     = 0
-	//SceneStat = 1
-	//SceneGame = 2
+	Font      = ressources + "leadcoat.ttf"
+	TxtLittle = 14
+	TxtMedium = 20
+	TxtLarge  = 78
 
-	/* view const (global) */
-	GlobalOriginX = 0
-	GlobalOriginY = 0
-	//	HeightHeaderFooter = 105
-	WidthLargeButton = 300
-	WidthIcon        = 30
-	HeightIcon       = 30
-	WidthInput       = 300
-	HeightInput      = 30
+	/* Color */
+	ColorTxtRed     = 255
+	ColorTxtGreen   = 255
+	ColorTxtBlue    = 255
+	ColorTxtOpacity = 255
 
-	DrawFilled    = true
-	DrawNotFilled = false
-
-	/* Size text */
-
-	/* Color White Text - Red - Green - Blue - Opacity */
-	CWTR = 255
-	CWTG = 255
-	CWTB = 255
-	CWTO = 255
-	/* Color Black Text - Red - Green - Blue - Opacity */
-	CBTR = 0
-	CBTG = 0
-	CBTB = 0
-	CBTO = 20
-
-	/* Color Grey strong - Red - Green - Blue - Opacity */
-	CGSR = 57
-	CGSG = 57
-	CGSB = 57
-	CGSO = 155
-	/* Color Grey strong Over - Red - Green - Blue - Opacity */
-	CGSOR = 67
-	CGSOG = 67
-	CGSOB = 67
-	CGSOO = 155
-
-	/* Color Red - Red - Green - Blue - Opacity */
-	CRR = 133
-	CRG = 6
-	CRB = 6
-	CRO = 255
-
-	/* view const (user) */
-	UserHeightElemList     = 30
-	UserSpaceUserElemListY = 5
+	ColorUnderTxtRed     = 0
+	ColorUnderTxtGreen   = 0
+	ColorUnderTxtBlue    = 0
+	ColorUnderTxtOpacity = 20
 )
