@@ -161,19 +161,19 @@ func (C *Content) closeContent() error {
 	return nil
 }
 
-func (C Content) drawContent(wg *sync.WaitGroup) {
+func (C Content) drawContent(wg *sync.WaitGroup, r *sdl.Renderer) {
 
 	if C.block != nil {
 		wg.Add(1)
-		C.block.Draw(wg)
+		C.block.Draw(wg, r)
 	}
 	if C.img != nil {
 		wg.Add(1)
-		C.img.Draw(wg)
+		C.img.Draw(wg, r)
 	}
 	if C.txt != nil {
 		wg.Add(1)
-		C.txt.Draw(wg)
+		C.txt.Draw(wg, r)
 	}
 }
 

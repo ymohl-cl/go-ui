@@ -51,6 +51,7 @@ func (M *Menu) addNotice(r *sdl.Renderer) error {
 		return err
 	}
 	M.notice = t
+	M.layers[layerDynamique] = append(M.layers[layerDynamique], M.notice)
 	return nil
 }
 

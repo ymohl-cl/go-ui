@@ -19,15 +19,13 @@ type Block struct {
 	color    *objects.Color
 
 	// objects of sdl
-	rect     sdl.Rect
-	renderer *sdl.Renderer
+	rect sdl.Rect
 }
 
 func (B *Block) Init(r *sdl.Renderer) error {
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-	B.renderer = r
 
 	if B.size == nil {
 		return errors.New(objects.ErrorSize)
@@ -77,24 +75,27 @@ func (B *Block) SetStatus(s uint8) {
 }
 
 // Draw the object block.
-func (B *Block) Draw(wg *sync.WaitGroup) {
+func (B *Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {
 		if B.initialized == false {
-			panic(errors.New(objects.ErrorNotInit))
+			return
+		}
+		if r == nil {
+			panic(errors.New(objects.ErrorRenderer))
 		}
 
-		err := B.renderer.SetDrawColor(B.color.Red, B.color.Green, B.color.Blue, B.color.Opacity)
+		err := r.SetDrawColor(B.color.Red, B.color.Green, B.color.Blue, B.color.Opacity)
 		if err != nil {
 			panic(err)
 		}
 
 		switch B.style {
 		case Filled:
-			err = B.renderer.FillRect(&B.rect)
+			err = r.FillRect(&B.rect)
 		case Empty:
-			err = B.renderer.DrawRect(&B.rect)
+			err = r.DrawRect(&B.rect)
 		default:
 			err = errors.New(objects.ErrorObjectStyle)
 		}

@@ -3,7 +3,6 @@ package text
 import (
 	"errors"
 
-	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
@@ -91,80 +90,8 @@ func (T *Text) SetFontTTF(url string) error {
 	return nil
 }
 
-func (T *Text) UpdateTxt(str string) error {
-	if T.size <= 0 {
-		return errors.New(objects.ErrorSize)
-	}
-	if T.position == nil {
-		return errors.New(objects.ErrorPosition)
-	}
-	if T.color == nil {
-		return errors.New(objects.ErrorColor)
-	}
-	if T.font == nil {
-		return errors.New(objects.ErrorEmpty)
-	}
-
+func (T *Text) SetText(str string) {
 	T.txt = str
-	color := sdl.Color{
-		R: T.color.Red,
-		G: T.color.Green,
-		B: T.color.Blue,
-		A: T.color.Opacity,
-	}
-	surface, err := T.font.RenderUTF8_Solid(T.txt, color)
-	if err != nil {
-		return err
-	}
-	defer surface.Free()
-
-	T.sizeSDL.SetSize(surface.W, surface.H)
-
-	T.rect.X = T.position.X - (T.sizeSDL.W / 2)
-	T.rect.Y = T.position.Y - (T.sizeSDL.H / 2)
-	T.rect.W = T.sizeSDL.W
-	T.rect.H = T.sizeSDL.H
-
-	if T.texture != nil {
-		T.texture.Destroy()
-	}
-	if T.texture, err = T.renderer.CreateTextureFromSurface(surface); err != nil {
-		return err
-	}
-
-	if T.underColor != nil {
-		uColor := sdl.Color{
-			R: T.underColor.Red,
-			G: T.underColor.Green,
-			B: T.underColor.Blue,
-			A: T.underColor.Opacity,
-		}
-		uSurface, err := T.font.RenderUTF8_Solid(T.txt, uColor)
-		if err != nil {
-			return err
-		}
-		defer uSurface.Free()
-		if T.underStyle == PositionTopLeft || T.underStyle == PositionBotRight {
-			T.underRect.Y = T.rect.Y - 1
-		} else {
-			T.underRect.Y = T.rect.Y + 1
-		}
-		if T.underStyle == PositionTopRight || T.underStyle == PositionBotRight {
-			T.underRect.X = T.rect.X + 1
-		} else {
-			T.underRect.X = T.rect.X - 1
-		}
-		T.underRect.W = T.rect.W
-		T.underRect.H = T.rect.H
-		if T.underTexture != nil {
-			T.underTexture.Destroy()
-		}
-		if T.underTexture, err = T.renderer.CreateTextureFromSurface(uSurface); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // GetSize provide size object (on the screen)

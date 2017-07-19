@@ -29,7 +29,7 @@ func (S Scenes) Draw(r *sdl.Renderer) {
 		layer := layers[uint8(i)]
 		for _, object := range layer {
 			wg.Add(1)
-			go object.Draw(&wg)
+			go object.Draw(&wg, r)
 		}
 		wg.Wait()
 	}

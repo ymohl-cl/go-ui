@@ -20,16 +20,12 @@ type Button struct {
 	cFix      Content
 	funcClick func(...interface{})
 	dataClick []interface{}
-
-	// sdl objects
-	renderer *sdl.Renderer
 }
 
 func (B *Button) Init(r *sdl.Renderer) error {
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-	B.renderer = r
 
 	if err := B.cFix.checkContent(); err != nil {
 		return err
@@ -145,21 +141,24 @@ func (B *Button) SetStatus(s uint8) {
 	}
 }
 
-func (B *Button) Draw(wg *sync.WaitGroup) {
+func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	if B.initialized == false {
-		panic(errors.New(objects.ErrorNotInit))
+		return
+	}
+	if r == nil {
+		panic(errors.New(objects.ErrorRenderer))
 	}
 
 	switch B.status {
 	case objects.SFix:
-		B.cFix.drawContent(wg)
+		B.cFix.drawContent(wg, r)
 	case objects.SBasic:
-		B.cBasic.drawContent(wg)
+		B.cBasic.drawContent(wg, r)
 	case objects.SOver:
-		B.cOver.drawContent(wg)
+		B.cOver.drawContent(wg, r)
 	case objects.SClick:
-		B.cClick.drawContent(wg)
+		B.cClick.drawContent(wg, r)
 	}
 }

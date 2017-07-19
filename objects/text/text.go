@@ -30,19 +30,17 @@ type Text struct {
 	underRect    sdl.Rect
 	texture      *sdl.Texture
 	underTexture *sdl.Texture
-	renderer     *sdl.Renderer
-	font         *ttf.Font
 }
 
 func (T *Text) Init(r *sdl.Renderer) error {
 	var err error
 	var surface *sdl.Surface
 	var uSurface *sdl.Surface
+	var font *ttf.Font
 
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-	T.renderer = r
 
 	if T.position == nil {
 		return errors.New(objects.ErrorPosition)
@@ -54,7 +52,7 @@ func (T *Text) Init(r *sdl.Renderer) error {
 		return errors.New(objects.ErrorTargetURL)
 	}
 
-	if T.font, err = ttf.OpenFont(T.fontURL, T.size); err != nil {
+	if font, err = ttf.OpenFont(T.fontURL, T.size); err != nil {
 		return err
 	}
 
@@ -64,7 +62,7 @@ func (T *Text) Init(r *sdl.Renderer) error {
 		B: T.color.Blue,
 		A: T.color.Opacity,
 	}
-	surface, err = T.font.RenderUTF8_Solid(T.txt, color)
+	surface, err = font.RenderUTF8_Solid(T.txt, color)
 	if err != nil {
 		return err
 	}
@@ -89,7 +87,7 @@ func (T *Text) Init(r *sdl.Renderer) error {
 			B: T.underColor.Blue,
 			A: T.underColor.Opacity,
 		}
-		uSurface, err = T.font.RenderUTF8_Solid(T.txt, uColor)
+		uSurface, err = font.RenderUTF8_Solid(T.txt, uColor)
 		if err != nil {
 			return err
 		}
@@ -127,9 +125,6 @@ func (T *Text) Close() error {
 	if T.underTexture != nil {
 		T.underTexture.Destroy()
 	}
-	if T.font != nil {
-		T.font.Close()
-	}
 
 	T.initialized = false
 	return nil
@@ -158,30 +153,33 @@ func (T *Text) SetStatus(s uint8) {
 }
 
 // Draw the object block.
-func (T *Text) Draw(wg *sync.WaitGroup) {
+func (T *Text) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {
 		if T.initialized == false {
-			panic(errors.New(objects.ErrorNotInit))
+			return
+		}
+		if r == nil {
+			panic(errors.New(objects.ErrorRenderer))
 		}
 
 		if T.underTexture != nil {
-			err := T.renderer.SetDrawColor(T.underColor.Red, T.underColor.Green, T.underColor.Blue, T.underColor.Opacity)
+			err := r.SetDrawColor(T.underColor.Red, T.underColor.Green, T.underColor.Blue, T.underColor.Opacity)
 			if err != nil {
 				panic(err)
 			}
 
-			if err = T.renderer.Copy(T.underTexture, nil, &T.underRect); err != nil {
+			if err = r.Copy(T.underTexture, nil, &T.underRect); err != nil {
 				panic(err)
 			}
 		}
 
-		err := T.renderer.SetDrawColor(T.color.Red, T.color.Green, T.color.Blue, T.color.Opacity)
+		err := r.SetDrawColor(T.color.Red, T.color.Green, T.color.Blue, T.color.Opacity)
 		if err != nil {
 			panic(err)
 		}
-		if err = T.renderer.Copy(T.texture, nil, &T.rect); err != nil {
+		if err = r.Copy(T.texture, nil, &T.rect); err != nil {
 			panic(err)
 		}
 	})

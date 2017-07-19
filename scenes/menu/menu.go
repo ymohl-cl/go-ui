@@ -17,6 +17,7 @@ const (
 	layerButton     = 2
 	layer3          = 3
 	layerPlayers    = 4
+	layerDynamique  = 5
 )
 
 type Menu struct {
@@ -25,6 +26,9 @@ type Menu struct {
 	input  objects.Object
 	notice *text.Text
 	music  objects.Object
+
+	/* sdl objects */
+	renderer *sdl.Renderer
 }
 
 /*
@@ -36,6 +40,11 @@ type Menu struct {
  */
 func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
 	var err error
+
+	if M.renderer == nil {
+		return errors.New(objects.ErrorRenderer)
+	}
+	M.renderer = r
 
 	M.layers = make(map[uint8][]objects.Object)
 
@@ -54,7 +63,7 @@ func (M Menu) Run() error {
 
 	if ok := M.music.IsInit(); ok {
 		wg.Add(1)
-		go M.music.Draw(&wg)
+		go M.music.Draw(&wg, M.renderer)
 		wg.Wait()
 	}
 	return nil

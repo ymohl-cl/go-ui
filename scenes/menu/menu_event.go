@@ -1,8 +1,11 @@
 package menu
 
 import (
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/ymohl-cl/game-builder/objects"
 )
 
 func (M *Menu) NewPlayer(values ...interface{}) {
@@ -26,15 +29,15 @@ func (M *Menu) DefaultPlayer(values ...interface{}) {
 }
 
 func (M *Menu) setNotice(str string) {
-	var err error
-
-	if err = M.notice.UpdateTxt(str); err != nil {
-		panic(err)
+	if M.notice.IsInit() == true {
+		M.notice.Close()
+	}
+	M.notice.SetText(str)
+	if err := M.notice.Init(M.renderer); err != nil {
+		panic(errors.New(objects.ErrorRenderer))
 	}
 	time.Sleep(3 * time.Second)
-	if err = M.notice.UpdateTxt(""); err != nil {
-		panic(err)
-	}
+	M.notice.Close()
 }
 
 /*func (M *Menu) AddUser(values ...interface{}) string {

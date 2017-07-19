@@ -23,9 +23,8 @@ type Image struct {
 	position *objects.Position
 
 	// sdl objects
-	texture  *sdl.Texture
-	rect     sdl.Rect
-	renderer *sdl.Renderer
+	texture *sdl.Texture
+	rect    sdl.Rect
 }
 
 // Init image object
@@ -36,7 +35,6 @@ func (I *Image) Init(r *sdl.Renderer) error {
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-	I.renderer = r
 
 	if I.size == nil {
 		return errors.New(objects.ErrorSize)
@@ -105,13 +103,16 @@ func (I *Image) SetStatus(s uint8) {
 }
 
 // Draw the object Image.
-func (I *Image) Draw(wg *sync.WaitGroup) {
+func (I *Image) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {
 		if I.initialized == false {
-			panic(errors.New(objects.ErrorNotInit))
+			return
 		}
-		I.renderer.Copy(I.texture, nil, &I.rect)
+		if r == nil {
+			panic(errors.New(objects.ErrorRenderer))
+		}
+		r.Copy(I.texture, nil, &I.rect)
 	})
 }

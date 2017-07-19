@@ -42,5 +42,5 @@ type Object interface {
 	// Define new status
 	SetStatus(uint8)
 	// Draw object with sdl
-	Draw(*sync.WaitGroup)
+	Draw(*sync.WaitGroup, *sdl.Renderer)
 }

@@ -18,8 +18,7 @@ type Audio struct {
 	url string
 
 	// sdl objects
-	music    *mix.Music
-	renderer *sdl.Renderer
+	music *mix.Music
 }
 
 // Init audio object
@@ -29,7 +28,6 @@ func (A *Audio) Init(r *sdl.Renderer) error {
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-	A.renderer = r
 
 	A.music, err = mix.LoadMUS(A.url)
 	if err != nil {
@@ -73,12 +71,15 @@ func (A *Audio) SetStatus(s uint8) {
 }
 
 // Draw the object audio.
-func (A *Audio) Draw(wg *sync.WaitGroup) {
+func (A *Audio) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {
 		if A.initialized == false {
-			panic(errors.New(objects.ErrorNotInit))
+			return
+		}
+		if r == nil {
+			panic(errors.New(objects.ErrorRenderer))
 		}
 		A.music.Play(1)
 	})
