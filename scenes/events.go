@@ -1,6 +1,8 @@
 package scenes
 
 import (
+	"fmt"
+
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/objects"
@@ -18,22 +20,10 @@ func (S *Scenes) Events(E sdl.Event) {
 		err = S.keyDownEvent(E.(*sdl.KeyDownEvent))
 	case *sdl.KeyUpEvent:
 		err = S.keyUpEvent(E.(*sdl.KeyUpEvent))
-	case *sdl.TextInputEvent:
-		err = S.textInputEvent(E.(*sdl.TextInputEvent))
 	}
 	if err != nil {
 		panic(err)
 	}
-}
-
-func (S *Scenes) textInputEvent(input *sdl.TextInputEvent) error {
-	if sdl.IsTextInputActive() == true {
-		/*		S.list[conf.Current].AddLetterToInput(string(input.Text[0]))
-				if err := S.list[conf.Current].Update(S.Data); err != nil {
-					return err
-				}*/
-	}
-	return nil
 }
 
 func (S *Scenes) mouseMotionEvent(mouse *sdl.MouseMotionEvent) error {
@@ -83,11 +73,13 @@ func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 }
 
 func (S *Scenes) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
+	fmt.Println("HELLO KEY DOWN")
 	//	fmt.Println("Key down: ", keyDown)
 	return nil
 }
 
 func (S *Scenes) keyUpEvent(keyUp *sdl.KeyUpEvent) error {
+	fmt.Println("HELLO KEY UP: ", keyUp.Keysym.Scancode)
 	/*	if keyUp.Keysym.Scancode == sdl.SDL_SCANCODE_RETURN {
 		if sdl.IsTextInputActive() == true {
 			sdl.StopTextInput()
