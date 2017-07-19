@@ -29,6 +29,7 @@ func (M *Menu) DefaultPlayer(values ...interface{}) {
 }
 
 func (M *Menu) setNotice(str string) {
+	idSDL := M.notice.NewIDSDL()
 	if M.notice.IsInit() == true {
 		M.notice.Close()
 	}
@@ -37,7 +38,9 @@ func (M *Menu) setNotice(str string) {
 		panic(errors.New(objects.ErrorRenderer))
 	}
 	time.Sleep(3 * time.Second)
-	M.notice.Close()
+	if M.notice.GetIdSDL() == idSDL {
+		M.notice.Close()
+	}
 }
 
 /*func (M *Menu) AddUser(values ...interface{}) string {

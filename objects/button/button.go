@@ -66,6 +66,7 @@ func (B *Button) IsInit() bool {
 }
 
 func (B *Button) Close() error {
+	B.initialized = false
 	if err := B.cFix.closeContent(); err != nil {
 		return err
 	}
@@ -79,7 +80,6 @@ func (B *Button) Close() error {
 		return err
 	}
 
-	B.initialized = false
 	return nil
 }
 

@@ -45,10 +45,10 @@ func (A Audio) IsInit() bool {
 
 // Close sdl objects
 func (A *Audio) Close() error {
+	A.initialized = false
 	if A.music != nil {
 		A.music.Free()
 	}
-	A.initialized = false
 	return nil
 }
 

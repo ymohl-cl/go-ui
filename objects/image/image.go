@@ -73,10 +73,10 @@ func (I Image) IsInit() bool {
 
 // Close sdl objects
 func (I *Image) Close() error {
+	I.initialized = false
 	if I.texture != nil {
 		I.texture.Destroy()
 	}
-	I.initialized = false
 	return nil
 }
 

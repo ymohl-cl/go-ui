@@ -15,9 +15,10 @@ const (
 	layerBackground = 0
 	layerStructure  = 1
 	layerButton     = 2
-	layer3          = 3
-	layerPlayers    = 4
-	layerDynamique  = 5
+	layerDynamique  = 3
+
+//	layer3          = 3
+//	layerPlayers    = 4
 )
 
 type Menu struct {
@@ -41,14 +42,14 @@ type Menu struct {
 func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
 	var err error
 
-	if M.renderer == nil {
+	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
 	M.renderer = r
 
 	M.layers = make(map[uint8][]objects.Object)
 
-	if err = M.build(d, r); err != nil {
+	if err = M.build(d, M.renderer); err != nil {
 		return err
 	}
 

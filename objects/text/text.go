@@ -2,6 +2,7 @@ package text
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -25,6 +26,7 @@ type Text struct {
 	fontURL    string
 
 	// sizeSDL is Width and height of txt on the screen.
+	idSDL        uint8
 	sizeSDL      *objects.Size
 	rect         sdl.Rect
 	underRect    sdl.Rect
@@ -119,14 +121,15 @@ func (T Text) IsInit() bool {
 }
 
 func (T *Text) Close() error {
-	if T.texture != nil {
-		T.texture.Destroy()
-	}
-	if T.underTexture != nil {
-		T.underTexture.Destroy()
-	}
-
 	T.initialized = false
+	sdl.Do(func() {
+		if T.texture != nil {
+			T.texture.Destroy()
+		}
+		if T.underTexture != nil {
+			T.underTexture.Destroy()
+		}
+	})
 	return nil
 }
 
@@ -161,6 +164,7 @@ func (T *Text) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 			return
 		}
 		if r == nil {
+			fmt.Println("Textb")
 			panic(errors.New(objects.ErrorRenderer))
 		}
 

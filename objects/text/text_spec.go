@@ -94,6 +94,22 @@ func (T *Text) SetText(str string) {
 	T.txt = str
 }
 
+func (T *Text) GetIdSDL() uint8 {
+	return T.idSDL
+}
+
+func (T *Text) NewIDSDL() uint8 {
+	var check uint8
+	check -= 1
+
+	if T.idSDL == check {
+		T.idSDL = 0
+	} else {
+		T.idSDL++
+	}
+	return T.idSDL
+}
+
 // GetSize provide size object (on the screen)
 func (T Text) GetSize() (*objects.Size, error) {
 	if T.sizeSDL == nil {

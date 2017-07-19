@@ -47,9 +47,6 @@ func (M *Menu) addNotice(r *sdl.Renderer) error {
 	}
 	t.SetParams(conf.WindowWidth/2, conf.WindowHeight-conf.MarginBot-(conf.MenuFooterHeight/2), conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
 	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
-	if err = t.Init(r); err != nil {
-		return err
-	}
 	M.notice = t
 	M.layers[layerDynamique] = append(M.layers[layerDynamique], M.notice)
 	return nil
