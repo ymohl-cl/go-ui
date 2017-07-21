@@ -132,7 +132,7 @@ func (B *Button) IsOver(x, y int32) bool {
 }
 
 func (B *Button) Click() {
-	B.funcClick(B.dataClick)
+	B.funcClick(B.dataClick...)
 }
 
 func (B *Button) SetStatus(s uint8) {

@@ -97,6 +97,47 @@ func (M *Menu) addPlayers() error {
 	return nil
 }
 
+func (M *Menu) addUIPlayer(nb int, p *database.Player) error {
+	var err error
+	var x, y int32
+	var b1, b2, b3, b4 *button.Button
+
+	x = conf.MarginLeft
+	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock
+	y += (conf.MenuElementPlayerHeight + conf.MenuElementPadding) * int32(nb)
+
+	if b1, err = M.addButtonPlayer(x, y, p); err != nil {
+		return err
+	}
+	if err = b1.Init(M.renderer); err != nil {
+		return err
+	}
+	M.layers[layerPlayers] = append(M.layers[layerPlayers], b1)
+	if b2, err = M.addButtonDeletePlayer(x, y, p); err != nil {
+		return err
+	}
+	if err = b2.Init(M.renderer); err != nil {
+		return err
+	}
+	M.layers[layerPlayers] = append(M.layers[layerPlayers], b2)
+	if b3, err = M.addButtonStat(x, y, p); err != nil {
+		return err
+	}
+	if err = b3.Init(M.renderer); err != nil {
+		return err
+	}
+	M.layers[layerPlayers] = append(M.layers[layerPlayers], b3)
+	if b4, err = M.addLoadGame(x, y, p); err != nil {
+		return err
+	}
+	if err = b4.Init(M.renderer); err != nil {
+		return err
+	}
+	M.layers[layerPlayers] = append(M.layers[layerPlayers], b4)
+
+	return nil
+}
+
 func (M *Menu) addButtonPlayer(x, y int32, p *database.Player) (*button.Button, error) {
 	var t *text.Text
 	var bl *block.Block
@@ -298,7 +339,22 @@ func (M *Menu) addVS() error {
 		return err
 	}
 	M.layers[layerVS] = append(M.layers[layerVS], t)
+	M.vs = t
 	return nil
+}
+
+func (M *Menu) updateVS() {
+	var err error
+	p1 := M.data.Current.P1
+	p2 := M.data.Current.P2
+
+	if p1 == nil || p2 == nil {
+		panic(errors.New("Players is nil"))
+	}
+	M.vs.SetText(p1.Name + " VS " + p2.Name)
+	if err = M.vs.Init(M.renderer); err != nil {
+		panic(errors.New(objects.ErrorRenderer))
+	}
 }
 
 func (M *Menu) addText() error {

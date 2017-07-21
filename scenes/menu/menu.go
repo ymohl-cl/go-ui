@@ -91,12 +91,12 @@ func (M Menu) check() error {
 	if M.layers == nil {
 		return errors.New("Objects not define for menu scene")
 	}
-	/*	if M.input == nil {
-			return errors.New("Object to input not define")
-		}
-		if M.notice == nil {
-			return errors.New("Object to notice not define")
-		}*/
+	if M.input == nil {
+		return errors.New("Object to input not define")
+	}
+	if M.notice == nil {
+		return errors.New("Object to notice not define")
+	}
 
 	return nil
 }

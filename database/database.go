@@ -55,18 +55,18 @@ func (D *Data) initSave() error {
 	return nil
 }
 
-func (D *Data) UpdateCurrent(p *Player) string {
+func (D *Data) UpdateCurrent(p *Player) error {
 	if D.Current.P1.Name == p.Name || D.Current.P2.Name == p.Name {
-		return "This player is already selected"
+		return errors.New("This player is already selected")
 	}
 
 	if D.Current.P1.Name == defaultPlayer1 {
 		D.Current.P1 = p
-		return ""
+		return nil
 	}
 
 	D.Current.P2 = p
-	return ""
+	return nil
 }
 
 func (D *Data) ResetCurrent() string {
@@ -85,7 +85,6 @@ func (D *Data) ResetCurrent() string {
 
 func (D *Data) AddPlayer(p *Player) {
 	D.Players = append(D.Players, p)
-	D.UpdateCurrent(p)
 }
 
 func (D *Data) DeletePlayer(p *Player) string {

@@ -112,6 +112,22 @@ func (I *Input) SetNewRune(kCode sdl.Keysym, renderer *sdl.Renderer) error {
 	return nil
 }
 
+func (I Input) GetTxt() string {
+	s := I.txt.GetTxt()
+
+	idx := strings.Index(s, caret)
+	return s[:idx] + s[idx+1:]
+}
+
+func (I Input) Reset(r *sdl.Renderer) {
+	var err error
+
+	I.txt.SetText(caret)
+	if err = I.txt.Init(r); err != nil {
+		panic(err)
+	}
+}
+
 func (I *Input) addKeyCode(s string, kCode sdl.Keycode) string {
 	idx := strings.Index(s, caret)
 	newStr := s[:idx] + string(kCode) + s[idx:]

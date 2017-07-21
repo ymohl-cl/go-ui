@@ -2,7 +2,6 @@ package text
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -162,7 +161,6 @@ func (T *Text) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 			return
 		}
 		if r == nil {
-			fmt.Println("Textb")
 			panic(errors.New(objects.ErrorRenderer))
 		}
 

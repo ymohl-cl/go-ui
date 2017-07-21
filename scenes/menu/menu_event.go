@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
@@ -17,7 +18,6 @@ func (M *Menu) KeyDownEvent(keyDown *sdl.KeyDownEvent) {
 	var err error
 
 	if err = M.input.SetNewRune(keyDown.Keysym, M.renderer); err != nil {
-		fmt.Println("Set Notice: ", err.Error())
 		go M.setNotice(err.Error())
 	}
 }
@@ -39,7 +39,23 @@ func (M *Menu) DrawStat(values ...interface{}) {
 }
 
 func (M *Menu) SelectPlayer(values ...interface{}) {
-	fmt.Println("Selected player")
+	var p *database.Player
+	var err error
+	var ok bool
+
+	if len(values) == 1 {
+		p, ok = values[0].(*database.Player)
+		if !ok {
+			panic(errorInterface)
+		}
+	} else {
+		panic(errorValuesEmpty)
+	}
+	if err = M.data.UpdateCurrent(p); err != nil {
+		go M.setNotice(err.Error())
+		return
+	}
+	M.updateVS()
 }
 
 func (M *Menu) InputNewPlayer(values ...interface{}) {
@@ -47,8 +63,34 @@ func (M *Menu) InputNewPlayer(values ...interface{}) {
 }
 
 func (M *Menu) NewPlayer(values ...interface{}) {
-	fmt.Println("New Player")
-	go M.setNotice("New Player")
+	var name string
+	var nbPlayer int
+	var err error
+
+	nbPlayer = len(M.data.Players)
+	if nbPlayer >= playerMax {
+		go M.setNotice(noticeMaxPlayer)
+		return
+	}
+	name = M.input.GetTxt()
+	if len(name) == 0 {
+		go M.setNotice(noticeNameEmpty)
+		return
+	}
+
+	for _, p := range M.data.Players {
+		if p.Name == name {
+			go M.setNotice(noticeNameExist)
+			return
+		}
+	}
+	p := database.CreatePlayer(name)
+	M.data.AddPlayer(p)
+	M.input.Reset(M.renderer)
+
+	if err = M.addUIPlayer(nbPlayer, p); err != nil {
+		panic(err)
+	}
 }
 
 func (M *Menu) Play(values ...interface{}) {

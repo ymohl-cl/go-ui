@@ -23,7 +23,9 @@ func New(f func(...interface{}), d ...interface{}) *Button {
 
 	b.status = objects.SBasic
 	b.funcClick = f
-	b.dataClick = d
+	for _, v := range d {
+		b.dataClick = append(b.dataClick, v)
+	}
 	return b
 }
 
