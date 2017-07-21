@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	defaultPlayer1 = "Unknow-1"
-	defaultPlayer2 = "Unknow-2"
+	defaultPlayer1 = "Unknow1"
+	defaultPlayer2 = "Unknow2"
 )
 
 func Get() (*Data, error) {

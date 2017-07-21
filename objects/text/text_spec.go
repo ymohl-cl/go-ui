@@ -141,3 +141,8 @@ func (T Text) GetUnderColor() (*objects.Color, error) {
 	}
 	return T.underColor, nil
 }
+
+// GetTxt provide txt string
+func (T Text) GetTxt() string {
+	return T.txt
+}

@@ -1,8 +1,6 @@
 package scenes
 
 import (
-	"fmt"
-
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/objects"
@@ -73,13 +71,13 @@ func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 }
 
 func (S *Scenes) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
-	fmt.Println("HELLO KEY DOWN")
+	S.list[conf.Current].KeyDownEvent(keyDown)
 	//	fmt.Println("Key down: ", keyDown)
 	return nil
 }
 
 func (S *Scenes) keyUpEvent(keyUp *sdl.KeyUpEvent) error {
-	fmt.Println("HELLO KEY UP: ", keyUp.Keysym.Scancode)
+	//	fmt.Println("HELLO KEY UP: ", keyUp.Keysym.Scancode)
 	/*	if keyUp.Keysym.Scancode == sdl.SDL_SCANCODE_RETURN {
 		if sdl.IsTextInputActive() == true {
 			sdl.StopTextInput()

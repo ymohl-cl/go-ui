@@ -70,6 +70,9 @@ type Scene interface {
 	// GetLayers get objects list by layers order
 	GetLayers() map[uint8][]objects.Object
 
+	// KeyDownEvent provide key down to the scene
+	KeyDownEvent(*sdl.KeyDownEvent)
+
 	// Add txt string typed by player to the input field
 	//	AddLetterToInput(string)
 	// GetStaticObjs provide the static objects

@@ -8,6 +8,7 @@ import (
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/ymohl-cl/game-builder/objects/audio"
+	"github.com/ymohl-cl/game-builder/objects/input"
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
@@ -26,7 +27,7 @@ const (
 type Menu struct {
 	layers map[uint8][]objects.Object
 
-	input  *text.Text
+	input  *input.Input
 	notice *text.Text
 	music  *audio.Audio
 	vs     *text.Text

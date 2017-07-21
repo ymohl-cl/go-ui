@@ -5,8 +5,22 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
 )
+
+/*
+** Endpoint Event from scenes
+ */
+
+func (M *Menu) KeyDownEvent(keyDown *sdl.KeyDownEvent) {
+	var err error
+
+	if err = M.input.SetNewRune(keyDown.Keysym, M.renderer); err != nil {
+		fmt.Println("Set Notice: ", err.Error())
+		go M.setNotice(err.Error())
+	}
+}
 
 /*
 ** Endpoint action from objects click

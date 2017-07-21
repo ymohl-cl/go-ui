@@ -123,11 +123,13 @@ const (
 	TxtLarge  = 78
 
 	/* Color */
+	// Color text white
 	ColorTxtRed     = 255
 	ColorTxtGreen   = 255
 	ColorTxtBlue    = 255
 	ColorTxtOpacity = 255
 
+	// Color text black
 	ColorUnderTxtRed     = 0
 	ColorUnderTxtGreen   = 0
 	ColorUnderTxtBlue    = 0

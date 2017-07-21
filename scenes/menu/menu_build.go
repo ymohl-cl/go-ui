@@ -10,6 +10,7 @@ import (
 	"github.com/ymohl-cl/game-builder/objects/block"
 	"github.com/ymohl-cl/game-builder/objects/button"
 	"github.com/ymohl-cl/game-builder/objects/image"
+	"github.com/ymohl-cl/game-builder/objects/input"
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
@@ -221,60 +222,61 @@ func (M *Menu) addButtonStat(x, y int32, p *database.Player) (*button.Button, er
 
 func (M *Menu) addInput() error {
 	var err error
-	var t *text.Text
-	var b *button.Button
+	var i *input.Input
 
-	if b, err = M.getButtonInput(); err != nil {
+	if i, err = M.createInput(); err != nil {
 		return err
 	}
-	if err = b.Init(M.renderer); err != nil {
+	if err = i.Init(M.renderer); err != nil {
 		return err
 	}
-	M.layers[layerButton] = append(M.layers[layerButton], b)
+	M.layers[layerInput] = append(M.layers[layerInput], i)
 
-	if t, err = text.New("", conf.TxtLittle, conf.Font); err != nil {
-		return err
-	}
-	t.SetParams(conf.WindowWidth/2, conf.WindowHeight-conf.MarginBot-(conf.MenuFooterHeight/2), conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
-	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
-	M.input = t
-	M.layers[layerInput] = append(M.layers[layerInput], M.input)
+	M.input = i
 	return nil
 }
 
-func (M *Menu) getButtonInput() (*button.Button, error) {
+func (M *Menu) createInput() (*input.Input, error) {
 	var x, y int32
 	var bl *block.Block
-	var b *button.Button
+	var i *input.Input
 	var err error
 
 	y = conf.MarginTop + conf.MenuHeaderHeight + conf.PaddingBlock + conf.MenuContentMediumBlockHeight/2 - (conf.PaddingBlock/2 + conf.ButtonHeight)
 	interval := int32((conf.MenuContentBlockWidth - (conf.ButtonWidth*2 + conf.PaddingBlock)) / 2)
 	x = conf.WindowWidth - conf.MarginRight - conf.MenuContentBlockWidth + interval
 
-	// Create button
-	b = button.New(M.InputNewPlayer)
+	// Create input
+	i, err = input.New(objects.SBasic, conf.TxtMedium, conf.Font)
+	if err != nil {
+		return nil, err
+	}
 	// block sBasic && sFix
 	if bl, err = block.New(block.Filled); err != nil {
 		return nil, err
 	}
 	bl.SetParams(x, y, (conf.ButtonWidth*2)+conf.PaddingBlock, conf.ButtonHeight, conf.ColorInputRed, conf.ColorInputGreen, conf.ColorInputBlue, conf.ColorInputOpacity)
-	b.SetContentBasic(nil, nil, bl)
-	b.SetContentFix(nil, nil, bl)
+	i.SetBlockBasic(bl)
+	i.SetBlockFix(bl)
 	// block sOver
 	if bl, err = block.New(block.Filled); err != nil {
 		return nil, err
 	}
 	bl.SetParams(x, y, (conf.ButtonWidth*2)+conf.PaddingBlock, conf.ButtonHeight, conf.ColorOverInputRed, conf.ColorOverInputGreen, conf.ColorOverInputBlue, conf.ColorOverInputOpacity)
-	b.SetContentOver(nil, nil, bl)
+	i.SetBlockOver(bl)
 	// block sClick
 	if bl, err = block.New(block.Filled); err != nil {
 		return nil, err
 	}
 	bl.SetParams(x, y, (conf.ButtonWidth*2)+conf.PaddingBlock, conf.ButtonHeight, conf.ColorClickInputRed, conf.ColorClickInputGreen, conf.ColorClickInputBlue, conf.ColorClickInputOpacity)
-	b.SetContentClick(nil, nil, bl)
+	i.SetBlockClick(bl)
 
-	return b, nil
+	err = i.SetColorTxt(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity)
+	if err != nil {
+		return nil, err
+	}
+
+	return i, nil
 }
 
 func (M *Menu) addVS() error {

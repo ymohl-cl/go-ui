@@ -150,9 +150,7 @@ func (T *Text) Click() {
 }
 
 func (T *Text) SetStatus(s uint8) {
-	if T.status != objects.SFix {
-		T.status = s
-	}
+	T.status = s
 }
 
 // Draw the object block.
