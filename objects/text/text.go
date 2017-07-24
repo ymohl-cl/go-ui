@@ -2,6 +2,7 @@ package text
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -151,6 +152,56 @@ func (T *Text) Click() {
 
 func (T *Text) SetStatus(s uint8) {
 	T.status = s
+}
+
+func (T *Text) UpdatePosition(x, y int32) {
+	if T.position == nil {
+		return
+	}
+
+	fmt.Println("Update Position")
+	fmt.Println("position x: ", x)
+	fmt.Println("position y: ", y)
+	T.position.X = x
+	T.position.Y = y
+	T.rect.X = T.position.X - (T.sizeSDL.W / 2)
+	T.rect.Y = T.position.Y - (T.sizeSDL.H / 2)
+
+	if T.underColor != nil {
+		if T.underStyle == PositionTopLeft || T.underStyle == PositionBotRight {
+			T.underRect.Y = T.rect.Y - 1
+		} else {
+			T.underRect.Y = T.rect.Y + 1
+		}
+		if T.underStyle == PositionTopRight || T.underStyle == PositionBotRight {
+			T.underRect.X = T.rect.X + 1
+		} else {
+			T.underRect.X = T.rect.X - 1
+		}
+	}
+}
+
+func (T Text) GetPosition() (int32, int32) {
+	return T.position.X, T.position.Y
+}
+
+func (T *Text) MoveTo(x, y int32) {
+	if T.position == nil {
+		return
+	}
+
+	fmt.Println("Move TO")
+	fmt.Println("position x: ", x)
+	fmt.Println("position y: ", y)
+	T.position.X += x
+	T.position.Y += y
+	T.rect.X += x
+	T.rect.Y += y
+
+	if T.underColor != nil {
+		T.underRect.X += x
+		T.underRect.Y += y
+	}
 }
 
 // Draw the object block.

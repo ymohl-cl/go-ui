@@ -74,9 +74,11 @@ func (I Image) IsInit() bool {
 // Close sdl objects
 func (I *Image) Close() error {
 	I.initialized = false
-	if I.texture != nil {
-		I.texture.Destroy()
-	}
+	sdl.Do(func() {
+		if I.texture != nil {
+			I.texture.Destroy()
+		}
+	})
 	return nil
 }
 
@@ -100,6 +102,32 @@ func (I *Image) SetStatus(s uint8) {
 	if I.status != objects.SFix {
 		I.status = s
 	}
+}
+
+func (I *Image) UpdatePosition(x, y int32) {
+	if I.position == nil {
+		return
+	}
+
+	I.position.X = x
+	I.position.Y = y
+	I.rect.X = x
+	I.rect.Y = y
+}
+
+func (I *Image) MoveTo(x, y int32) {
+	if I.position == nil {
+		return
+	}
+
+	I.position.X += x
+	I.position.Y += y
+	I.rect.X += x
+	I.rect.Y += y
+}
+
+func (I *Image) GetPosition() (int32, int32) {
+	return I.position.X, I.position.Y
 }
 
 // Draw the object Image.

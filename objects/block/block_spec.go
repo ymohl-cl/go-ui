@@ -79,7 +79,7 @@ func (B Block) GetSize() (*objects.Size, error) {
 }
 
 // GetPosition provide position object
-func (B Block) GetPosition() (*objects.Position, error) {
+func (B Block) getPosition() (*objects.Position, error) {
 	if B.position == nil {
 		return nil, errors.New(objects.ErrorPosition)
 	}

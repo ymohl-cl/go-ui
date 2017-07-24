@@ -119,7 +119,7 @@ func (T Text) GetSize() (*objects.Size, error) {
 }
 
 // GetPosition provide position object
-func (T Text) GetPosition() (*objects.Position, error) {
+func (T Text) getPosition() (*objects.Position, error) {
 	if T.position == nil {
 		return nil, errors.New(objects.ErrorPosition)
 	}

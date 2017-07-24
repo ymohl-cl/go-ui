@@ -53,7 +53,7 @@ func (I Image) GetSize() (*objects.Size, error) {
 }
 
 // GetPosition provide position object
-func (I Image) GetPosition() (*objects.Position, error) {
+func (I Image) getPosition() (*objects.Position, error) {
 	if I.position == nil {
 		return nil, errors.New(objects.ErrorPosition)
 	}

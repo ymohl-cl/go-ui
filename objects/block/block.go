@@ -74,6 +74,33 @@ func (B *Block) SetStatus(s uint8) {
 	}
 }
 
+func (B *Block) UpdatePosition(x, y int32) {
+	if B.position == nil {
+		return
+	}
+	B.position.X = x
+	B.position.Y = y
+	B.rect.X = x
+	B.rect.Y = y
+}
+
+func (B *Block) MoveTo(x, y int32) {
+	if B.position == nil {
+		return
+	}
+	B.position.X += x
+	B.position.Y += y
+	B.rect.X += x
+	B.rect.Y += y
+}
+
+func (B *Block) GetPosition() (int32, int32) {
+	if B.position == nil {
+		return -1, -1
+	}
+	return B.position.X, B.position.Y
+}
+
 // Draw the object block.
 func (B *Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()

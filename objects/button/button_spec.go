@@ -2,6 +2,7 @@ package button
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -180,16 +181,18 @@ func (C Content) drawContent(wg *sync.WaitGroup, r *sdl.Renderer) {
 }
 
 func (C Content) getPosition() (*objects.Position, error) {
+	var x, y int32
+
 	if C.block != nil {
-		return C.block.GetPosition()
+		x, y = C.block.GetPosition()
+	} else if C.img != nil {
+		x, y = C.img.GetPosition()
+	} else if C.txt != nil {
+		x, y = C.txt.GetPosition()
+	} else {
+		return nil, errors.New(objects.ErrorEmpty)
 	}
-	if C.img != nil {
-		return C.img.GetPosition()
-	}
-	if C.txt != nil {
-		return C.txt.GetPosition()
-	}
-	return nil, errors.New(objects.ErrorEmpty)
+	return &objects.Position{X: x, Y: y}, nil
 }
 
 func (C Content) getSize() (*objects.Size, error) {
@@ -203,4 +206,62 @@ func (C Content) getSize() (*objects.Size, error) {
 		return C.txt.GetSize()
 	}
 	return nil, errors.New(objects.ErrorEmpty)
+}
+
+func (C *Content) UpdatePosition(x, y int32) {
+	var diferX, diferY int32
+	var blockX, blockY int32
+	var imgX, imgY int32
+
+	if C.block != nil {
+		blockX, blockY = C.block.GetPosition()
+		fmt.Println("Block position X: ", blockX, " | Y: ", blockY)
+		C.block.UpdatePosition(x, y)
+		diferX = x - blockX
+		diferY = y - blockY
+		fmt.Println("Block difer position X: ", diferX, " | Y: ", diferY)
+	}
+	if C.img != nil {
+		if diferX == 0 && diferY == 0 {
+			imgX, imgY = C.img.GetPosition()
+			C.img.UpdatePosition(x, y)
+			diferX = imgX - x
+			diferY = imgY - y
+		} else {
+			C.img.MoveTo(diferX, diferY)
+		}
+	}
+	if C.txt != nil {
+		if diferX == 0 && diferY == 0 {
+			fmt.Println("Call update from Content")
+			fmt.Println("position x: ", x)
+			fmt.Println("position y: ", y)
+			fmt.Println("difer x: ", diferX)
+			fmt.Println("difer y: ", diferY)
+			fmt.Println(".............................")
+			C.txt.UpdatePosition(x, y)
+		} else {
+			fmt.Println("Call move to from Content")
+
+			fmt.Println("position x: ", x)
+			fmt.Println("position y: ", y)
+			fmt.Println("difer x: ", diferX)
+			fmt.Println("difer y: ", diferY)
+			fmt.Println(".............................")
+			C.txt.MoveTo(diferX, diferY)
+		}
+	}
+	return
+}
+
+func (C *Content) MoveTo(x, y int32) {
+	if C.block != nil {
+		C.block.MoveTo(x, y)
+	}
+	if C.img != nil {
+		C.img.MoveTo(x, y)
+	}
+	if C.txt != nil {
+		C.txt.MoveTo(x, y)
+	}
 }

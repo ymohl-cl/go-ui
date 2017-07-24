@@ -25,6 +25,7 @@ type Input struct {
 
 func (I *Input) Init(r *sdl.Renderer) error {
 	var err error
+	var x, y int32
 
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
@@ -58,17 +59,15 @@ func (I *Input) Init(r *sdl.Renderer) error {
 		return err
 	}
 
-	var pos *objects.Position
 	var size *objects.Size
-	if pos, err = I.bBasic.GetPosition(); err != nil {
-		return err
-	}
+
+	x, y = I.bBasic.GetPosition()
 	if size, err = I.bBasic.GetSize(); err != nil {
 		return err
 	}
 	posTXT := new(objects.Position)
-	posTXT.X = pos.X + (size.W / 2)
-	posTXT.Y = pos.Y + (size.H / 2)
+	posTXT.X = x + (size.W / 2)
+	posTXT.Y = y + (size.H / 2)
 	if err = I.txt.SetPosition(posTXT); err != nil {
 		return err
 	}
@@ -106,44 +105,36 @@ func (I *Input) GetStatus() uint8 {
 	return I.status
 }
 
-func (I *Input) IsOver(x, y int32) bool {
-	var pos *objects.Position
+func (I *Input) IsOver(xRef, yRef int32) bool {
+	var x, y int32
 	var size *objects.Size
 	var err error
 
 	switch I.status {
 	case objects.SFix:
-		if pos, err = I.bFix.GetPosition(); err != nil {
-			panic(err)
-		}
+		x, y = I.bFix.GetPosition()
 		if size, err = I.bFix.GetSize(); err != nil {
 			panic(err)
 		}
 	case objects.SBasic:
-		if pos, err = I.bBasic.GetPosition(); err != nil {
-			panic(err)
-		}
+		x, y = I.bBasic.GetPosition()
 		if size, err = I.bBasic.GetSize(); err != nil {
 			panic(err)
 		}
 	case objects.SOver:
-		if pos, err = I.bOver.GetPosition(); err != nil {
-			panic(err)
-		}
+		x, y = I.bOver.GetPosition()
 		if size, err = I.bOver.GetSize(); err != nil {
 			panic(err)
 		}
 	case objects.SClick:
-		if pos, err = I.bClick.GetPosition(); err != nil {
-			panic(err)
-		}
+		x, y = I.bClick.GetPosition()
 		if size, err = I.bClick.GetSize(); err != nil {
 			panic(err)
 		}
 	}
 
-	if x > pos.X && x < pos.X+size.W {
-		if y > pos.Y && y < pos.Y+size.H {
+	if xRef > x && xRef < x+size.W {
+		if yRef > y && yRef < y+size.H {
 			return true
 		}
 	}
@@ -160,6 +151,60 @@ func (I *Input) SetStatus(s uint8) {
 	if I.status != objects.SFix {
 		I.status = s
 	}
+}
+
+func (I *Input) UpdatePosition(x, y int32) {
+	var diferX, diferY int32
+	var blockX, blockY int32
+
+	if I.bFix != nil {
+		blockX, blockY = I.bFix.GetPosition()
+		diferX = blockX - x
+		diferY = blockY - y
+		I.bFix.UpdatePosition(x, y)
+	}
+	if I.bBasic != nil {
+		I.bBasic.UpdatePosition(x, y)
+	}
+	if I.bOver != nil {
+		I.bOver.UpdatePosition(x, y)
+	}
+	if I.bClick != nil {
+		I.bClick.UpdatePosition(x, y)
+	}
+
+	if I.txt != nil {
+		if diferX == 0 && diferY == 0 {
+			I.txt.UpdatePosition(x, y)
+		} else {
+			I.txt.MoveTo(diferX, diferY)
+		}
+	}
+}
+
+func (I *Input) MoveTo(x, y int32) {
+	if I.txt != nil {
+		I.txt.MoveTo(x, y)
+	}
+	if I.bFix != nil {
+		I.bFix.MoveTo(x, y)
+	}
+	if I.bBasic != nil {
+		I.bBasic.MoveTo(x, y)
+	}
+	if I.bOver != nil {
+		I.bOver.MoveTo(x, y)
+	}
+	if I.bClick != nil {
+		I.bClick.MoveTo(x, y)
+	}
+}
+
+func (I *Input) GetPosition() (int32, int32) {
+	if I.txt != nil {
+		return I.txt.GetPosition()
+	}
+	return -1, -1
 }
 
 func (I *Input) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {

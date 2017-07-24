@@ -138,6 +138,11 @@ func (I Input) GetTxt() string {
 func (I Input) Reset(r *sdl.Renderer) {
 	var err error
 
+	if I.txt.IsInit() {
+		if err = I.txt.Close(); err != nil {
+			panic(err)
+		}
+	}
 	I.txt.SetText(caret)
 	if err = I.txt.Init(r); err != nil {
 		panic(err)

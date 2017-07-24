@@ -70,6 +70,18 @@ func (A *Audio) SetStatus(s uint8) {
 	}
 }
 
+func (A *Audio) UpdatePosition(x, y int32) {
+	return
+}
+
+func (a Audio) Getposition() (int32, int32) {
+	return -1, -1
+}
+
+func (a *Audio) MoveTo(x, y int32) {
+	return
+}
+
 // Draw the object audio.
 func (A *Audio) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()

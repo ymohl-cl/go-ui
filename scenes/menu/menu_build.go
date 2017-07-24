@@ -113,6 +113,7 @@ func (M *Menu) addUIPlayer(nb int, p *database.Player) error {
 		return err
 	}
 	M.layers[layerPlayers] = append(M.layers[layerPlayers], b1)
+
 	if b2, err = M.addButtonDeletePlayer(x, y, p); err != nil {
 		return err
 	}
@@ -120,6 +121,7 @@ func (M *Menu) addUIPlayer(nb int, p *database.Player) error {
 		return err
 	}
 	M.layers[layerPlayers] = append(M.layers[layerPlayers], b2)
+
 	if b3, err = M.addButtonStat(x, y, p); err != nil {
 		return err
 	}
@@ -127,6 +129,7 @@ func (M *Menu) addUIPlayer(nb int, p *database.Player) error {
 		return err
 	}
 	M.layers[layerPlayers] = append(M.layers[layerPlayers], b3)
+
 	if b4, err = M.addLoadGame(x, y, p); err != nil {
 		return err
 	}
@@ -135,6 +138,50 @@ func (M *Menu) addUIPlayer(nb int, p *database.Player) error {
 	}
 	M.layers[layerPlayers] = append(M.layers[layerPlayers], b4)
 
+	return nil
+}
+
+func (M Menu) closeUIPlayer(idx int) error {
+	var err error
+	var size int
+
+	size = len(M.layers[layerPlayers])
+	if size <= idx {
+		return errors.New("id object not found")
+	}
+	button := M.layers[layerPlayers][idx]
+	if err = button.Close(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (M *Menu) removeUIPlayer(idData int) error {
+	var err error
+	var id int
+
+	id = idData * buttonByPlayer
+	if err = M.closeUIPlayer(id); err != nil {
+		return err
+	}
+	if err = M.closeUIPlayer(id + 1); err != nil {
+		return err
+	}
+	if err = M.closeUIPlayer(id + 2); err != nil {
+		return err
+	}
+	if err = M.closeUIPlayer(id + 3); err != nil {
+		return err
+	}
+
+	// Update position next elements
+	for _, b := range M.layers[layerPlayers][id+4:] {
+		x, y := b.GetPosition()
+		y -= (conf.MenuElementPlayerHeight + conf.MenuElementPadding)
+		b.UpdatePosition(x, y)
+	}
+
+	M.layers[layerPlayers] = append(M.layers[layerPlayers][:id], M.layers[layerPlayers][id+4:]...)
 	return nil
 }
 
@@ -350,6 +397,11 @@ func (M *Menu) updateVS() {
 
 	if p1 == nil || p2 == nil {
 		panic(errors.New("Players is nil"))
+	}
+	if M.vs.IsInit() {
+		if err = M.vs.Close(); err != nil {
+			panic(err)
+		}
 	}
 	M.vs.SetText(p1.Name + " VS " + p2.Name)
 	if err = M.vs.Init(M.renderer); err != nil {

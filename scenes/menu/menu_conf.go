@@ -2,7 +2,8 @@ package menu
 
 const (
 	/* Configuration menu */
-	playerMax = 10
+	playerMax      = 10
+	buttonByPlayer = 4
 
 	/* notice message */
 	noticeMaxPlayer = "You can't save more players"
@@ -12,4 +13,5 @@ const (
 	/* erreur message */
 	errorValuesEmpty = "Function polymorphic call without valid argument"
 	errorInterface   = "Error interface type insertion"
+	errorPlayer      = "Player not found"
 )

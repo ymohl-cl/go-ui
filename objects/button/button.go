@@ -141,6 +141,41 @@ func (B *Button) SetStatus(s uint8) {
 	}
 }
 
+func (B *Button) UpdatePosition(x, y int32) {
+	B.cFix.UpdatePosition(x, y)
+	B.cBasic.UpdatePosition(x, y)
+	B.cOver.UpdatePosition(x, y)
+	B.cClick.UpdatePosition(x, y)
+}
+
+func (B Button) GetPosition() (int32, int32) {
+	var pos *objects.Position
+	var err error
+
+	switch B.status {
+	case objects.SFix:
+		pos, err = B.cFix.getPosition()
+	case objects.SBasic:
+		pos, err = B.cBasic.getPosition()
+	case objects.SOver:
+		pos, err = B.cOver.getPosition()
+	case objects.SClick:
+		pos, err = B.cClick.getPosition()
+	}
+
+	if err != nil {
+		panic(err)
+	}
+	return pos.X, pos.Y
+}
+
+func (B *Button) MoveTo(x, y int32) {
+	B.cFix.MoveTo(x, y)
+	B.cBasic.MoveTo(x, y)
+	B.cOver.MoveTo(x, y)
+	B.cClick.MoveTo(x, y)
+}
+
 func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 

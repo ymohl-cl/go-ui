@@ -42,6 +42,18 @@ type Object interface {
 	Click()
 	// Define new status
 	SetStatus(uint8)
+	// UpdatePosition change position to define a movement
+	UpdatePosition(x, y int32)
+
+	// MoveTo(x, y) add x and y to the position
+	MoveTo(x, y int32)
+
+	// GetPosition to get x and y coordinates
+	GetPosition() (int32, int32)
+
+	// GetSize return width and height of object
+	//	GetSize() (int32, int32)
+
 	// Draw object with sdl
 	Draw(*sync.WaitGroup, *sdl.Renderer)
 }

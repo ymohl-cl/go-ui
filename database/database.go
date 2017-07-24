@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -41,6 +42,8 @@ func Get() (*Data, error) {
 }
 
 func (D *Data) initSave() error {
+	var err error
+
 	if len(D.Players) == 0 {
 		unknow1 := CreatePlayer(defaultPlayer1)
 		unknow2 := CreatePlayer(defaultPlayer2)
@@ -49,8 +52,8 @@ func (D *Data) initSave() error {
 	}
 
 	D.Current = new(Session)
-	if D.ResetCurrent() != "" {
-		return errors.New("Save file is corrupted")
+	if err = D.DefaultPlayers(); err != nil {
+		return errors.New("Save file is corrupted: " + err.Error())
 	}
 	return nil
 }
@@ -69,7 +72,7 @@ func (D *Data) UpdateCurrent(p *Player) error {
 	return nil
 }
 
-func (D *Data) ResetCurrent() string {
+func (D *Data) DefaultPlayers() error {
 	for _, p := range D.Players {
 		if p.Name == defaultPlayer1 {
 			D.Current.P1 = p
@@ -78,24 +81,25 @@ func (D *Data) ResetCurrent() string {
 		}
 	}
 	if D.Current.P1 == nil || D.Current.P2 == nil {
-		return "Default players not found"
+		return errors.New("Default players not found")
 	}
-	return ""
+	return nil
 }
 
 func (D *Data) AddPlayer(p *Player) {
 	D.Players = append(D.Players, p)
+	fmt.Println("il y a ", len(D.Players), "players dans la base into database")
 }
 
-func (D *Data) DeletePlayer(p *Player) string {
+func (D *Data) DeletePlayer(p *Player) (int, error) {
 	if p.Name == defaultPlayer1 || p.Name == defaultPlayer2 {
-		return "You can't remove defaultUser Unknow 1 and 2"
+		return 0, errors.New("You can't remove defaultUser Unknow 1 and 2")
 	}
-	for i, pt := range D.Players {
+	for id, pt := range D.Players {
 		if pt.Name == p.Name {
-			D.Players = append(D.Players[:i], D.Players[i+1:]...)
-			return D.ResetCurrent()
+			D.Players = append(D.Players[:id], D.Players[id+1:]...)
+			return id, D.DefaultPlayers()
 		}
 	}
-	return "Player name not found"
+	return 0, errors.New("Player name not found")
 }

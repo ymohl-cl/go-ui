@@ -31,7 +31,28 @@ func (M *Menu) LoadGame(values ...interface{}) {
 }
 
 func (M *Menu) DeletePlayer(values ...interface{}) {
-	fmt.Println("Delete Player")
+	var p *database.Player
+	var err error
+	var ok bool
+	var id int
+
+	if len(values) == 1 {
+		p, ok = values[0].(*database.Player)
+		if !ok {
+			panic(errorInterface)
+		}
+	} else {
+		panic(errorValuesEmpty)
+	}
+
+	if id, err = M.data.DeletePlayer(p); err != nil {
+		go M.setNotice(err.Error())
+		return
+	}
+	if err = M.removeUIPlayer(id); err != nil {
+		panic(err)
+	}
+	M.updateVS()
 }
 
 func (M *Menu) DrawStat(values ...interface{}) {
@@ -58,10 +79,6 @@ func (M *Menu) SelectPlayer(values ...interface{}) {
 	M.updateVS()
 }
 
-func (M *Menu) InputNewPlayer(values ...interface{}) {
-	fmt.Println("Input New player")
-}
-
 func (M *Menu) NewPlayer(values ...interface{}) {
 	var name string
 	var nbPlayer int
@@ -86,6 +103,7 @@ func (M *Menu) NewPlayer(values ...interface{}) {
 	}
 	p := database.CreatePlayer(name)
 	M.data.AddPlayer(p)
+	fmt.Println("il y a ", len(M.data.Players), "players dans la base into menu_event")
 	M.input.Reset(M.renderer)
 
 	if err = M.addUIPlayer(nbPlayer, p); err != nil {
@@ -99,13 +117,16 @@ func (M *Menu) Play(values ...interface{}) {
 }
 
 func (M *Menu) ResetName(values ...interface{}) {
-	fmt.Println("ResetName")
-	go M.setNotice("ResetName")
+	M.input.Reset(M.renderer)
 }
 
 func (M *Menu) DefaultPlayer(values ...interface{}) {
-	fmt.Println("Default Player")
-	go M.setNotice("Default Player")
+	var err error
+
+	if err = M.data.DefaultPlayers(); err != nil {
+		panic(err.Error)
+	}
+	M.updateVS()
 }
 
 /*
