@@ -71,7 +71,7 @@ func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 }
 
 func (S *Scenes) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
-	S.list[conf.Current].KeyDownEvent(keyDown)
+	go S.list[conf.Current].KeyDownEvent(keyDown)
 	//	fmt.Println("Key down: ", keyDown)
 	return nil
 }

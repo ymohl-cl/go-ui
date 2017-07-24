@@ -11,8 +11,12 @@ import (
 )
 
 const (
-	caret        = ")"
-	errorSizeTxt = "Text is too long"
+	caret = ")"
+
+	// paddingSizeTxt is a secure space, count on character to keep space
+	// on the right and on the left of word in input.
+	paddingSizeTxt = 2
+	errorSizeTxt   = "Text is too long"
 )
 
 // New create a new input object
@@ -63,8 +67,6 @@ func (I *Input) SetBlockClick(b *block.Block) {
 func (I *Input) SetNewRune(kCode sdl.Keysym, renderer *sdl.Renderer) error {
 	var s string
 	var newStr string
-	var sizeTXT *objects.Size
-	var sizeBlock *objects.Size
 	var err error
 
 	if I.status == objects.SClick {
@@ -91,25 +93,39 @@ func (I *Input) SetNewRune(kCode sdl.Keysym, renderer *sdl.Renderer) error {
 			}
 		}
 
+		if len(newStr) > len(s) && I.checkSizeTxt(newStr, s) == false {
+			return errors.New(errorSizeTxt)
+		}
+		if I.txt.IsInit() {
+			if err = I.txt.Close(); err != nil {
+				return err
+			}
+		}
 		I.txt.SetText(newStr)
 		if err = I.txt.Init(renderer); err != nil {
 			panic(err)
 		}
 	}
-	if sizeTXT, err = I.txt.GetSize(); err != nil {
-		panic(err)
-	}
+
+	return nil
+}
+
+func (I Input) checkSizeTxt(newStr, oldStr string) bool {
+	var sizeTXT *objects.Size
+	var sizeBlock *objects.Size
+	var err error
+
 	if sizeBlock, err = I.bBasic.GetSize(); err != nil {
 		panic(err)
 	}
-	if sizeTXT.W >= sizeBlock.W {
-		I.txt.SetText(s)
-		if err := I.txt.Init(renderer); err != nil {
-			panic(err)
-		}
-		return errors.New(errorSizeTxt)
+	if sizeTXT, err = I.txt.GetSize(); err != nil {
+		panic(err)
 	}
-	return nil
+
+	if (sizeTXT.W / int32(len(oldStr)) * int32(len(newStr)+paddingSizeTxt)) > sizeBlock.W {
+		return false
+	}
+	return true
 }
 
 func (I Input) GetTxt() string {

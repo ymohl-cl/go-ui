@@ -186,5 +186,5 @@ func (I *Input) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 		wg.Done()
 	}
 	wg.Add(1)
-	go I.txt.Draw(wg, r)
+	I.txt.Draw(wg, r)
 }
