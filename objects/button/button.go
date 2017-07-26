@@ -2,198 +2,266 @@ package button
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/game-builder/objects/block"
+	"github.com/ymohl-cl/game-builder/objects/image"
+	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
-type Button struct {
-	// infos object
-	status      uint8
-	initialized bool
-
-	// content object
-	cBasic    Content
-	cOver     Content
-	cClick    Content
-	cFix      Content
-	funcClick func(...interface{})
-	dataClick []interface{}
+type Content struct {
+	txt   *text.Text
+	img   *image.Image
+	block *block.Block
 }
 
-func (B *Button) Init(r *sdl.Renderer) error {
-	if r == nil {
-		return errors.New(objects.ErrorRenderer)
+// New create a new Button object
+func New(f func(...interface{}), d ...interface{}) *Button {
+	b := new(Button)
+
+	b.status = objects.SBasic
+	b.funcClick = f
+	for _, v := range d {
+		b.dataClick = append(b.dataClick, v)
+	}
+	return b
+}
+
+func (B *Button) SetContentBasic(t *text.Text, i *image.Image, b *block.Block) {
+	B.cBasic.txt = t
+	B.cBasic.img = i
+	B.cBasic.block = b
+}
+
+func (B *Button) SetContentOver(t *text.Text, i *image.Image, b *block.Block) {
+	B.cOver.txt = t
+	B.cOver.img = i
+	B.cOver.block = b
+}
+
+func (B *Button) SetContentClick(t *text.Text, i *image.Image, b *block.Block) {
+	B.cClick.txt = t
+	B.cClick.img = i
+	B.cClick.block = b
+}
+
+func (B *Button) SetContentFix(t *text.Text, i *image.Image, b *block.Block) {
+	B.cFix.txt = t
+	B.cFix.img = i
+	B.cFix.block = b
+}
+
+func (B *Button) CopyStateToStates(stateSource uint8, stDests []uint8) error {
+	var source Content
+
+	switch stateSource {
+	case objects.SFix:
+		source = B.cFix
+	case objects.SBasic:
+		source = B.cBasic
+	case objects.SOver:
+		source = B.cOver
+	case objects.SClick:
+		source = B.cClick
+	default:
+		return errors.New(objects.ErrorStatus)
 	}
 
-	if err := B.cFix.checkContent(); err != nil {
-		return err
+	for _, v := range stDests {
+		switch v {
+		case objects.SFix:
+			B.cFix.copyContent(source)
+		case objects.SBasic:
+			B.cBasic.copyContent(source)
+		case objects.SOver:
+			B.cOver.copyContent(source)
+		case objects.SClick:
+			B.cClick.copyContent(source)
+		default:
+			return errors.New(objects.ErrorStatus)
+		}
 	}
-	if err := B.cFix.initContent(r); err != nil {
-		return err
-	}
-	if err := B.cBasic.checkContent(); err != nil {
-		return err
-	}
-	if err := B.cBasic.initContent(r); err != nil {
-		return err
-	}
-	if err := B.cOver.checkContent(); err != nil {
-		return err
-	}
-	if err := B.cOver.initContent(r); err != nil {
-		return err
-	}
-	if err := B.cClick.checkContent(); err != nil {
-		return err
-	}
-	if err := B.cClick.initContent(r); err != nil {
-		return err
-	}
-
-	if B.funcClick == nil {
-		return errors.New(objects.ErrorTargetURL)
-	}
-
-	B.initialized = true
 	return nil
 }
 
-// IsInit return status initialize
-func (B *Button) IsInit() bool {
-	return B.initialized
+/*
+** Private function Text objects
+ */
+func (C Content) copyContent(s Content) {
+	C.txt = s.txt
+	C.img = s.img
+	C.block = s.block
 }
 
-func (B *Button) Close() error {
-	B.initialized = false
-	if err := B.cFix.closeContent(); err != nil {
-		return err
+// checkContent and return err with the raison.
+func (C Content) checkContent() error {
+	var flag uint8
+
+	if C.block != nil {
+		flag++
 	}
-	if err := B.cBasic.closeContent(); err != nil {
-		return err
+	if C.img != nil {
+		flag++
 	}
-	if err := B.cOver.closeContent(); err != nil {
-		return err
-	}
-	if err := B.cClick.closeContent(); err != nil {
-		return err
+	if C.txt != nil {
+		flag++
 	}
 
+	if flag == 0 {
+		return errors.New(objects.ErrorEmpty)
+	}
 	return nil
 }
 
-func (B *Button) GetStatus() uint8 {
-	return B.status
-}
-
-func (B *Button) IsOver(x, y int32) bool {
-	var pos *objects.Position
-	var size *objects.Size
+func (C *Content) initContent(r *sdl.Renderer) error {
 	var err error
 
-	switch B.status {
-	case objects.SFix:
-		if pos, err = B.cFix.getPosition(); err != nil {
-			panic(err)
-		}
-		if size, err = B.cFix.getSize(); err != nil {
-			panic(err)
-		}
-	case objects.SBasic:
-		if pos, err = B.cBasic.getPosition(); err != nil {
-			panic(err)
-		}
-		if size, err = B.cBasic.getSize(); err != nil {
-			panic(err)
-		}
-	case objects.SOver:
-		if pos, err = B.cOver.getPosition(); err != nil {
-			panic(err)
-		}
-		if size, err = B.cOver.getSize(); err != nil {
-			panic(err)
-		}
-	case objects.SClick:
-		if pos, err = B.cClick.getPosition(); err != nil {
-			panic(err)
-		}
-		if size, err = B.cClick.getSize(); err != nil {
-			panic(err)
+	if C.block != nil {
+		if C.block.IsInit() == false {
+			if err = C.block.Init(r); err != nil {
+				return err
+			}
 		}
 	}
-
-	if x > pos.X && x < pos.X+size.W {
-		if y > pos.Y && y < pos.Y+size.H {
-			return true
+	if C.img != nil {
+		if C.img.IsInit() == false {
+			if err = C.img.Init(r); err != nil {
+				return err
+			}
 		}
 	}
-	return false
-}
-
-func (B *Button) Click() {
-	B.funcClick(B.dataClick...)
-}
-
-func (B *Button) SetStatus(s uint8) {
-	if B.status != objects.SFix {
-		B.status = s
+	if C.txt != nil {
+		if C.txt.IsInit() == false {
+			if err = C.txt.Init(r); err != nil {
+				return err
+			}
+		}
 	}
+	return nil
 }
 
-func (B *Button) UpdatePosition(x, y int32) {
-	B.cFix.UpdatePosition(x, y)
-	B.cBasic.UpdatePosition(x, y)
-	B.cOver.UpdatePosition(x, y)
-	B.cClick.UpdatePosition(x, y)
-}
-
-func (B Button) GetPosition() (int32, int32) {
-	var pos *objects.Position
+func (C *Content) closeContent() error {
 	var err error
 
-	switch B.status {
-	case objects.SFix:
-		pos, err = B.cFix.getPosition()
-	case objects.SBasic:
-		pos, err = B.cBasic.getPosition()
-	case objects.SOver:
-		pos, err = B.cOver.getPosition()
-	case objects.SClick:
-		pos, err = B.cClick.getPosition()
+	if C.block != nil {
+		if err = C.block.Close(); err != nil {
+			return err
+		}
 	}
-
-	if err != nil {
-		panic(err)
+	if C.img != nil {
+		if err = C.img.Close(); err != nil {
+			return err
+		}
 	}
-	return pos.X, pos.Y
+	if C.txt != nil {
+		if err = C.txt.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (B *Button) MoveTo(x, y int32) {
-	B.cFix.MoveTo(x, y)
-	B.cBasic.MoveTo(x, y)
-	B.cOver.MoveTo(x, y)
-	B.cClick.MoveTo(x, y)
+func (C Content) drawContent(wg *sync.WaitGroup, r *sdl.Renderer) {
+
+	if C.block != nil {
+		wg.Add(1)
+		C.block.Draw(wg, r)
+	}
+	if C.img != nil {
+		wg.Add(1)
+		C.img.Draw(wg, r)
+	}
+	if C.txt != nil {
+		wg.Add(1)
+		C.txt.Draw(wg, r)
+	}
 }
 
-func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
-	defer wg.Done()
+func (C Content) getPosition() (*objects.Position, error) {
+	var x, y int32
 
-	if B.initialized == false {
-		return
+	if C.block != nil {
+		x, y = C.block.GetPosition()
+	} else if C.img != nil {
+		x, y = C.img.GetPosition()
+	} else if C.txt != nil {
+		x, y = C.txt.GetPosition()
+	} else {
+		return nil, errors.New(objects.ErrorEmpty)
 	}
-	if r == nil {
-		panic(errors.New(objects.ErrorRenderer))
-	}
+	return &objects.Position{X: x, Y: y}, nil
+}
 
-	switch B.status {
-	case objects.SFix:
-		B.cFix.drawContent(wg, r)
-	case objects.SBasic:
-		B.cBasic.drawContent(wg, r)
-	case objects.SOver:
-		B.cOver.drawContent(wg, r)
-	case objects.SClick:
-		B.cClick.drawContent(wg, r)
+func (C Content) getSize() (*objects.Size, error) {
+	if C.block != nil {
+		return C.block.GetSize()
+	}
+	if C.img != nil {
+		return C.img.GetSize()
+	}
+	if C.txt != nil {
+		return C.txt.GetSize()
+	}
+	return nil, errors.New(objects.ErrorEmpty)
+}
+
+func (C *Content) UpdatePosition(x, y int32) {
+	var diferX, diferY int32
+	var blockX, blockY int32
+	var imgX, imgY int32
+
+	if C.block != nil {
+		blockX, blockY = C.block.GetPosition()
+		fmt.Println("Block position X: ", blockX, " | Y: ", blockY)
+		C.block.UpdatePosition(x, y)
+		diferX = x - blockX
+		diferY = y - blockY
+		fmt.Println("Block difer position X: ", diferX, " | Y: ", diferY)
+	}
+	if C.img != nil {
+		if diferX == 0 && diferY == 0 {
+			imgX, imgY = C.img.GetPosition()
+			C.img.UpdatePosition(x, y)
+			diferX = imgX - x
+			diferY = imgY - y
+		} else {
+			C.img.MoveTo(diferX, diferY)
+		}
+	}
+	if C.txt != nil {
+		if diferX == 0 && diferY == 0 {
+			fmt.Println("Call update from Content")
+			fmt.Println("position x: ", x)
+			fmt.Println("position y: ", y)
+			fmt.Println("difer x: ", diferX)
+			fmt.Println("difer y: ", diferY)
+			fmt.Println(".............................")
+			C.txt.UpdatePosition(x, y)
+		} else {
+			fmt.Println("Call move to from Content")
+
+			fmt.Println("position x: ", x)
+			fmt.Println("position y: ", y)
+			fmt.Println("difer x: ", diferX)
+			fmt.Println("difer y: ", diferY)
+			fmt.Println(".............................")
+			C.txt.MoveTo(diferX, diferY)
+		}
+	}
+	return
+}
+
+func (C *Content) MoveTo(x, y int32) {
+	if C.block != nil {
+		C.block.MoveTo(x, y)
+	}
+	if C.img != nil {
+		C.img.MoveTo(x, y)
+	}
+	if C.txt != nil {
+		C.txt.MoveTo(x, y)
 	}
 }
