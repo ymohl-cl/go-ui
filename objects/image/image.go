@@ -1,146 +1,76 @@
 package image
 
 import (
-	"errors"
-	"sync"
-
-	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
-const ()
-
-// Image object with implementation of objet interface
+// Image object implementation
 type Image struct {
 	// infos object
 	status      uint8
 	initialized bool
+	url         string
 
-	// content object
-	url      string
-	size     *objects.Size
-	position *objects.Position
+	// parameters object
+	rect sdl.Rect
 
-	// sdl objects
+	// sdl ressources
 	texture *sdl.Texture
-	rect    sdl.Rect
 }
 
-// Init image object
-func (I *Image) Init(r *sdl.Renderer) error {
-	var surface *sdl.Surface
+/*
+** Builder method
+ */
+
+// New create Image object, it's necessary to call SetParams before call Init
+func New(url string) (*Image, error) {
+	i := Image{status: objects.SFix, url: url}
+
+	return &i, nil
+}
+
+// Clone object and return a new
+func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 	var err error
+	var prime *Image
 
-	if r == nil {
-		return errors.New(objects.ErrorRenderer)
+	if prime, err = New(I.url); err != nil {
+		return prime, err
 	}
+	prime.SetParams(I.rect.X, I.rect.Y, I.color.R, I.color.G, I.color.B, I.color.A)
 
-	if I.size == nil {
-		return errors.New(objects.ErrorSize)
-	}
-	if I.position == nil {
-		return errors.New(objects.ErrorPosition)
-	}
-	if I.url == "" {
-		return errors.New(objects.ErrorTargetURL)
-	}
-
-	surface, err = img.Load(I.url)
-	if err != nil {
-		return err
-	}
-	defer surface.Free()
-
-	I.texture, err = r.CreateTextureFromSurface(surface)
-	if err != nil {
-		return err
-	}
-
-	I.rect.X = I.position.X
-	I.rect.Y = I.position.Y
-	I.rect.W = I.size.W
-	I.rect.H = I.size.H
-
-	I.initialized = true
-	return nil
-}
-
-// IsInit return status initialize
-func (I Image) IsInit() bool {
-	return I.initialized
-}
-
-// Close sdl objects
-func (I *Image) Close() error {
-	I.initialized = false
-	sdl.Do(func() {
-		if I.texture != nil {
-			I.texture.Destroy()
+	if I.IsInit() {
+		if err = prime.Init(r); err != nil {
+			return nil, err
 		}
-	})
-	return nil
+	}
+	return prime, nil
 }
 
-// GetStatus provide the status
-func (I *Image) GetStatus() uint8 {
-	return I.status
-}
+/*
+** Setter method
+ */
 
-// IsOver define if overred
-func (I *Image) IsOver(x, y int32) bool {
-	return false
-}
-
-// Click specify object is click
-func (I *Image) Click() {
-	return
-}
-
-// SetStatus change the object status if it is not Fix
-func (I *Image) SetStatus(s uint8) {
-	if I.status != objects.SFix {
-		I.status = s
+// SetParams define object's position and color
+func (I *Image) SetParams(x, y, w, h int32) {
+	I.rect = sdl.Rect{
+		X: x,
+		Y: y,
+		W: w,
+		H: h,
 	}
 }
 
-func (I *Image) UpdatePosition(x, y int32) {
-	if I.position == nil {
-		return
-	}
+/*
+** Getter method
+ */
 
-	I.position.X = x
-	I.position.Y = y
-	I.rect.X = x
-	I.rect.Y = y
-}
-
-func (I *Image) MoveTo(x, y int32) {
-	if I.position == nil {
-		return
-	}
-
-	I.position.X += x
-	I.position.Y += y
-	I.rect.X += x
-	I.rect.Y += y
-}
-
-func (I *Image) GetPosition() (int32, int32) {
-	return I.position.X, I.position.Y
-}
-
-// Draw the object Image.
-func (I *Image) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
-	defer wg.Done()
-
-	sdl.Do(func() {
-		if I.initialized == false {
-			return
-		}
-		if r == nil {
-			panic(errors.New(objects.ErrorRenderer))
-		}
-		r.Copy(I.texture, nil, &I.rect)
-	})
+/*
+** Updater method
+ */
+// UpdateSize to change size of initialized object
+func (I *Image) UpdateSize(w, h int32) {
+	I.rect.W = w
+	I.rect.H = h
 }

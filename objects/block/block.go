@@ -2,133 +2,102 @@ package block
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
+// Block object implementation
 type Block struct {
 	// infos object
 	status      uint8
 	initialized bool
-	style       uint8
 
-	size     *objects.Size
-	position *objects.Position
-	color    *objects.Color
+	// parameters objects
+	rect  sdl.Rect
+	color sdl.Color
 
-	// objects of sdl
-	rect sdl.Rect
+	// style object
+	style Styler
 }
 
-func (B *Block) Init(r *sdl.Renderer) error {
-	if r == nil {
-		return errors.New(objects.ErrorRenderer)
+/*
+** Builder method
+ */
+
+// New create block object, it's necessary to call SetParams before call Init
+func New(style uint8) (*Block, error) {
+	b := Block{status: objects.SFix}
+
+	switch style {
+	case Filled:
+		b.style.block = Filled
+	case Border:
+		b.style.block = Border
+	default:
+		return nil, errors.New(objects.ErrorStyle)
 	}
 
-	if B.size == nil {
-		return errors.New(objects.ErrorSize)
+	return &b, nil
+}
+
+// Clone object and return a new
+func (B Block) Clone(r *sdl.Renderer) (*Block, error) {
+	var err error
+	var prime *Block
+
+	if prime, err = New(B.style.block); err != nil {
+		return prime, err
 	}
-	if B.position == nil {
-		return errors.New(objects.ErrorPosition)
-	}
-	if B.color == nil {
-		return errors.New(objects.ErrorColor)
-	}
+	prime.SetParams(B.rect.X, B.rect.Y, B.rect.W, B.rect.H, B.color.R, B.color.G, B.color.B, B.color.A)
 
-	B.rect.X = B.position.X
-	B.rect.Y = B.position.Y
-	B.rect.W = B.size.W
-	B.rect.H = B.size.H
-
-	B.initialized = true
-	return nil
-}
-
-// IsInit return status initialize
-func (B Block) IsInit() bool {
-	return B.initialized
-}
-
-func (B *Block) Close() error {
-	B.initialized = false
-	return nil
-}
-
-func (B *Block) GetStatus() uint8 {
-	return B.status
-}
-
-func (B *Block) IsOver(x, y int32) bool {
-	return false
-}
-
-func (B *Block) Click() {
-	return
-}
-
-func (B *Block) SetStatus(s uint8) {
-	if B.status != objects.SFix {
-		B.status = s
-	}
-}
-
-func (B *Block) UpdatePosition(x, y int32) {
-	if B.position == nil {
-		return
-	}
-	B.position.X = x
-	B.position.Y = y
-	B.rect.X = x
-	B.rect.Y = y
-}
-
-func (B *Block) MoveTo(x, y int32) {
-	if B.position == nil {
-		return
-	}
-	B.position.X += x
-	B.position.Y += y
-	B.rect.X += x
-	B.rect.Y += y
-}
-
-func (B *Block) GetPosition() (int32, int32) {
-	if B.position == nil {
-		return -1, -1
-	}
-	return B.position.X, B.position.Y
-}
-
-// Draw the object block.
-func (B *Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
-	defer wg.Done()
-
-	sdl.Do(func() {
-		if B.initialized == false {
-			return
+	if B.IsInit() {
+		if err = prime.Init(r); err != nil {
+			return nil, err
 		}
-		if r == nil {
-			panic(errors.New(objects.ErrorRenderer))
-		}
+	}
+	return prime, nil
+}
 
-		err := r.SetDrawColor(B.color.Red, B.color.Green, B.color.Blue, B.color.Opacity)
-		if err != nil {
-			panic(err)
-		}
+/*
+** Setter method
+ */
 
-		switch B.style {
-		case Filled:
-			err = r.FillRect(&B.rect)
-		case Empty:
-			err = r.DrawRect(&B.rect)
-		default:
-			err = errors.New(objects.ErrorObjectStyle)
-		}
+// SetParams define object's position and color
+func (B *Block) SetParams(x, y, w, h int32, red, green, blue, opacity uint8) {
+	B.rect = sdl.Rect{
+		X: x,
+		Y: y,
+		W: w,
+		H: h,
+	}
+	B.color = sdl.Color{
+		R: red,
+		G: green,
+		B: blue,
+		A: opacity,
+	}
+}
 
-		if err != nil {
-			panic(err)
-		}
-	})
+/*
+** Getter method
+ */
+
+// GetColor provide color object
+func (B Block) GetColor() (r, g, b, a uint8) {
+	return B.color.R, B.color.G, B.color.B, B.color.A
+}
+
+/*
+** Updater method
+ */
+
+// UpdateColor to change color of initialized object
+func (B *Block) UpdateColor(red, green, blue, opacity uint8) {
+	B.color = sdl.Color{
+		R: red,
+		G: green,
+		B: blue,
+		A: opacity,
+	}
 }

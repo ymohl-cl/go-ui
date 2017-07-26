@@ -2,7 +2,7 @@ package input
 
 import (
 	"errors"
-	"sync"
+	"strings"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
@@ -10,226 +10,216 @@ import (
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
+const (
+	caret = ")"
+
+	// paddingSizeTxt is a secure space, count on character to keep space
+	// on the right and on the left of word in input.
+	paddingSizeTxt = 2
+	errorSizeTxt   = "Text is too long"
+)
+
+// Input object implementation
 type Input struct {
 	// infos object
 	status      uint8
 	initialized bool
 
 	// content object
-	txt    *text.Text
-	bFix   *block.Block
-	bBasic *block.Block
-	bOver  *block.Block
-	bClick *block.Block
+	txt   *text.Text
+	block *block.Block
+
+	// style object
+	fix   Styler
+	basic Styler
+	over  Styler
+	click Styler
 }
 
-func (I *Input) Init(r *sdl.Renderer) error {
+/*
+** Builder method
+ */
+
+// New create input object, it's necessary to call SetParams before call Init
+func New(sizeText int, fontURL string, styleBlock uint8) (*Input, error) {
 	var err error
-	var x, y int32
+	i := Input{status: objects.SBasic}
 
-	if r == nil {
-		return errors.New(objects.ErrorRenderer)
+	if i.txt, err = text.New(caret, sizeText, fontURL); err != nil {
+		return nil, err
 	}
-
-	if I.bFix == nil {
-		return errors.New(objects.ErrorEmpty)
+	if i.block, err = block.New(styleBlock); err != nil {
+		return nil, err
 	}
-	if err = I.bFix.Init(r); err != nil {
-		return err
-	}
-
-	if I.bBasic == nil {
-		return errors.New(objects.ErrorEmpty)
-	}
-	if err = I.bBasic.Init(r); err != nil {
-		return err
-	}
-
-	if I.bOver == nil {
-		return errors.New(objects.ErrorEmpty)
-	}
-	if err = I.bOver.Init(r); err != nil {
-		return err
-	}
-
-	if I.bClick == nil {
-		return errors.New(objects.ErrorEmpty)
-	}
-	if err = I.bClick.Init(r); err != nil {
-		return err
-	}
-
-	var size *objects.Size
-
-	x, y = I.bBasic.GetPosition()
-	if size, err = I.bBasic.GetSize(); err != nil {
-		return err
-	}
-	posTXT := new(objects.Position)
-	posTXT.X = x + (size.W / 2)
-	posTXT.Y = y + (size.H / 2)
-	if err = I.txt.SetPosition(posTXT); err != nil {
-		return err
-	}
-
-	if err = I.txt.Init(r); err != nil {
-		return err
-	}
-
-	I.initialized = true
-	return nil
+	return &i, nil
 }
 
-// IsInit return status initialize
-func (I *Input) IsInit() bool {
-	return I.initialized
-}
+// Clone object and return a new
+func (I Input) Clone(r *sdl.Renderer) (*Input, error) {
+	var err error
+	var prime *Input
 
-func (I *Input) Close() error {
-	I.initialized = false
-
-	if err := I.bBasic.Close(); err != nil {
-		return err
+	if prime.txt, err = I.txt.Clone(r); err != nil {
+		return prime, err
 	}
-	if err := I.bOver.Close(); err != nil {
-		return err
-	}
-	if err := I.bClick.Close(); err != nil {
-		return err
+	if prime.block, err = I.block.Clone(r); err != nil {
+		return prime, err
 	}
 
-	return nil
+	I.fix.copy(&prime.fix)
+	I.basic.copy(&prime.basic)
+	I.over.copy(&prime.over)
+	I.click.copy(&prime.click)
+
+	if I.IsInit() {
+		if err = prime.Init(r); err != nil {
+			return nil, err
+		}
+	}
+	return prime, nil
 }
 
-func (I *Input) GetStatus() uint8 {
-	return I.status
+/*
+** Setter method
+ */
+
+// SetParams define object's position and color
+func (I *Input) SetParams(x, y, w, h int32, r, g, b, a uint8) {
+	I.fix.setPositionBlock(x, y)
+	I.fix.setSizeBlock(w, h)
+	I.fix.setColorBlock(r, g, b, a)
+
+	I.basic.setPositionBlock(x, y)
+	I.basic.setSizeBlock(w, h)
+	I.basic.setColorBlock(r, g, b, a)
+
+	I.over.setPositionBlock(x, y)
+	I.over.setSizeBlock(w, h)
+	I.over.setColorBlock(r, g, b, a)
+
+	I.click.setPositionBlock(x, y)
+	I.click.setSizeBlock(w, h)
+	I.click.setColorBlock(r, g, b, a)
 }
 
-func (I *Input) IsOver(xRef, yRef int32) bool {
-	var x, y int32
-	var size *objects.Size
+// SetColorTxtOnAll (status: /fix/basic/over/click)
+func (I *Input) SetColorTxtOnAll(r, g, b, a uint8) {
+	I.fix.setColorTXT(r, g, b, a)
+	I.basic.setColorTXT(r, g, b, a)
+	I.over.setColorTXT(r, g, b, a)
+	I.click.setColorTXT(r, g, b, a)
+}
+
+// SetColorTxtOnFix (status: /fix)
+func (I *Input) SetColorTxtOnFix(r, g, b, a uint8) {
+	I.fix.setColorTXT(r, g, b, a)
+}
+
+// SetColorTxtOnBasic (status: /basic)
+func (I *Input) SetColorTxtOnBasic(r, g, b, a uint8) {
+	I.basic.setColorTXT(r, g, b, a)
+}
+
+// SetColorTxtOnOver (status: /Over)
+func (I *Input) SetColorTxtOnOver(r, g, b, a uint8) {
+	I.over.setColorTXT(r, g, b, a)
+}
+
+// SetColorTxtOnClick (status: /click)
+func (I *Input) SetColorTxtOnClick(r, g, b, a uint8) {
+	I.click.setColorTXT(r, g, b, a)
+}
+
+// SetColorBlockOnAll (status: /fix/basic/over/click)
+func (I *Input) SetColorBlockOnAll(r, g, b, a uint8) {
+	I.fix.setColorBlock(r, g, b, a)
+	I.basic.setColorBlock(r, g, b, a)
+	I.over.setColorBlock(r, g, b, a)
+	I.click.setColorBlock(r, g, b, a)
+}
+
+// SetColorBlockOnFix (status: /fix)
+func (I *Input) SetColorBlockOnFix(r, g, b, a uint8) {
+	I.fix.setColorBlock(r, g, b, a)
+}
+
+// SetColorBlockOnBasic (status: /basic)
+func (I *Input) SetColorBlockOnBasic(r, g, b, a uint8) {
+	I.basic.setColorBlock(r, g, b, a)
+}
+
+// SetColorBlockOnOver (status: /over)
+func (I *Input) SetColorBlockOnOver(r, g, b, a uint8) {
+	I.over.setColorBlock(r, g, b, a)
+}
+
+// SetColorBlockOnClick (status: /click)
+func (I *Input) SetColorBlockOnClick(r, g, b, a uint8) {
+	I.click.setColorBlock(r, g, b, a)
+}
+
+// SetNewRune add a character on the text
+func (I *Input) SetNewRune(key sdl.Keysym, r *sdl.Renderer) error {
+	var s string
+	var newStr string
 	var err error
 
-	switch I.status {
-	case objects.SFix:
-		x, y = I.bFix.GetPosition()
-		if size, err = I.bFix.GetSize(); err != nil {
-			panic(err)
-		}
-	case objects.SBasic:
-		x, y = I.bBasic.GetPosition()
-		if size, err = I.bBasic.GetSize(); err != nil {
-			panic(err)
-		}
-	case objects.SOver:
-		x, y = I.bOver.GetPosition()
-		if size, err = I.bOver.GetSize(); err != nil {
-			panic(err)
-		}
-	case objects.SClick:
-		x, y = I.bClick.GetPosition()
-		if size, err = I.bClick.GetSize(); err != nil {
-			panic(err)
-		}
-	}
+	if I.status == objects.SClick {
+		s = I.txt.GetTxt()
 
-	if xRef > x && xRef < x+size.W {
-		if yRef > y && yRef < y+size.H {
-			return true
-		}
-	}
-	return false
-}
-
-func (I *Input) Click() {
-	if I.status != objects.SFix {
-		I.status = objects.SClick
-	}
-}
-
-func (I *Input) SetStatus(s uint8) {
-	if I.status != objects.SFix {
-		I.status = s
-	}
-}
-
-func (I *Input) UpdatePosition(x, y int32) {
-	var diferX, diferY int32
-	var blockX, blockY int32
-
-	if I.bFix != nil {
-		blockX, blockY = I.bFix.GetPosition()
-		diferX = blockX - x
-		diferY = blockY - y
-		I.bFix.UpdatePosition(x, y)
-	}
-	if I.bBasic != nil {
-		I.bBasic.UpdatePosition(x, y)
-	}
-	if I.bOver != nil {
-		I.bOver.UpdatePosition(x, y)
-	}
-	if I.bClick != nil {
-		I.bClick.UpdatePosition(x, y)
-	}
-
-	if I.txt != nil {
-		if diferX == 0 && diferY == 0 {
-			I.txt.UpdatePosition(x, y)
+		if (key.Scancode >= sdl.SCANCODE_A && key.Scancode <= sdl.SCANCODE_Z) || key.Scancode == sdl.SCANCODE_SPACE {
+			newStr = I.addKeyCode(s, key.Sym)
 		} else {
-			I.txt.MoveTo(diferX, diferY)
+			switch key.Scancode {
+			case sdl.SCANCODE_RIGHT:
+				newStr = I.caretRight(s)
+			case sdl.SCANCODE_LEFT:
+				newStr = I.caretLeft(s)
+			case sdl.SCANCODE_DOWN:
+				newStr = I.caretEnd(s)
+			case sdl.SCANCODE_UP:
+				newStr = I.caretBegin(s)
+			case sdl.SCANCODE_BACKSPACE:
+				newStr = I.removeKeyBackspace(s)
+			case sdl.SCANCODE_DELETE:
+				newStr = I.removeKeyDelete(s)
+			default:
+				return nil // nothing todo
+			}
+		}
+
+		if len(newStr) > len(s) && I.checkSizeTxt(newStr, s) == false {
+			return errors.New(errorSizeTxt)
+		}
+		if err = I.txt.UpdateText(newStr, r); err != nil {
+			panic(err)
 		}
 	}
+
+	return nil
 }
 
-func (I *Input) MoveTo(x, y int32) {
-	if I.txt != nil {
-		I.txt.MoveTo(x, y)
-	}
-	if I.bFix != nil {
-		I.bFix.MoveTo(x, y)
-	}
-	if I.bBasic != nil {
-		I.bBasic.MoveTo(x, y)
-	}
-	if I.bOver != nil {
-		I.bOver.MoveTo(x, y)
-	}
-	if I.bClick != nil {
-		I.bClick.MoveTo(x, y)
+// Reset input with the caret only
+func (I Input) Reset(r *sdl.Renderer) {
+	var err error
+
+	if err = I.txt.UpdateText(caret, r); err != nil {
+		panic(err)
 	}
 }
 
-func (I *Input) GetPosition() (int32, int32) {
-	if I.txt != nil {
-		return I.txt.GetPosition()
-	}
-	return -1, -1
+/*
+** Getter method
+ */
+
+// GetTxt provide str on the actual input
+func (I Input) GetTxt() string {
+	s := I.txt.GetTxt()
+
+	idx := strings.Index(s, caret)
+	return s[:idx] + s[idx+1:]
 }
 
-func (I *Input) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
-	defer wg.Done()
-
-	if I.initialized == false {
-		return
-	}
-	if r == nil {
-		panic(errors.New(objects.ErrorRenderer))
-	}
-
-	wg.Add(1)
-	switch I.status {
-	case objects.SFix:
-		I.bFix.Draw(wg, r)
-	case objects.SBasic:
-		I.bBasic.Draw(wg, r)
-	case objects.SOver:
-		I.bOver.Draw(wg, r)
-	case objects.SClick:
-		I.bClick.Draw(wg, r)
-	default:
-		wg.Done()
-	}
-	wg.Add(1)
-	I.txt.Draw(wg, r)
-}
+/*
+** Updater method
+ */

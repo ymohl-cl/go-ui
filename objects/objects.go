@@ -25,13 +25,16 @@ const (
 	ErrorTargetURL = "object does not know url target parameters"
 	// ErrorStatus (status not known)
 	ErrorStatus = "object does not know status"
+	// ErrorStyle (style not known)
+	ErrorStyle = "object does not know style"
+	// ErrorBuild (object empty)
+	ErrorBuild = "object don't build with new constructor"
 
 /*	ErrorColor       = "object has no defined color"
 	ErrorTxt         = "object has no defined text"
 	ErrorPosition    = "object has no defined position"
 	ErrorSize        = "object has no defined size"
 	ErrorObjectStyle = "object does not know this style"
-	ErrorEmpty       = "object is empty"
 	ErrorData        = "data is empty"*/
 )
 

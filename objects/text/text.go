@@ -9,23 +9,23 @@ import (
 // Text object implementation
 type Text struct {
 	// infos object
-	status      uint8 // get && set
-	initialized bool  // get
+	status      uint8
+	initialized bool
 	size        int
 	fontURL     string
 
-	// content object (getter and setter available)
+	// content object
 	txt  string
 	font *ttf.Font
 
-	// parameters objects (getter and setter available)
+	// parameters object
 	rect  sdl.Rect
 	color sdl.Color
 
-	// style objects (getter and setter available)
+	// style object
 	style Styler
 
-	// sizeSDL is Width and height of txt on the screen.
+	// sdl ressources
 	idSDL   uint8
 	texture *sdl.Texture
 }
