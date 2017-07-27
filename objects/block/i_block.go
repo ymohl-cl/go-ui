@@ -51,6 +51,12 @@ func (B *Block) UpdatePosition(x, y int32) {
 	B.rect.Y = y
 }
 
+// UpdateSize object
+func (B *Block) UpdateSize(w, h int32) {
+	B.rect.W = w
+	B.rect.H = h
+}
+
 // GetPosition object (x, y)
 func (B Block) GetPosition() (int32, int32) {
 	return B.rect.X, B.rect.Y

@@ -1,6 +1,8 @@
 package text
 
 import (
+	"errors"
+
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"github.com/ymohl-cl/game-builder/objects"
@@ -11,23 +13,27 @@ type Text struct {
 	// infos object
 	status      uint8
 	initialized bool
-	size        int
-	fontURL     string
+	idSDL       uint8
 
 	// content object
-	txt  string
-	font *ttf.Font
+	txt     string
+	size    int
+	fontURL string
 
 	// parameters object
-	rect  sdl.Rect
-	color sdl.Color
+	rect        sdl.Rect
+	underRect   sdl.Rect
+	colors      map[uint8]sdl.Color
+	underColors map[uint8]sdl.Color
 
-	// style object
-	style Styler
+	// action click
+	funcClick func(...interface{})
+	dataClick []interface{}
 
 	// sdl ressources
-	idSDL   uint8
-	texture *sdl.Texture
+	font         *ttf.Font
+	texture      *sdl.Texture
+	underTexture *sdl.Texture
 }
 
 /*
@@ -35,7 +41,7 @@ type Text struct {
  */
 
 // New create Text object, it's necessary to call SetParams before call Init
-func New(txt string, size int, fontURL string) (*Text, error) {
+func New(txt string, size int, fontURL string, x, y int32) (*Text, error) {
 	var err error
 	t := Text{txt: txt, status: objects.SFix, size: size, fontURL: fontURL}
 
@@ -46,6 +52,12 @@ func New(txt string, size int, fontURL string) (*Text, error) {
 		}
 	})
 
+	T.rect = sdl.Rect{
+		X: x,
+		Y: y,
+	}
+	t.colors = make(map[uint8]sdl.Color)
+	t.underColors = make(map[uint8]sdl.Color)
 	return &t, nil
 }
 
@@ -74,18 +86,46 @@ func (T Text) Clone(r *sdl.Renderer) (*Text, error) {
 ** Setter method
  */
 
-// SetParams define object's position and color
-func (T *Text) SetParams(x, y int32, red, green, blue, opacity uint8) {
-	T.rect = sdl.Rect{
-		X: x,
-		Y: y,
+// SetFixStyle
+func (T *Text) SetFixStyle(r, g, b, a uint8) error {
+
+}
+
+// SetVariantStyle define styles to interact with object.
+func (T *Text) SetVariantStyle(r, g, b, a uint8, status ...uint8) error {
+	for _, s := range status {
+		switch s {
+		case objects.SFix, objects.SBasic, objects.SOver, objects.SClick:
+			T.colors[s] = sdl.Color{
+				R: r,
+				G: g,
+				B: b,
+				A: a,
+			}
+			T.status = objects.SBasic
+		default:
+			return errors.New(objects.ErrorStatus)
+		}
 	}
-	T.color = sdl.Color{
-		R: red,
-		G: green,
-		B: blue,
-		A: opacity,
+	return nil
+}
+
+// SetVariantUnderStyle define styles under to interact with object.
+func (T *Text) SetVariantUnderStyle(r, g, b, a uint8, status ...uint8) error {
+	for _, s := range status {
+		switch s {
+		case objects.SFix, objects.SBasic, objects.SOver, objects.SClick:
+			T.underColors[s] = sdl.Color{
+				R: r,
+				G: g,
+				B: b,
+				A: a,
+			}
+		default:
+			return errors.New(objects.ErrorStatus)
+		}
 	}
+	return nil
 }
 
 /*

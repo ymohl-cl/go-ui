@@ -191,32 +191,19 @@ func (M *Menu) addButtonPlayer(x, y int32, p *database.Player) (*button.Button, 
 	var b *button.Button
 	var err error
 
-	// Create button
-	b = button.New(M.SelectPlayer, p)
-	if t, err = text.New(p.Name, conf.TxtMedium, conf.Font); err != nil {
+	if b, err = button.New(p.Name, conf.Font, conf.TxtMedium, block.Filled); err != nil {
 		return nil, err
 	}
-	t.SetParams(x+conf.MenuElementPlayerWidth/2, y+conf.MenuElementPlayerHeight/2, conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
-	t.SetUnderParams(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
-	// block sBasic && sFix
-	if bl, err = block.New(block.Filled); err != nil {
-		return nil, err
-	}
-	bl.SetParams(x, y, conf.MenuElementPlayerWidth, conf.MenuElementPlayerHeight, conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
-	b.SetContentBasic(t, nil, bl)
-	b.SetContentFix(t, nil, bl)
-	// block sOver
-	if bl, err = block.New(block.Filled); err != nil {
-		return nil, err
-	}
-	bl.SetParams(x, y, conf.MenuElementPlayerWidth, conf.MenuElementPlayerHeight, conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
-	b.SetContentOver(t, nil, bl)
-	// block sClick
-	if bl, err = block.New(block.Filled); err != nil {
-		return nil, err
-	}
-	bl.SetParams(x, y, conf.MenuElementPlayerWidth, conf.MenuElementPlayerHeight, conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
-	b.SetContentClick(t, nil, bl)
+
+	b.SetAction(M.SelectPlayer, p)
+	b.SetColorTxtOnAll(conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	b.SetColorUnderTxt(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+
+	b.SetColorBlockOnFix(conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetColorBlockOnBasic(conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetColorBlockOnOver(conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetColorBlockOnClick(conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetParams(x, y, conf.MenuElementPlayerWidth, conf.MenuElementPlayerHeight)
 
 	return b, nil
 }
@@ -227,6 +214,20 @@ func (M *Menu) addButtonDeletePlayer(x, y int32, p *database.Player) (*button.Bu
 	var err error
 
 	x += conf.MenuElementPlayerWidth + conf.MenuElementPadding
+
+	if b, err = button.New(p.Name, conf.Font, conf.TxtMedium, block.Filled); err != nil {
+		return nil, err
+	}
+
+	b.SetAction(M.SelectPlayer, p)
+	b.SetColorTxtOnAll(conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity)
+	b.SetColorUnderTxt(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, text.PositionBotRight)
+
+	b.SetColorBlockOnFix(conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetColorBlockOnBasic(conf.ColorButtonRed, conf.ColorButtonGreen, conf.ColorButtonBlue, conf.ColorButtonOpacity)
+	b.SetColorBlockOnOver(conf.ColorOverButtonRed, conf.ColorOverButtonGreen, conf.ColorOverButtonBlue, conf.ColorOverButtonOpacity)
+	b.SetColorBlockOnClick(conf.ColorClickButtonRed, conf.ColorClickButtonGreen, conf.ColorClickButtonBlue, conf.ColorClickButtonOpacity)
+	b.SetParams(x, y, conf.MenuElementPlayerWidth, conf.MenuElementPlayerHeight)
 
 	// Create button
 	b = button.New(M.DeletePlayer, p)

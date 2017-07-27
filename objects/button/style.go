@@ -1,16 +1,15 @@
 package button
 
 import (
+	"image"
+
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/objects/image"
 )
 
 // Styler define parameters of text and block (position and color) and image
 type Styler struct {
 	txtColor   sdl.Color
-	txtRect    sdl.Rect
 	blockColor sdl.Color
-	blockRect  sdl.Rect
 	img        *image.Image
 }
 
@@ -43,8 +42,10 @@ func (S Styler) copy(dest *Styler, r *sdl.Renderer) error {
 		Y: S.blockRect.Y,
 	}
 
-	if dest.img, err = S.img.Clone(r); err != nil {
-		return err
+	if dest.img != nil {
+		if dest.img, err = S.img.Clone(r); err != nil {
+			return err
+		}
 	}
 	return nil
 }

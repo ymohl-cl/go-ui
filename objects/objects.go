@@ -46,24 +46,28 @@ type Object interface {
 	IsInit() bool
 	// Close sdl ressources needest to object
 	Close() error
-	// GetStatus object
-	GetStatus() uint8
-	// IsOver define if object and position parameters matches
-	IsOver(int32, int32) bool
-	// Click define a click on object
-	Click()
+	// SetAction to get it on click button
+	SetAction(f func(...interface{}), d ...interface{})
 	// SetStatus change object's status
 	SetStatus(uint8)
+	// MoveTo by increment position with x and y parameters
+	MoveTo(x, y int32)
 	// UpdatePosition object
 	UpdatePosition(x, y int32)
+	// UpdateSize object
+	UpdateSize(w, h int32)
+	// UpdateColor object
+	UpdateColor(r, g, b, a uint8)
+	// IsOver define if object and position parameters matches
+	IsOver(int32, int32) bool
+	// GetStatus object
+	GetStatus() uint8
 	// GetPosition object (x, y)
 	GetPosition() (int32, int32)
 	// GetSize object (width, height)
 	GetSize() (int32, int32)
-	// MoveTo by increment position with x and y parameters
-	MoveTo(x, y int32)
-	// Update object after done modification
-	Update(*sdl.Renderer) error
+	// Click define a click on object
+	Click()
 	// Draw object
 	Draw(*sync.WaitGroup, *sdl.Renderer)
 }

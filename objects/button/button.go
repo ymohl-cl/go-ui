@@ -33,6 +33,10 @@ type Button struct {
 ** Builder method
  */
 
+func NewByImage(urlFix, urlBasic, urlOver, urlClick string) (*Button, error) {
+
+}
+
 // New create button object, it's necessary to call SetParams before call Init
 // Call set action to define action on click
 func New(txt, fontURL string, sizeTXT int, styleBlock uint8) (*Button, error) {
@@ -53,11 +57,13 @@ func (B Button) Clone(r *sdl.Renderer) (*Button, error) {
 	var err error
 	var prime *Button
 
-	if prime.txt, err = B.txt.Clone(r); err != nil {
-		return prime, err
-	}
-	if prime.block, err = B.block.Clone(r); err != nil {
-		return prime, err
+	if B.txt != nil && B.block != nil {
+		if prime.txt, err = B.txt.Clone(r); err != nil {
+			return prime, err
+		}
+		if prime.block, err = B.block.Clone(r); err != nil {
+			return prime, err
+		}
 	}
 
 	B.fix.copy(&prime.fix, r)
@@ -78,22 +84,15 @@ func (B Button) Clone(r *sdl.Renderer) (*Button, error) {
  */
 
 // SetParams define object's position and color
-func (B *Button) SetParams(x, y, w, h int32, r, g, b, a uint8) {
-	B.fix.setPositionBlock(x, y)
-	B.fix.setSizeBlock(w, h)
-	B.fix.setColorBlock(r, g, b, a)
+func (B *Button) SetParams(x, y, w, h int32) {
+	if B.txt != nil && B.block != nil {
+		B.block.UpdateSize(w, h)
+		B.block.UpdatePosition(x, y)
+		B.txt.UpdatePosition(x+(w/2), y+(h/2))
+	}
+	else {
 
-	B.basic.setPositionBlock(x, y)
-	B.basic.setSizeBlock(w, h)
-	B.basic.setColorBlock(r, g, b, a)
-
-	B.over.setPositionBlock(x, y)
-	B.over.setSizeBlock(w, h)
-	B.over.setColorBlock(r, g, b, a)
-
-	B.click.setPositionBlock(x, y)
-	B.click.setSizeBlock(w, h)
-	B.click.setColorBlock(r, g, b, a)
+	}
 }
 
 // SetAction to get it on click button
@@ -111,6 +110,11 @@ func (B *Button) SetColorTxtOnAll(r, g, b, a uint8) {
 	B.basic.setColorTXT(r, g, b, a)
 	B.over.setColorTXT(r, g, b, a)
 	B.click.setColorTXT(r, g, b, a)
+}
+
+// SetColorUnderTxtOnAll (status: /fix/basic/over/click)
+func (B *Button) SetColorUnderTxt(r, g, b, a uint8, position uint8) {
+	B.txt.SetUnderStyle(r, g, b, a, position)
 }
 
 // SetColorTxtOnFix (status: /fix)

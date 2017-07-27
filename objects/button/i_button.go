@@ -23,11 +23,15 @@ func (B *Button) Init(r *sdl.Renderer) error {
 
 	B.setParamsByStatus()
 
-	if err = B.txt.Init(r); err != nil {
-		return err
+	if B.txt != nil {
+		if err = B.txt.Init(r); err != nil {
+			return err
+		}
 	}
-	if err = B.block.Init(r); err != nil {
-		return err
+	if B.block != nil {
+		if err = B.block.Init(r); err != nil {
+			return err
+		}
 	}
 	if err = B.initImages(r); err != nil {
 		return err

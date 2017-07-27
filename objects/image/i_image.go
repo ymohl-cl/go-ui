@@ -19,13 +19,15 @@ func (I *Image) Init(r *sdl.Renderer) error {
 	}
 
 	sdl.Do(func() {
-		if surface, err = img.Load(I.url); err != nil {
-			panic(err)
-		}
-		defer surface.Free()
+		for id, v := range I.urls {
+			if surface, err = img.Load(v); err != nil {
+				panic(err)
+			}
 
-		if I.texture, err = r.CreateTextureFromSurface(surface); err != nil {
-			panic(err)
+			if I.textures[id], err = r.CreateTextureFromSurface(surface); err != nil {
+				panic(err)
+			}
+			surface.Free()
 		}
 		I.initialized = true
 	})
@@ -41,37 +43,78 @@ func (I Image) IsInit() bool {
 func (I *Image) Close() error {
 	I.initialized = false
 	sdl.Do(func() {
-		if I.texture != nil {
-			I.texture.Destroy()
+		for id, _ := range I.urls {
+			if texture, ok := I.textures[id]; ok {
+				texture.Destroy()
+			}
 		}
 	})
 	return nil
 }
 
-// GetStatus to object
-func (I Image) GetStatus() uint8 {
-	return I.status
-}
+// SetAction to get it on click button
+func (I *Image) SetAction(f func(...interface{}), d ...interface{}) {
+	I.funcClick = f
 
-// IsOver define if object and position parameters matches
-func (I Image) IsOver(x, y int32) bool {
-	return false
-}
-
-// Click define a click on object
-func (I *Image) Click() {
-	return
+	for _, v := range d {
+		I.dataClick = append(I.dataClick, v)
+	}
 }
 
 // SetStatus change object's status
 func (I *Image) SetStatus(s uint8) {
-	return
+	if I.status == objects.SFix {
+		return
+	}
+
+	switch s {
+	case objects.SBasic, objects.SOver, objects.SClick:
+		I.status = s
+	default:
+		panic(errors.New(objects.ErrorStatus))
+	}
+}
+
+// MoveTo by increment position with x and y parameters
+func (I *Image) MoveTo(x, y int32) {
+	I.rect.X += x
+	I.rect.Y += y
 }
 
 // UpdatePosition object
 func (I *Image) UpdatePosition(x, y int32) {
 	I.rect.X = x
 	I.rect.Y = y
+}
+
+// UpdateSize to change size of initialized object
+func (I *Image) UpdateSize(w, h int32) {
+	I.rect.W = w
+	I.rect.H = h
+}
+
+// UpdateColor to change color of initialized object
+func (I *Image) UpdateColor(r, g, b, a uint8) {
+	return
+}
+
+// IsOver define if object and position parameters matches
+func (I Image) IsOver(xRef, yRef int32) bool {
+	if I.status == objects.SFix {
+		return false
+	}
+
+	if xRef > I.rect.X && xRef < I.rect.X+I.rect.W {
+		if yRef > I.rect.Y && yRef < I.rect.Y+I.rect.H {
+			return true
+		}
+	}
+	return false
+}
+
+// GetStatus to object
+func (I Image) GetStatus() uint8 {
+	return I.status
 }
 
 // GetPosition object (x, y)
@@ -84,15 +127,13 @@ func (I Image) GetSize() (int32, int32) {
 	return I.rect.W, I.rect.H
 }
 
-// MoveTo by increment position with x and y parameters
-func (I *Image) MoveTo(x, y int32) {
-	I.rect.X += x
-	I.rect.Y += y
-}
-
-// Update object after done modification
-func (I *Image) Update(r *sdl.Renderer) error {
-	return nil
+// Click define a click on object
+func (I Image) Click() {
+	if I.status == objects.SFix || I.funcClick == nil {
+		return
+	}
+	I.funcClick(I.dataClick)
+	return
 }
 
 // Draw the object
@@ -107,6 +148,10 @@ func (I *Image) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 			panic(errors.New(objects.ErrorRenderer))
 		}
 
-		r.Copy(I.texture, nil, &I.rect)
+		if texture, ok := I.textures[I.status]; ok {
+			r.Copy(texture, nil, &I.rect)
+		} else {
+			panic(errors.New(objects.ErrorBuild))
+		}
 	})
 }

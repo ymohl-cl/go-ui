@@ -10,24 +10,39 @@ type Image struct {
 	// infos object
 	status      uint8
 	initialized bool
-	url         string
+	urls        map[uint8]string
 
 	// parameters object
 	rect sdl.Rect
 
+	// action click
+	funcClick func(...interface{})
+	dataClick []interface{}
+
 	// sdl ressources
-	texture *sdl.Texture
+	textures map[uint8]*sdl.Texture
 }
 
 /*
 ** Builder method
  */
 
-// New create Image object, it's necessary to call SetParams before call Init
-func New(url string) (*Image, error) {
-	i := Image{status: objects.SFix, url: url}
+// New create Image object
+func New(url string, x, y, w, h int32) *Image {
+	i := Image{status: objects.SFix}
 
-	return &i, nil
+	i.rect = sdl.Rect{
+		X: x,
+		Y: y,
+		W: w,
+		H: h,
+	}
+	i.urls = make(map[uint8]string)
+	i.urls[objects.SFix] = url
+
+	i.textures = make(map[uint8]*sdl.Texture)
+
+	return &i
 }
 
 // Clone object and return a new
@@ -35,10 +50,8 @@ func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 	var err error
 	var prime *Image
 
-	if prime, err = New(I.url); err != nil {
-		return prime, err
-	}
-	prime.SetParams(I.rect.X, I.rect.Y, I.rect.W, I.rect.H)
+	prime = New(I.urls[objects.SFix], I.rect.X, I.rect.Y, I.rect.W, I.rect.H)
+	prime.cloneStatus(&I)
 
 	if I.IsInit() {
 		if err = prime.Init(r); err != nil {
@@ -51,15 +64,13 @@ func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 /*
 ** Setter method
  */
+// SetVariantStyle define styles to  interact with object.
+func (I *Image) SetVariantStyle(basicURL, overURL, clickURL string) {
+	I.urls[objects.SBasic] = basicURL
+	I.urls[objects.SOver] = overURL
+	I.urls[objects.SClick] = clickURL
 
-// SetParams define object's position and color
-func (I *Image) SetParams(x, y, w, h int32) {
-	I.rect = sdl.Rect{
-		X: x,
-		Y: y,
-		W: w,
-		H: h,
-	}
+	I.status = objects.SBasic
 }
 
 /*
@@ -69,9 +80,3 @@ func (I *Image) SetParams(x, y, w, h int32) {
 /*
 ** Updater method
  */
-
-// UpdateSize to change size of initialized object
-func (I *Image) UpdateSize(w, h int32) {
-	I.rect.W = w
-	I.rect.H = h
-}
