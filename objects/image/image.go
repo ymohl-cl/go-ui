@@ -38,7 +38,7 @@ func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 	if prime, err = New(I.url); err != nil {
 		return prime, err
 	}
-	prime.SetParams(I.rect.X, I.rect.Y, I.color.R, I.color.G, I.color.B, I.color.A)
+	prime.SetParams(I.rect.X, I.rect.Y, I.rect.W, I.rect.H)
 
 	if I.IsInit() {
 		if err = prime.Init(r); err != nil {
@@ -69,6 +69,7 @@ func (I *Image) SetParams(x, y, w, h int32) {
 /*
 ** Updater method
  */
+
 // UpdateSize to change size of initialized object
 func (I *Image) UpdateSize(w, h int32) {
 	I.rect.W = w

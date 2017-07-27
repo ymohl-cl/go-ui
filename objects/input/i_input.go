@@ -59,11 +59,12 @@ func (I Input) GetStatus() uint8 {
 // IsOver define if object and position parameters matches
 func (I Input) IsOver(xRef, yRef int32) bool {
 	var x, y int32
-	var size *objects.Size
+	var w, h int32
 
 	x, y = I.block.GetPosition()
-	if xRef > x && xRef < x+size.W {
-		if yRef > y && yRef < y+size.H {
+	w, h = I.block.GetSize()
+	if xRef > x && xRef < x+w {
+		if yRef > y && yRef < y+h {
 			return true
 		}
 	}

@@ -14,4 +14,5 @@ const (
 	errorValuesEmpty = "Function polymorphic call without valid argument"
 	errorInterface   = "Error interface type insertion"
 	errorPlayer      = "Player not found"
+	errorData        = "Data not corrupted"
 )

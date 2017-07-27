@@ -53,7 +53,7 @@ func (M *Menu) addPlayers() error {
 	var b1, b2, b3, b4 *button.Button
 
 	if M.data == nil {
-		return errors.New(objects.ErrorData)
+		return errors.New(errorData)
 	}
 
 	x = conf.MarginLeft

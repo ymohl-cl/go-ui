@@ -48,7 +48,7 @@ func (I *Image) Close() error {
 	return nil
 }
 
-// Close sdl objects
+// GetStatus to object
 func (I Image) GetStatus() uint8 {
 	return I.status
 }
