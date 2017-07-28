@@ -31,9 +31,9 @@ type Text struct {
 	dataClick []interface{}
 
 	// sdl ressources
-	font         *ttf.Font
-	texture      *sdl.Texture
-	underTexture *sdl.Texture
+	font          *ttf.Font
+	textures      map[uint8]*sdl.Texture
+	underTextures map[uint8]*sdl.Texture
 }
 
 /*
@@ -52,12 +52,14 @@ func New(txt string, size int, fontURL string, x, y int32) (*Text, error) {
 		}
 	})
 
-	T.rect = sdl.Rect{
+	t.rect = sdl.Rect{
 		X: x,
 		Y: y,
 	}
 	t.colors = make(map[uint8]sdl.Color)
 	t.underColors = make(map[uint8]sdl.Color)
+	t.textures = make(map[uint8]*sdl.Texture)
+	t.underTextures = make(map[uint8]*sdl.Texture)
 	return &t, nil
 }
 
@@ -66,13 +68,27 @@ func (T Text) Clone(r *sdl.Renderer) (*Text, error) {
 	var err error
 	var prime *Text
 
-	if prime, err = New(T.txt, T.size, T.fontURL); err != nil {
+	// Create object
+	if prime, err = New(T.txt, T.size, T.fontURL, T.rect.X, T.rect.Y); err != nil {
 		return prime, err
 	}
-	prime.SetParams(T.rect.X, T.rect.Y, T.color.R, T.color.G, T.color.B, T.color.A)
-	if T.style.exist {
-		prime.cloneUnderStyle(T.style)
+	// Set color
+	for id, c := range T.colors {
+		if err = prime.SetVariantStyle(c.R, c.G, c.B, c.A, id); err != nil {
+			return nil, err
+		}
 	}
+	// Set underColors
+	for id, c := range T.underColors {
+		if err = prime.SetVariantUnderStyle(c.R, c.G, c.B, c.A, id); err != nil {
+			return nil, err
+		}
+	}
+	// Set position under
+	prime.SetUnderPosition(T.underRect.X, T.underRect.Y)
+	// Set functionClick
+	prime.funcClick = T.funcClick
+	prime.dataClick = T.dataClick
 
 	if T.IsInit() {
 		if err = prime.Init(r); err != nil {
@@ -86,11 +102,6 @@ func (T Text) Clone(r *sdl.Renderer) (*Text, error) {
 ** Setter method
  */
 
-// SetFixStyle
-func (T *Text) SetFixStyle(r, g, b, a uint8) error {
-
-}
-
 // SetVariantStyle define styles to interact with object.
 func (T *Text) SetVariantStyle(r, g, b, a uint8, status ...uint8) error {
 	for _, s := range status {
@@ -102,9 +113,11 @@ func (T *Text) SetVariantStyle(r, g, b, a uint8, status ...uint8) error {
 				B: b,
 				A: a,
 			}
-			T.status = objects.SBasic
 		default:
 			return errors.New(objects.ErrorStatus)
+		}
+		if T.status == objects.SFix && s != objects.SFix {
+			T.status = objects.SBasic
 		}
 	}
 	return nil
@@ -128,14 +141,17 @@ func (T *Text) SetVariantUnderStyle(r, g, b, a uint8, status ...uint8) error {
 	return nil
 }
 
+// SetUnderPosition to underText
+func (T *Text) SetUnderPosition(x, y int32) {
+	T.underRect = sdl.Rect{
+		X: x,
+		Y: y,
+	}
+}
+
 /*
 ** Getter method
  */
-
-// GetColor provide color object
-func (T Text) GetColor() (r, g, b, a uint8) {
-	return T.color.R, T.color.G, T.color.B, T.color.A
-}
 
 // GetTxt provide txt string
 func (T Text) GetTxt() string {
@@ -147,7 +163,11 @@ func (T Text) GetIDSDL() uint8 {
 	return T.idSDL
 }
 
-// NewIDSDL provide a new idSDL session.
+/*
+** Updater method
+ */
+
+// NewIDSDL provide and set a new idSDL session.
 func (T *Text) NewIDSDL() uint8 {
 	var check uint8
 	check--
@@ -160,25 +180,19 @@ func (T *Text) NewIDSDL() uint8 {
 	return T.idSDL
 }
 
-/*
-** Updater method
- */
-
-// UpdateColor to change color of initialized object
-func (T *Text) UpdateColor(red, green, blue, opacity uint8) {
-	T.color = sdl.Color{
-		R: red,
-		G: green,
-		B: blue,
-		A: opacity,
-	}
-}
-
 // UpdateText to change text of initialized object
 func (T *Text) UpdateText(str string, r *sdl.Renderer) error {
+	var err error
+
 	T.txt = str
-	if err := T.Update(r); err != nil {
+	if err = T.Close(); err != nil {
 		return err
 	}
+	sdl.Do(func() {
+		if err = T.updateTextures(r); err != nil {
+			panic(err)
+		}
+		T.initialized = true
+	})
 	return nil
 }

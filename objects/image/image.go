@@ -64,6 +64,7 @@ func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 /*
 ** Setter method
  */
+
 // SetVariantStyle define styles to  interact with object.
 func (I *Image) SetVariantStyle(basicURL, overURL, clickURL string) {
 	I.urls[objects.SBasic] = basicURL

@@ -43,10 +43,8 @@ func (I Image) IsInit() bool {
 func (I *Image) Close() error {
 	I.initialized = false
 	sdl.Do(func() {
-		for id, _ := range I.urls {
-			if texture, ok := I.textures[id]; ok {
-				texture.Destroy()
-			}
+		for _, texture := range I.textures {
+			texture.Destroy()
 		}
 	})
 	return nil
@@ -94,7 +92,7 @@ func (I *Image) UpdateSize(w, h int32) {
 }
 
 // UpdateColor to change color of initialized object
-func (I *Image) UpdateColor(r, g, b, a uint8) {
+func (I *Image) UpdateColor(red, g, b, a uint8, r *sdl.Renderer) {
 	return
 }
 
@@ -122,6 +120,11 @@ func (I Image) GetPosition() (int32, int32) {
 	return I.rect.X, I.rect.Y
 }
 
+// GetColor object (current color by status)
+func (I Image) GetColor() (r, g, b, a uint8) {
+	return
+}
+
 // GetSize object (width, height)
 func (I Image) GetSize() (int32, int32) {
 	return I.rect.W, I.rect.H
@@ -133,11 +136,10 @@ func (I Image) Click() {
 		return
 	}
 	I.funcClick(I.dataClick)
-	return
 }
 
 // Draw the object
-func (I *Image) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
+func (I Image) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {

@@ -57,13 +57,15 @@ type Object interface {
 	// UpdateSize object
 	UpdateSize(w, h int32)
 	// UpdateColor object
-	UpdateColor(r, g, b, a uint8)
+	UpdateColor(red, g, b, a uint8, r *sdl.Renderer)
 	// IsOver define if object and position parameters matches
 	IsOver(int32, int32) bool
 	// GetStatus object
 	GetStatus() uint8
 	// GetPosition object (x, y)
 	GetPosition() (int32, int32)
+	// GetColor object (current color by status)
+	GetColor() (r, g, b, a uint8)
 	// GetSize object (width, height)
 	GetSize() (int32, int32)
 	// Click define a click on object

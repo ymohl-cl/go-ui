@@ -11,35 +11,16 @@ import (
 // Init object to draw it. If error occurred, object can't be drawn
 func (T *Text) Init(r *sdl.Renderer) error {
 	var err error
-	var surface *sdl.Surface
-	var uSurface *sdl.Surface
 
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
 
 	sdl.Do(func() {
-		if surface, err = T.font.RenderUTF8_Solid(T.txt, T.color); err != nil {
-			panic(err)
-		}
-		defer surface.Free()
-
-		if T.texture, err = r.CreateTextureFromSurface(surface); err != nil {
+		if err = T.updateTextures(r); err != nil {
 			panic(err)
 		}
 
-		if T.style.exist {
-			if uSurface, err = T.font.RenderUTF8_Solid(T.txt, T.style.color); err != nil {
-				panic(err)
-			}
-			defer uSurface.Free()
-
-			if T.style.texture, err = r.CreateTextureFromSurface(uSurface); err != nil {
-				panic(err)
-			}
-		}
-
-		T.setSize(surface.W, surface.H)
 		T.initialized = true
 	})
 	return nil
@@ -55,56 +36,37 @@ func (T *Text) Close() error {
 	T.initialized = false
 
 	sdl.Do(func() {
-		if T.font != nil {
-			T.font.Close()
+		for _, texture := range T.textures {
+			texture.Destroy()
 		}
-		if T.texture != nil {
-			T.texture.Destroy()
-		}
-		if T.style.texture != nil {
-			T.style.texture.Destroy()
+		for _, texture := range T.underTextures {
+			texture.Destroy()
 		}
 	})
 	return nil
 }
 
-// GetStatus object
-func (T Text) GetStatus() uint8 {
-	return T.status
-}
+// SetAction to get it on click button
+func (T *Text) SetAction(f func(...interface{}), d ...interface{}) {
+	T.funcClick = f
 
-// IsOver define if object and position parameters matches
-func (T Text) IsOver(x, y int32) bool {
-	return false
-}
-
-// Click define a click on object
-func (T *Text) Click() {
-	return
+	for _, v := range d {
+		T.dataClick = append(T.dataClick, v)
+	}
 }
 
 // SetStatus change object's status
 func (T *Text) SetStatus(s uint8) {
-	return
-}
-
-// UpdatePosition object
-func (T *Text) UpdatePosition(x, y int32) {
-	if T.style.exist {
-		T.setUnderPosition(x, y)
+	if T.status == objects.SFix {
+		return
 	}
-	T.rect.X = x
-	T.rect.Y = y
-}
 
-// GetPosition object (x, y)
-func (T Text) GetPosition() (int32, int32) {
-	return T.rect.X, T.rect.Y
-}
-
-// GetSize object (width, height)
-func (T Text) GetSize() (int32, int32) {
-	return T.rect.W, T.rect.H
+	switch s {
+	case objects.SBasic, objects.SOver, objects.SClick:
+		T.status = s
+	default:
+		panic(errors.New(objects.ErrorStatus))
+	}
 }
 
 // MoveTo by increment position with x and y parameters
@@ -112,29 +74,82 @@ func (T *Text) MoveTo(x, y int32) {
 	T.rect.X += x
 	T.rect.Y += y
 
-	if T.style.exist {
-		T.style.rect.X += x
-		T.style.rect.Y += y
-	}
+	T.underRect.X += x
+	T.underRect.Y += y
 }
 
-// Update object after done modification
-func (T *Text) Update(r *sdl.Renderer) error {
-	T.initialized = false
+// UpdatePosition object
+func (T *Text) UpdatePosition(x, y int32) {
+	T.underRect.X = x - (T.underRect.X - T.rect.X)
+	T.underRect.Y = y - (T.underRect.Y - T.rect.Y)
+	T.rect.X = x
+	T.rect.Y = y
+}
 
-	sdl.Do(func() {
-		if T.texture != nil {
-			T.texture.Destroy()
-		}
-		if T.style.texture != nil {
-			T.style.texture.Destroy()
-		}
-	})
+// UpdateSize to change size of initialized object
+func (T *Text) UpdateSize(w, h int32) {
+	return
+}
 
-	if err := T.Init(r); err != nil {
-		return err
+// UpdateColor to change color of initialized object
+func (T *Text) UpdateColor(red, green, blue, opacity uint8, r *sdl.Renderer) {
+	var err error
+
+	T.colors[T.status] = sdl.Color{
+		R: red,
+		G: green,
+		B: blue,
+		A: opacity,
 	}
-	return nil
+	sdl.Do(func() {
+		T.initialized = false
+		if err = T.updateTextureByStatus(T.status, r); err != nil {
+			panic(err)
+		}
+		T.initialized = true
+	})
+}
+
+// IsOver define if object and position parameters matches
+func (T Text) IsOver(xRef, yRef int32) bool {
+	if T.status == objects.SFix {
+		return false
+	}
+
+	if xRef > T.rect.X && xRef < T.rect.X+T.rect.W {
+		if yRef > T.rect.Y && yRef < T.rect.Y+T.rect.H {
+			return true
+		}
+	}
+	return false
+}
+
+// GetStatus object
+func (T Text) GetStatus() uint8 {
+	return T.status
+}
+
+// GetPosition object (x, y)
+func (T Text) GetPosition() (int32, int32) {
+	return T.rect.X, T.rect.Y
+}
+
+// GetColor object (current color by status)
+func (T Text) GetColor() (r, g, b, a uint8) {
+	return T.colors[T.status].R, T.colors[T.status].G, T.colors[T.status].B, T.colors[T.status].A
+}
+
+// GetSize object (width, height)
+func (T Text) GetSize() (int32, int32) {
+	return T.rect.W, T.rect.H
+}
+
+// Click define a click on object
+func (T Text) Click() {
+	if T.status == objects.SFix || T.funcClick == nil {
+		return
+	}
+	T.funcClick(T.dataClick)
 }
 
 // Draw object
@@ -149,29 +164,27 @@ func (T Text) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 			panic(errors.New(objects.ErrorRenderer))
 		}
 
-		if T.style.exist {
-			color := T.style.color
-			if err := r.SetDrawColor(color.R, color.G, color.B, color.A); err != nil {
-				panic(err)
+		if texture, ok := T.underTextures[T.status]; ok {
+			rect := sdl.Rect{
+				X: T.rect.X - (T.rect.W / 2),
+				Y: T.rect.Y - (T.rect.H / 2),
+				W: T.rect.W,
+				H: T.rect.H,
 			}
-
-			rect := T.style.rect
-			rect.X -= (rect.W / 2)
-			rect.Y -= (rect.H / 2)
-			if err := r.Copy(T.style.texture, nil, &rect); err != nil {
+			if err := r.Copy(texture, nil, &rect); err != nil {
 				panic(err)
 			}
 		}
-
-		if err := r.SetDrawColor(T.color.R, T.color.G, T.color.B, T.color.A); err != nil {
-			panic(err)
-		}
-
-		rect := T.rect
-		rect.X -= (rect.W / 2)
-		rect.Y -= (rect.H / 2)
-		if err := r.Copy(T.texture, nil, &rect); err != nil {
-			panic(err)
+		if texture, ok := T.textures[T.status]; ok {
+			rect := sdl.Rect{
+				X: T.rect.X - (T.rect.W / 2),
+				Y: T.rect.Y - (T.rect.H / 2),
+				W: T.rect.W,
+				H: T.rect.H,
+			}
+			if err := r.Copy(texture, nil, &rect); err != nil {
+				panic(err)
+			}
 		}
 	})
 }
