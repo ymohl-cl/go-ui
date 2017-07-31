@@ -40,7 +40,7 @@ type Text struct {
 ** Builder method
  */
 
-// New create Text object, it's necessary to call SetParams before call Init
+// New create Text object
 func New(txt string, size int, fontURL string, x, y int32) (*Text, error) {
 	var err error
 	t := Text{txt: txt, status: objects.SFix, size: size, fontURL: fontURL}

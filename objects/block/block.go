@@ -7,6 +7,13 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
+const (
+	// Filled style
+	Filled = 1
+	// Border to draw only border
+	Border = 2
+)
+
 // Block object implementation
 type Block struct {
 	// infos object
@@ -14,30 +21,33 @@ type Block struct {
 	initialized bool
 
 	// parameters objects
-	rect  sdl.Rect
-	color sdl.Color
+	rect   sdl.Rect
+	colors map[uint8]sdl.Color
+
+	// action click
+	funcClick func(...interface{})
+	dataClick []interface{}
 
 	// style object
-	style Styler
+	style uint8
 }
 
 /*
 ** Builder method
  */
 
-// New create block object, it's necessary to call SetParams before call Init
-func New(style uint8) (*Block, error) {
+// New create block object
+func New(styleBlock uint8) (*Block, error) {
 	b := Block{status: objects.SFix}
 
-	switch style {
-	case Filled:
-		b.style.block = Filled
-	case Border:
-		b.style.block = Border
+	switch styleBlock {
+	case Filled, Border:
+		b.style = styleBlock
 	default:
 		return nil, errors.New(objects.ErrorStyle)
 	}
 
+	b.colors = make(map[uint8]sdl.Color)
 	return &b, nil
 }
 
@@ -46,11 +56,21 @@ func (B Block) Clone(r *sdl.Renderer) (*Block, error) {
 	var err error
 	var prime *Block
 
-	if prime, err = New(B.style.block); err != nil {
+	if prime, err = New(B.style); err != nil {
 		return prime, err
 	}
-	prime.SetParams(B.rect.X, B.rect.Y, B.rect.W, B.rect.H, B.color.R, B.color.G, B.color.B, B.color.A)
 
+	for s, c := range B.colors {
+		if err = prime.SetVariantStyle(c.R, c.G, c.B, c.A, s); err != nil {
+			return nil, err
+		}
+	}
+
+	prime.UpdatePosition(B.rect.X, B.rect.Y)
+	prime.UpdateSize(B.rect.W, B.rect.H)
+	// Set functionClick
+	prime.funcClick = B.funcClick
+	prime.dataClick = B.dataClick
 	if B.IsInit() {
 		if err = prime.Init(r); err != nil {
 			return nil, err
@@ -63,41 +83,31 @@ func (B Block) Clone(r *sdl.Renderer) (*Block, error) {
 ** Setter method
  */
 
-// SetParams define object's position and color
-func (B *Block) SetParams(x, y, w, h int32, red, green, blue, opacity uint8) {
-	B.rect = sdl.Rect{
-		X: x,
-		Y: y,
-		W: w,
-		H: h,
+// SetVariantStyle define styles to interact with object.
+func (B *Block) SetVariantStyle(red, green, blue, opacity uint8, status ...uint8) error {
+	for _, s := range status {
+		switch s {
+		case objects.SFix, objects.SBasic, objects.SOver, objects.SClick:
+			B.colors[s] = sdl.Color{
+				R: red,
+				G: green,
+				B: blue,
+				A: opacity,
+			}
+		default:
+			return errors.New(objects.ErrorStatus)
+		}
+		if B.status == objects.SFix && s != objects.SFix {
+			B.status = objects.SBasic
+		}
 	}
-	B.color = sdl.Color{
-		R: red,
-		G: green,
-		B: blue,
-		A: opacity,
-	}
+	return nil
 }
 
 /*
 ** Getter method
  */
 
-// GetColor provide color object
-func (B Block) GetColor() (r, g, b, a uint8) {
-	return B.color.R, B.color.G, B.color.B, B.color.A
-}
-
 /*
 ** Updater method
  */
-
-// UpdateColor to change color of initialized object
-func (B *Block) UpdateColor(red, green, blue, opacity uint8) {
-	B.color = sdl.Color{
-		R: red,
-		G: green,
-		B: blue,
-		A: opacity,
-	}
-}

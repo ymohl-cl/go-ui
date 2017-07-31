@@ -6,7 +6,6 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
-	"github.com/ymohl-cl/game-builder/objects/image"
 )
 
 // Init object to draw it. If error occurred, object can't be drawn
@@ -17,25 +16,22 @@ func (B *Button) Init(r *sdl.Renderer) error {
 		return errors.New(objects.ErrorRenderer)
 	}
 
-	if B.funcClick == nil || B.txt == nil || B.block == nil {
-		return errors.New(objects.ErrorBuild)
-	}
-
-	B.setParamsByStatus()
-
-	if B.txt != nil {
-		if err = B.txt.Init(r); err != nil {
-			return err
-		}
-	}
 	if B.block != nil {
 		if err = B.block.Init(r); err != nil {
 			return err
 		}
 	}
-	if err = B.initImages(r); err != nil {
-		return err
+	if B.img != nil {
+		if err = B.img.Init(r); err != nil {
+			return err
+		}
 	}
+	if B.txt != nil {
+		if err = B.txt.Init(r); err != nil {
+			return err
+		}
+	}
+
 	B.initialized = true
 	return nil
 }
@@ -51,93 +47,171 @@ func (B *Button) Close() error {
 
 	B.initialized = false
 
-	if err = B.txt.Close(); err != nil {
-		return err
+	if B.block != nil {
+		if err = B.block.Close(); err != nil {
+			return err
+		}
 	}
-	if err = B.block.Close(); err != nil {
-		return err
+	if B.img != nil {
+		if err = B.img.Close(); err != nil {
+			return err
+		}
 	}
-	if err = B.closeImages(); err != nil {
-		return err
+	if B.txt != nil {
+		if err = B.txt.Close(); err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
-// GetStatus object
-func (B Button) GetStatus() uint8 {
-	return B.status
-}
+// SetAction to get it on click button
+func (B *Button) SetAction(f func(...interface{}), d ...interface{}) {
+	B.funcClick = f
 
-// IsOver define if object and position parameters matches
-func (B Button) IsOver(xRef, yRef int32) bool {
-	var x, y int32
-	var w, h int32
-
-	x, y = B.block.GetPosition()
-	w, h = B.block.GetSize()
-
-	if xRef > x && xRef < x+w {
-		if yRef > y && yRef < y+h {
-			return true
-		}
+	for _, v := range d {
+		B.dataClick = append(B.dataClick, v)
 	}
-	return false
-}
-
-// Click define a click on object
-func (B Button) Click() {
-	B.funcClick(B.dataClick...)
 }
 
 // SetStatus change object's status
 func (B *Button) SetStatus(s uint8) {
-	switch s {
-	case objects.SFix, objects.SBasic, objects.SOver, objects.SClick:
-		B.status = s
-	default:
-		panic(errors.New(objects.ErrorStatus))
+	if B.block != nil {
+		B.block.SetStatus(s)
 	}
-
-	B.updateParamsByStatus()
-}
-
-// UpdatePosition object
-func (B *Button) UpdatePosition(x, y int32) {
-	B.fix.setPositionBlock(x, y)
-	B.basic.setPositionBlock(x, y)
-	B.over.setPositionBlock(x, y)
-	B.click.setPositionBlock(x, y)
-	B.updatePositionByStatus()
-}
-
-// GetPosition object (x, y)
-func (B Button) GetPosition() (int32, int32) {
-	return B.block.GetPosition()
-}
-
-// GetSize object (width, height)
-func (B Button) GetSize() (int32, int32) {
-	return B.block.GetSize()
+	if B.img != nil {
+		B.img.SetStatus(s)
+	}
+	if B.txt != nil {
+		B.txt.SetStatus(s)
+	}
 }
 
 // MoveTo by increment position with x and y parameters
 func (B *Button) MoveTo(x, y int32) {
-	B.fix.moveTo(x, y)
-	B.basic.moveTo(x, y)
-	B.over.moveTo(x, y)
-	B.click.moveTo(x, y)
-
-	B.updatePositionByStatus()
+	if B.block != nil {
+		B.block.MoveTo(x, y)
+	}
+	if B.img != nil {
+		B.img.MoveTo(x, y)
+	}
+	if B.txt != nil {
+		B.txt.MoveTo(x, y)
+	}
 }
 
-// Update object after done modification
-func (B *Button) Update(r *sdl.Renderer) error {
-	return nil
+// UpdatePosition object
+func (B *Button) UpdatePosition(x, y int32) {
+	var diffX, diffY int32
+
+	if B.block != nil {
+		blX, blY := B.block.GetPosition()
+		diffX = blX - x
+		diffY = blY - y
+		B.block.UpdatePosition(x, y)
+	}
+	if B.img != nil {
+		if diffX == 0 && diffY == 0 {
+			iX, iY := B.img.GetPosition()
+			diffX = iX - x
+			diffY = iY - y
+			B.img.UpdatePosition(x, y)
+		} else {
+			B.img.MoveTo(diffX, diffY)
+		}
+	}
+	if B.txt != nil {
+		if diffX == 0 && diffY == 0 {
+			B.txt.UpdatePosition(x, y)
+		} else {
+			B.txt.MoveTo(x, y)
+		}
+	}
+}
+
+// UpdateSize to change size of initialized object
+func (B *Button) UpdateSize(w, h int32) {
+	if B.block != nil {
+		B.block.UpdateSize(w, h)
+	}
+	if B.img != nil {
+		B.img.UpdateSize(w, h)
+	}
+	if B.txt != nil {
+		B.txt.UpdateSize(w, h)
+	}
+	return
+}
+
+// UpdateColor to change color of initialized object
+func (B *Button) UpdateColor(red, green, blue, opacity uint8, r *sdl.Renderer) {
+	return
+}
+
+// IsOver define if object and position parameters matches
+func (B Button) IsOver(xRef, yRef int32) bool {
+	if B.block != nil {
+		return B.block.IsOver(xRef, yRef)
+	} else if B.img != nil {
+		return B.img.IsOver(xRef, yRef)
+	} else if B.txt != nil {
+		return B.txt.IsOver(xRef, yRef)
+	}
+
+	return false
+}
+
+// GetStatus object
+func (B Button) GetStatus() uint8 {
+	if B.block != nil && B.block.GetStatus() != objects.SFix {
+		return B.block.GetStatus()
+	} else if B.img != nil && B.img.GetStatus() != objects.SFix {
+		return B.img.GetStatus()
+	} else if B.txt != nil && B.txt.GetStatus() != objects.SFix {
+		return B.txt.GetStatus()
+	}
+	return objects.SFix
+}
+
+// GetPosition object (x, y)
+func (B Button) GetPosition() (int32, int32) {
+	if B.block != nil {
+		return B.block.GetPosition()
+	} else if B.img != nil {
+		return B.img.GetPosition()
+	} else if B.txt != nil {
+		return B.txt.GetPosition()
+	}
+	return -1, -1
+}
+
+// GetColor object (current color by status)
+func (B Button) GetColor() (r, g, b, a uint8) {
+	return
+}
+
+// GetSize object (width, height)
+func (B Button) GetSize() (int32, int32) {
+	if B.block != nil {
+		return B.block.GetSize()
+	} else if B.img != nil {
+		return B.img.GetSize()
+	} else if B.txt != nil {
+		return B.txt.GetSize()
+	}
+	return -1, -1
+}
+
+// Click define a click on object
+func (B Button) Click() {
+	if B.funcClick != nil {
+		B.funcClick(B.dataClick...)
+	}
 }
 
 // Draw object
 func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
-	var img *image.Image
 	defer wg.Done()
 
 	if B.initialized == false {
@@ -147,22 +221,14 @@ func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 		panic(errors.New(objects.ErrorRenderer))
 	}
 
-	wg.Add(1)
-	B.block.Draw(wg, r)
-	switch B.status {
-	case objects.SFix:
-		img = B.fix.img
-	case objects.SBasic:
-		img = B.basic.img
-	case objects.SOver:
-		img = B.over.img
-	case objects.SClick:
-		img = B.click.img
-	}
-	if img != nil {
+	if B.block != nil {
 		wg.Add(1)
-		img.Draw(wg, r)
+		B.block.Draw(wg, r)
+	} else if B.img != nil {
+		wg.Add(1)
+		B.img.Draw(wg, r)
+	} else if B.txt != nil {
+		wg.Add(1)
+		B.txt.Draw(wg, r)
 	}
-	wg.Add(1)
-	go B.txt.Draw(wg, r)
 }

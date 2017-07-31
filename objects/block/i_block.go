@@ -25,24 +25,33 @@ func (B *Block) Close() error {
 	return nil
 }
 
-// GetStatus object
-func (B Block) GetStatus() uint8 {
-	return B.status
-}
+// SetAction to get it on click button
+func (B *Block) SetAction(f func(...interface{}), d ...interface{}) {
+	B.funcClick = f
 
-// IsOver define if object and position parameters matches
-func (B Block) IsOver(x, y int32) bool {
-	return false
-}
-
-// Click define a click on object
-func (B *Block) Click() {
-	return
+	for _, v := range d {
+		B.dataClick = append(B.dataClick, v)
+	}
 }
 
 // SetStatus change object's status
 func (B *Block) SetStatus(s uint8) {
-	return
+	if B.status == objects.SFix {
+		return
+	}
+
+	switch s {
+	case objects.SBasic, objects.SOver, objects.SClick:
+		B.status = s
+	default:
+		panic(errors.New(objects.ErrorStatus))
+	}
+}
+
+// MoveTo by increment position with x and y parameters
+func (B *Block) MoveTo(x, y int32) {
+	B.rect.X += x
+	B.rect.Y += y
 }
 
 // UpdatePosition object
@@ -57,9 +66,43 @@ func (B *Block) UpdateSize(w, h int32) {
 	B.rect.H = h
 }
 
+// UpdateColor to change color of initialized object
+func (B *Block) UpdateColor(red, green, blue, opacity uint8, r *sdl.Renderer) {
+	B.colors[B.status] = sdl.Color{
+		R: red,
+		G: green,
+		B: blue,
+		A: opacity,
+	}
+}
+
+// IsOver define if object and position parameters matches
+func (B Block) IsOver(xRef, yRef int32) bool {
+	if B.status == objects.SFix {
+		return false
+	}
+
+	if xRef > B.rect.X && xRef < B.rect.X+B.rect.W {
+		if yRef > B.rect.Y && yRef < B.rect.Y+B.rect.H {
+			return true
+		}
+	}
+	return false
+}
+
+// GetStatus object
+func (B Block) GetStatus() uint8 {
+	return B.status
+}
+
 // GetPosition object (x, y)
 func (B Block) GetPosition() (int32, int32) {
 	return B.rect.X, B.rect.Y
+}
+
+// GetColor object (current color by status)
+func (B Block) GetColor() (r, g, b, a uint8) {
+	return B.colors[B.status].R, B.colors[B.status].G, B.colors[B.status].B, B.colors[B.status].A
 }
 
 // GetSize object (width, height)
@@ -67,19 +110,17 @@ func (B Block) GetSize() (int32, int32) {
 	return B.rect.W, B.rect.H
 }
 
-// MoveTo by increment position with x and y parameters
-func (B *Block) MoveTo(x, y int32) {
-	B.rect.X += x
-	B.rect.Y += y
-}
-
-// Update object after done modification
-func (B *Block) Update(r *sdl.Renderer) error {
-	return nil
+// Click define a click on object
+func (B Block) Click() {
+	if B.status == objects.SFix || B.funcClick == nil {
+		return
+	}
+	B.funcClick(B.dataClick)
+	return
 }
 
 // Draw the object
-func (B *Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
+func (B Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 	var err error
 
@@ -91,11 +132,13 @@ func (B *Block) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 			panic(errors.New(objects.ErrorRenderer))
 		}
 
-		if err = r.SetDrawColor(B.color.R, B.color.G, B.color.B, B.color.A); err != nil {
-			panic(err)
+		if c, ok := B.colors[B.status]; ok {
+			if err = r.SetDrawColor(c.R, c.G, c.B, c.A); err != nil {
+				panic(err)
+			}
 		}
 
-		switch B.style.block {
+		switch B.style {
 		case Filled:
 			err = r.FillRect(&B.rect)
 		case Border:

@@ -53,6 +53,9 @@ func (I Image) Clone(r *sdl.Renderer) (*Image, error) {
 	prime = New(I.urls[objects.SFix], I.rect.X, I.rect.Y, I.rect.W, I.rect.H)
 	prime.cloneStatus(&I)
 
+	// Set functionClick
+	prime.funcClick = I.funcClick
+	prime.dataClick = I.dataClick
 	if I.IsInit() {
 		if err = prime.Init(r); err != nil {
 			return nil, err
