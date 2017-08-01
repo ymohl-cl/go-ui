@@ -14,7 +14,7 @@ func (I Input) checkSizeTxt(newStr, oldStr string) bool {
 	var widthBlock, widthText int32
 
 	widthBlock, _ = I.block.GetSize()
-	widthText, _ = I.txt.GetSize()
+	widthText, _ = I.Txt.GetSize()
 
 	if (widthText / int32(len(oldStr)) * int32(len(newStr)+paddingSizeTxt)) > widthBlock {
 		return false

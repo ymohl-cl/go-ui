@@ -28,6 +28,10 @@ type Input struct {
 	// content object
 	Txt   *text.Text
 	block *block.Block
+
+	// action click
+	funcClick func(...interface{})
+	dataClick []interface{}
 }
 
 /*

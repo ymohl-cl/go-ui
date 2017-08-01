@@ -9,6 +9,7 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
+// Audio structure
 type Audio struct {
 	// infos object
 	status      uint8
@@ -52,34 +53,11 @@ func (A *Audio) Close() error {
 	return nil
 }
 
-func (A *Audio) GetStatus() uint8 {
-	return A.status
-}
-
-func (A *Audio) IsOver(x, y int32) bool {
-	return false
-}
-
-func (A *Audio) Click() {
-	return
-}
-
+// SetStatus change object's status
 func (A *Audio) SetStatus(s uint8) {
 	if A.status != objects.SFix {
 		A.status = s
 	}
-}
-
-func (A *Audio) UpdatePosition(x, y int32) {
-	return
-}
-
-func (a Audio) Getposition() (int32, int32) {
-	return -1, -1
-}
-
-func (a *Audio) MoveTo(x, y int32) {
-	return
 }
 
 // Draw the object audio.

@@ -44,7 +44,7 @@ func (I Input) IsInit() bool {
 func (I *Input) Close() error {
 	I.initialized = false
 
-	if err := I.txt.Close(); err != nil {
+	if err := I.Txt.Close(); err != nil {
 		return err
 	}
 	if err := I.block.Close(); err != nil {
@@ -53,78 +53,127 @@ func (I *Input) Close() error {
 	return nil
 }
 
-// GetStatus object
-func (I Input) GetStatus() uint8 {
-	return I.status
-}
+// SetAction to get it on click button
+func (I *Input) SetAction(f func(...interface{}), d ...interface{}) {
+	I.funcClick = f
 
-// IsOver define if object and position parameters matches
-func (I Input) IsOver(xRef, yRef int32) bool {
-	var x, y int32
-	var w, h int32
-
-	x, y = I.block.GetPosition()
-	w, h = I.block.GetSize()
-	if xRef > x && xRef < x+w {
-		if yRef > y && yRef < y+h {
-			return true
-		}
-	}
-	return false
-}
-
-// Click define a click on object
-func (I *Input) Click() {
-	if I.status != objects.SFix {
-		I.status = objects.SClick
+	for _, v := range d {
+		I.dataClick = append(I.dataClick, v)
 	}
 }
 
 // SetStatus change object's status
 func (I *Input) SetStatus(s uint8) {
-	switch s {
-	case objects.SFix, objects.SBasic, objects.SOver, objects.SClick:
-		I.status = s
-	default:
-		panic(errors.New(objects.ErrorStatus))
+	if I.block != nil {
+		I.block.SetStatus(s)
 	}
-
-	I.updateParamsByStatus()
-}
-
-// UpdatePosition object
-func (I *Input) UpdatePosition(x, y int32) {
-	I.fix.setPositionBlock(x, y)
-	I.basic.setPositionBlock(x, y)
-	I.over.setPositionBlock(x, y)
-	I.click.setPositionBlock(x, y)
-
-	I.updatePositionByStatus()
-}
-
-// GetPosition object (x, y)
-func (I Input) GetPosition() (int32, int32) {
-	return I.block.GetPosition()
-}
-
-// GetSize object (width, height)
-func (I Input) GetSize() (int32, int32) {
-	return I.block.GetSize()
+	if I.Txt != nil {
+		I.Txt.SetStatus(s)
+	}
+	I.status = s
 }
 
 // MoveTo by increment position with x and y parameters
 func (I *Input) MoveTo(x, y int32) {
-	I.fix.moveTo(x, y)
-	I.basic.moveTo(x, y)
-	I.over.moveTo(x, y)
-	I.click.moveTo(x, y)
-
-	I.updatePositionByStatus()
+	if I.block != nil {
+		I.block.MoveTo(x, y)
+	}
+	if I.Txt != nil {
+		I.Txt.MoveTo(x, y)
+	}
 }
 
-// Update object after done modification
-func (I *Input) Update(r *sdl.Renderer) error {
-	return nil
+// UpdatePosition object
+func (I *Input) UpdatePosition(x, y int32) {
+	var diffX, diffY int32
+
+	if I.block != nil {
+		blX, blY := I.block.GetPosition()
+		diffX = blX - x
+		diffY = blY - y
+		I.block.UpdatePosition(x, y)
+	}
+	if I.Txt != nil {
+		if diffX == 0 && diffY == 0 {
+			I.Txt.UpdatePosition(x, y)
+		} else {
+			I.Txt.MoveTo(x, y)
+		}
+	}
+
+}
+
+// UpdateSize to change size of initialized object
+func (I *Input) UpdateSize(w, h int32) {
+	if I.block != nil {
+		I.block.UpdateSize(w, h)
+	}
+	if I.Txt != nil {
+		I.Txt.UpdateSize(w, h)
+	}
+	return
+}
+
+// UpdateColor to change color of initialized object
+func (I *Input) UpdateColor(red, green, blue, opacity uint8, r *sdl.Renderer) {
+	return
+}
+
+// IsOver define if object and position parameters matches
+func (I Input) IsOver(xRef, yRef int32) bool {
+	if I.block != nil {
+		return I.block.IsOver(xRef, yRef)
+	} else if I.Txt != nil {
+		return I.Txt.IsOver(xRef, yRef)
+	}
+	return false
+}
+
+// GetStatus object
+func (I Input) GetStatus() uint8 {
+	return I.status
+}
+
+// GetPosition object (x, y)
+func (I Input) GetPosition() (int32, int32) {
+	if I.block != nil {
+		return I.block.GetPosition()
+	} else if I.Txt != nil {
+		return I.Txt.GetPosition()
+	}
+	return -1, -1
+}
+
+// GetColor object (current color by status)
+func (I Input) GetColor() (r, g, b, a uint8) {
+	return
+}
+
+// GetSize object (width, height)
+func (I Input) GetSize() (int32, int32) {
+	if I.block != nil {
+		return I.block.GetSize()
+	} else if I.Txt != nil {
+		return I.Txt.GetSize()
+	}
+	return -1, -1
+}
+
+// Click define a click on object
+func (I *Input) Click() {
+	if I.status != objects.SFix {
+		if I.funcClick != nil {
+			I.funcClick(I.dataClick)
+		}
+		I.status = objects.SClick
+
+		if I.block != nil {
+			I.block.Click()
+		}
+		if I.Txt != nil {
+			I.Txt.Click()
+		}
+	}
 }
 
 // Draw object
@@ -138,8 +187,12 @@ func (I *Input) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 		panic(errors.New(objects.ErrorRenderer))
 	}
 
-	wg.Add(1)
-	I.block.Draw(wg, r)
-	wg.Add(1)
-	go I.txt.Draw(wg, r)
+	if I.block != nil {
+		wg.Add(1)
+		I.block.Draw(wg, r)
+	}
+	if I.Txt != nil {
+		wg.Add(1)
+		go I.Txt.Draw(wg, r)
+	}
 }
