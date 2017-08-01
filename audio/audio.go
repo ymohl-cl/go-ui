@@ -22,6 +22,19 @@ type Audio struct {
 	music *mix.Music
 }
 
+// New create a new object
+func New(url string) (*Audio, error) {
+	a := new(Audio)
+
+	if url == "" {
+		return nil, errors.New("Audio url is empty")
+	}
+
+	a.url = url
+	a.status = objects.SFix
+	return a, nil
+}
+
 // Init audio object
 func (A *Audio) Init(r *sdl.Renderer) error {
 	var err error

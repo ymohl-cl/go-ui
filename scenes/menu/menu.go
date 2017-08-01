@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/ymohl-cl/game-builder/audio"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
-	"github.com/ymohl-cl/game-builder/objects/audio"
 	"github.com/ymohl-cl/game-builder/objects/input"
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
@@ -38,8 +38,9 @@ type Menu struct {
 }
 
 /*
-** Interface scene functions
+** Functions
  */
+
 func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
 	var err error
 

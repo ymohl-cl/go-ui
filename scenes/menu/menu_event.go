@@ -137,12 +137,12 @@ func (M *Menu) setNotice(str string) {
 	if M.notice.IsInit() == true {
 		M.notice.Close()
 	}
-	M.notice.SetText(str)
+	M.notice.UpdateText(str, M.renderer)
 	if err := M.notice.Init(M.renderer); err != nil {
 		panic(errors.New(objects.ErrorRenderer))
 	}
 	time.Sleep(3 * time.Second)
-	if M.notice.GetIdSDL() == idSDL {
+	if M.notice.GetIDSDL() == idSDL {
 		M.notice.Close()
 	}
 }

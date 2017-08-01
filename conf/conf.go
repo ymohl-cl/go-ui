@@ -117,10 +117,11 @@ const (
 
 // Text
 const (
-	Font      = ressources + "leadcoat.ttf"
-	TxtLittle = 14
-	TxtMedium = 20
-	TxtLarge  = 78
+	Font            = ressources + "leadcoat.ttf"
+	TxtLittle       = 14
+	TxtMedium       = 20
+	TxtLarge        = 78
+	TxtUnderPadding = 1
 
 	/* Color */
 	// Color text white
