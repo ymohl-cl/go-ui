@@ -16,17 +16,19 @@ func (I *Input) Init(r *sdl.Renderer) error {
 		return errors.New(objects.ErrorRenderer)
 	}
 
-	if I.txt == nil || I.block == nil {
+	if I.Txt == nil || I.block == nil {
 		return errors.New(objects.ErrorBuild)
 	}
 
-	I.setParamsByStatus()
-
-	if err = I.txt.Init(r); err != nil {
-		return err
+	if !I.Txt.IsInit() {
+		if err = I.Txt.Init(r); err != nil {
+			return err
+		}
 	}
-	if err = I.block.Init(r); err != nil {
-		return err
+	if !I.block.IsInit() {
+		if err = I.block.Init(r); err != nil {
+			return err
+		}
 	}
 
 	I.initialized = true

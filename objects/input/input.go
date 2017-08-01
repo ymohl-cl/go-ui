@@ -26,31 +26,26 @@ type Input struct {
 	initialized bool
 
 	// content object
-	txt   *text.Text
+	Txt   *text.Text
 	block *block.Block
-
-	// style object
-	fix   Styler
-	basic Styler
-	over  Styler
-	click Styler
 }
 
 /*
 ** Builder method
  */
 
-// New create input object, it's necessary to call SetParams before call Init
-func New(sizeText int, fontURL string, styleBlock uint8) (*Input, error) {
+// New create input object
+func New(sizeText int, fontURL string, b *block.Block) (*Input, error) {
 	var err error
 	i := Input{status: objects.SBasic}
 
-	if i.txt, err = text.New(caret, sizeText, fontURL); err != nil {
+	x, y := b.GetPosition()
+	w, h := b.GetSize()
+	if i.Txt, err = text.New(caret, sizeText, fontURL, x+(w/2), y+(h/2)); err != nil {
 		return nil, err
 	}
-	if i.block, err = block.New(styleBlock); err != nil {
-		return nil, err
-	}
+	i.block = b
+
 	return &i, nil
 }
 
@@ -59,18 +54,14 @@ func (I Input) Clone(r *sdl.Renderer) (*Input, error) {
 	var err error
 	var prime *Input
 
-	if prime.txt, err = I.txt.Clone(r); err != nil {
+	if prime.Txt, err = I.Txt.Clone(r); err != nil {
 		return prime, err
 	}
 	if prime.block, err = I.block.Clone(r); err != nil {
 		return prime, err
 	}
 
-	I.fix.copy(&prime.fix)
-	I.basic.copy(&prime.basic)
-	I.over.copy(&prime.over)
-	I.click.copy(&prime.click)
-
+	prime.status = I.status
 	if I.IsInit() {
 		if err = prime.Init(r); err != nil {
 			return nil, err
@@ -83,81 +74,6 @@ func (I Input) Clone(r *sdl.Renderer) (*Input, error) {
 ** Setter method
  */
 
-// SetParams define object's position and color
-func (I *Input) SetParams(x, y, w, h int32, r, g, b, a uint8) {
-	I.fix.setPositionBlock(x, y)
-	I.fix.setSizeBlock(w, h)
-	I.fix.setColorBlock(r, g, b, a)
-
-	I.basic.setPositionBlock(x, y)
-	I.basic.setSizeBlock(w, h)
-	I.basic.setColorBlock(r, g, b, a)
-
-	I.over.setPositionBlock(x, y)
-	I.over.setSizeBlock(w, h)
-	I.over.setColorBlock(r, g, b, a)
-
-	I.click.setPositionBlock(x, y)
-	I.click.setSizeBlock(w, h)
-	I.click.setColorBlock(r, g, b, a)
-}
-
-// SetColorTxtOnAll (status: /fix/basic/over/click)
-func (I *Input) SetColorTxtOnAll(r, g, b, a uint8) {
-	I.fix.setColorTXT(r, g, b, a)
-	I.basic.setColorTXT(r, g, b, a)
-	I.over.setColorTXT(r, g, b, a)
-	I.click.setColorTXT(r, g, b, a)
-}
-
-// SetColorTxtOnFix (status: /fix)
-func (I *Input) SetColorTxtOnFix(r, g, b, a uint8) {
-	I.fix.setColorTXT(r, g, b, a)
-}
-
-// SetColorTxtOnBasic (status: /basic)
-func (I *Input) SetColorTxtOnBasic(r, g, b, a uint8) {
-	I.basic.setColorTXT(r, g, b, a)
-}
-
-// SetColorTxtOnOver (status: /Over)
-func (I *Input) SetColorTxtOnOver(r, g, b, a uint8) {
-	I.over.setColorTXT(r, g, b, a)
-}
-
-// SetColorTxtOnClick (status: /click)
-func (I *Input) SetColorTxtOnClick(r, g, b, a uint8) {
-	I.click.setColorTXT(r, g, b, a)
-}
-
-// SetColorBlockOnAll (status: /fix/basic/over/click)
-func (I *Input) SetColorBlockOnAll(r, g, b, a uint8) {
-	I.fix.setColorBlock(r, g, b, a)
-	I.basic.setColorBlock(r, g, b, a)
-	I.over.setColorBlock(r, g, b, a)
-	I.click.setColorBlock(r, g, b, a)
-}
-
-// SetColorBlockOnFix (status: /fix)
-func (I *Input) SetColorBlockOnFix(r, g, b, a uint8) {
-	I.fix.setColorBlock(r, g, b, a)
-}
-
-// SetColorBlockOnBasic (status: /basic)
-func (I *Input) SetColorBlockOnBasic(r, g, b, a uint8) {
-	I.basic.setColorBlock(r, g, b, a)
-}
-
-// SetColorBlockOnOver (status: /over)
-func (I *Input) SetColorBlockOnOver(r, g, b, a uint8) {
-	I.over.setColorBlock(r, g, b, a)
-}
-
-// SetColorBlockOnClick (status: /click)
-func (I *Input) SetColorBlockOnClick(r, g, b, a uint8) {
-	I.click.setColorBlock(r, g, b, a)
-}
-
 // SetNewRune add a character on the text
 func (I *Input) SetNewRune(key sdl.Keysym, r *sdl.Renderer) error {
 	var s string
@@ -165,7 +81,7 @@ func (I *Input) SetNewRune(key sdl.Keysym, r *sdl.Renderer) error {
 	var err error
 
 	if I.status == objects.SClick {
-		s = I.txt.GetTxt()
+		s = I.Txt.GetTxt()
 
 		if (key.Scancode >= sdl.SCANCODE_A && key.Scancode <= sdl.SCANCODE_Z) || key.Scancode == sdl.SCANCODE_SPACE {
 			newStr = I.addKeyCode(s, key.Sym)
@@ -191,7 +107,7 @@ func (I *Input) SetNewRune(key sdl.Keysym, r *sdl.Renderer) error {
 		if len(newStr) > len(s) && I.checkSizeTxt(newStr, s) == false {
 			return errors.New(errorSizeTxt)
 		}
-		if err = I.txt.UpdateText(newStr, r); err != nil {
+		if err = I.Txt.UpdateText(newStr, r); err != nil {
 			panic(err)
 		}
 	}
@@ -203,7 +119,7 @@ func (I *Input) SetNewRune(key sdl.Keysym, r *sdl.Renderer) error {
 func (I Input) Reset(r *sdl.Renderer) {
 	var err error
 
-	if err = I.txt.UpdateText(caret, r); err != nil {
+	if err = I.Txt.UpdateText(caret, r); err != nil {
 		panic(err)
 	}
 }
@@ -214,7 +130,7 @@ func (I Input) Reset(r *sdl.Renderer) {
 
 // GetTxt provide str on the actual input
 func (I Input) GetTxt() string {
-	s := I.txt.GetTxt()
+	s := I.Txt.GetTxt()
 
 	idx := strings.Index(s, caret)
 	return s[:idx] + s[idx+1:]
