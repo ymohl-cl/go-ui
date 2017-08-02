@@ -22,9 +22,7 @@ func (S Scenes) Draw(r *sdl.Renderer) {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go S.clearDraw(r, &wg)
-	wg.Wait()
+	S.clearDraw(r, &wg)
 	for i := 0; layers[uint8(i)] != nil; i++ {
 		layer := layers[uint8(i)]
 		for _, object := range layer {
@@ -72,15 +70,6 @@ type Scene interface {
 
 	// KeyDownEvent provide key down to the scene
 	KeyDownEvent(*sdl.KeyDownEvent)
-
-	// Add txt string typed by player to the input field
-	//	AddLetterToInput(string)
-	// GetStaticObjs provide the static objects
-	//	GetStaticObjs() []*objects.ObjectType
-	// GetDynamicObjs provide the dynamic objects
-	//	GetDynamicObjs() []*objects.ObjectType
-	// SetNotice provide a information to the user when a bad usage is done.
-	//SetNotice(string)
 }
 
 // Build create a new scene manager. Define here all scenes which you want use.
@@ -132,7 +121,3 @@ func (S Scenes) Close() error {
 	err = S.list[conf.Current].Close()
 	return err
 }
-
-/*func (S *Scenes) GetObjects() []*objects.ObjectType {
-	return S.list[sinfos.Current].GetObjs()
-}*/

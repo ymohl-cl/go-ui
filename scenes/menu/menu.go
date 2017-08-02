@@ -26,6 +26,11 @@ const (
 
 type Menu struct {
 	layers map[uint8][]objects.Object
+	// initialized
+
+	// channelSceneCloser is a channel herit by scene
+	// and return uint8 scene need closure when start a new
+	// initialization scene
 
 	input  *input.Input
 	notice *text.Text
