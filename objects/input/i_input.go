@@ -89,15 +89,15 @@ func (I *Input) UpdatePosition(x, y int32) {
 
 	if I.block != nil {
 		blX, blY := I.block.GetPosition()
-		diffX = blX - x
-		diffY = blY - y
+		diffX = x - blX
+		diffY = y - blY
 		I.block.UpdatePosition(x, y)
 	}
 	if I.Txt != nil {
 		if diffX == 0 && diffY == 0 {
 			I.Txt.UpdatePosition(x, y)
 		} else {
-			I.Txt.MoveTo(x, y)
+			I.Txt.MoveTo(diffX, diffY)
 		}
 	}
 
@@ -193,6 +193,6 @@ func (I *Input) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	}
 	if I.Txt != nil {
 		wg.Add(1)
-		go I.Txt.Draw(wg, r)
+		I.Txt.Draw(wg, r)
 	}
 }

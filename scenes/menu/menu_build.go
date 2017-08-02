@@ -253,6 +253,9 @@ func (M *Menu) addVS() error {
 	t.SetVariantStyle(conf.ColorTxtRed, conf.ColorTxtGreen, conf.ColorTxtBlue, conf.ColorTxtOpacity, objects.SFix)
 	t.SetVariantUnderStyle(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, objects.SFix)
 	t.SetUnderPosition(x-conf.TxtUnderPadding, y-conf.TxtUnderPadding)
+	if err = t.Init(M.renderer); err != nil {
+		return err
+	}
 
 	M.layers[layerVS] = append(M.layers[layerVS], t)
 	M.vs = t

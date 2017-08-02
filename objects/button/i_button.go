@@ -107,15 +107,15 @@ func (B *Button) UpdatePosition(x, y int32) {
 
 	if B.block != nil {
 		blX, blY := B.block.GetPosition()
-		diffX = blX - x
-		diffY = blY - y
+		diffX = x - blX
+		diffY = y - blY
 		B.block.UpdatePosition(x, y)
 	}
 	if B.img != nil {
 		if diffX == 0 && diffY == 0 {
 			iX, iY := B.img.GetPosition()
-			diffX = iX - x
-			diffY = iY - y
+			diffX = x - iX
+			diffY = y - iY
 			B.img.UpdatePosition(x, y)
 		} else {
 			B.img.MoveTo(diffX, diffY)
@@ -125,7 +125,7 @@ func (B *Button) UpdatePosition(x, y int32) {
 		if diffX == 0 && diffY == 0 {
 			B.txt.UpdatePosition(x, y)
 		} else {
-			B.txt.MoveTo(x, y)
+			B.txt.MoveTo(diffX, diffY)
 		}
 	}
 }
@@ -224,10 +224,12 @@ func (B *Button) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
 	if B.block != nil {
 		wg.Add(1)
 		B.block.Draw(wg, r)
-	} else if B.img != nil {
+	}
+	if B.img != nil {
 		wg.Add(1)
 		B.img.Draw(wg, r)
-	} else if B.txt != nil {
+	}
+	if B.txt != nil {
 		wg.Add(1)
 		B.txt.Draw(wg, r)
 	}

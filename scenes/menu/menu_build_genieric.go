@@ -140,6 +140,7 @@ func (M *Menu) createBlockToInput(x, y int32) (*block.Block, error) {
 
 func (M *Menu) createInput() (*input.Input, error) {
 	var x, y int32
+	var w, h int32
 	var b *block.Block
 	var i *input.Input
 	var err error
@@ -155,6 +156,10 @@ func (M *Menu) createInput() (*input.Input, error) {
 	if i, err = input.New(conf.TxtMedium, conf.Font, b); err != nil {
 		return nil, err
 	}
+	i.Txt.SetVariantStyle(conf.ColorUnderTxtRed, conf.ColorUnderTxtGreen, conf.ColorUnderTxtBlue, conf.ColorUnderTxtOpacity, objects.SFix)
+	w = (conf.ButtonWidth * 2) + conf.PaddingBlock
+	h = (conf.ButtonHeight)
+	i.Txt.UpdatePosition(x+(w/2), y+(h/2))
 
 	return i, nil
 }
