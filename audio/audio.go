@@ -66,15 +66,8 @@ func (A *Audio) Close() error {
 	return nil
 }
 
-// SetStatus change object's status
-func (A *Audio) SetStatus(s uint8) {
-	if A.status != objects.SFix {
-		A.status = s
-	}
-}
-
-// Draw the object audio.
-func (A *Audio) Draw(wg *sync.WaitGroup, r *sdl.Renderer) {
+// Play the audio source.
+func (A *Audio) Play(wg *sync.WaitGroup, r *sdl.Renderer) {
 	defer wg.Done()
 
 	sdl.Do(func() {

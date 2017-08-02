@@ -93,7 +93,7 @@ func (M Menu) Run() error {
 
 	if ok := M.music.IsInit(); ok {
 		wg.Add(1)
-		go M.music.Draw(&wg, M.renderer)
+		go M.music.Play(&wg, M.renderer)
 		wg.Wait()
 	}
 	return nil
