@@ -2,19 +2,23 @@ package script
 
 import (
 	"errors"
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/scenes"
+	"github.com/ymohl-cl/game-builder/scenes/loader"
 	"github.com/ymohl-cl/game-builder/scenes/menu"
 )
 
 // Scenes manage the specific game.
 type Script struct {
-	Data *database.Data
-	list map[uint8]scenes.Scene
+	Data   *database.Data
+	list   map[uint8]scenes.Scene
+	loader scenes.Scene
 }
 
 // Build create a new scene manager. Define here all scenes which you want use.
@@ -28,24 +32,25 @@ func Build(r *sdl.Renderer) (*Script, error) {
 	}
 
 	s.list = make(map[uint8]scenes.Scene)
-	if s.list[conf.SMenu], err = menu.New(s.Data, r); err != nil {
+	if s.list[conf.Sload], err = loader.New(s.Data, r); err != nil {
 		return nil, err
 	}
-	//s.list[sinfos.SceneStat] = new(sstat.SStat)
-	//s.list[sinfos.SceneGame] = new(sgame.SGame)
+	if err = s.list[conf.Sload].Init(); err != nil {
+		return nil, err
+	}
+	conf.Current = conf.Sload
 
-	if err = s.list[conf.SMenu].Init(); err != nil {
-		return nil, err
-	}
-	/*if err = s.list[sinfos.SceneStat].Init(s.Data); err != nil {
-		return nil, err
-	}
-	if err = s.list[sinfos.SceneGame].Init(s.Data); err != nil {
-		return nil, err
-	}*/
+	go func() {
+		if s.list[conf.SMenu], err = menu.New(s.Data, r); err != nil {
+			panic(err)
+		}
+		if err = s.list[conf.SMenu].Init(); err != nil {
+			panic(err)
+		}
+		time.Sleep(10 * time.Second)
+		conf.Current = conf.SMenu
+	}()
 
-	conf.Current = conf.SMenu
-	//s.list[conf.Current].Update(s.Data)
 	return s, nil
 }
 
@@ -62,6 +67,8 @@ func (S Script) Draw(r *sdl.Renderer) {
 		for _, object := range layer {
 			wg.Add(1)
 			go object.Draw(&wg, r)
+			x, y := object.GetPosition()
+			fmt.Println("draw on position: ", x, " - ", y)
 		}
 		wg.Wait()
 	}

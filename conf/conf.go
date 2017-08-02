@@ -87,7 +87,11 @@ const ()
 const ()
 
 // Load
-const ()
+const (
+	LoadMusic       = ressources + "chill.wav"
+	LoadBlockWidth  = 20
+	LoadBlockHeight = 20
+)
 
 /*
 ** define design

@@ -14,6 +14,17 @@ import (
 
 // Build describe the scene with objects needest
 func (L *Load) Build() error {
+	var err error
+
+	/*	if err = L.addMusic(); err != nil {
+		return err
+	}*/
+	if err = L.addBackground(); err != nil {
+		return err
+	}
+	if err = L.addBlockLoading(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -32,7 +43,11 @@ func (L *Load) Init() error {
 	if L.layers == nil {
 		return errors.New(scenes.ErrorLayers)
 	}
-
+	/*
+		if L.music == nil {
+			return errors.New(scenes.ErrorMissing)
+		}
+	*/
 	L.initialized = true
 	return nil
 }
@@ -44,19 +59,32 @@ func (L Load) IsInit() bool {
 
 // Run the scene
 func (L Load) Run() error {
-	/*	var wg sync.WaitGroup
+	//	var err error
+	//	var wg sync.WaitGroup
 
-		if ok := L.music.IsInit(); ok {
-			wg.Add(1)
-			go L.music.Draw(&wg, L.renderer)
-			wg.Wait()
-		}*/
+	/*	if ok := L.music.IsInit(); ok {
+		wg.Add(1)
+		go L.music.Play(&wg, L.renderer)
+		wg.Wait()
+	}*/
+	go L.addLoadingBar()
 	return nil
 }
 
 // Close the scene
 func (L *Load) Close() error {
-	L.initialized = false
+	var err error
+
+	L.closer <- true
+	if ok := L.music.IsInit(); !ok {
+		if err = L.music.Close(); err != nil {
+			return err
+		}
+	}
+	if err = L.lastLoadBlock.Close(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
