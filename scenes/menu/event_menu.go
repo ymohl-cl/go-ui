@@ -5,22 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
 )
-
-/*
-** Endpoint Event from scenes
- */
-
-func (M *Menu) KeyDownEvent(keyDown *sdl.KeyDownEvent) {
-	var err error
-
-	if err = M.input.SetNewRune(keyDown.Keysym, M.renderer); err != nil {
-		go M.setNotice(err.Error())
-	}
-}
 
 /*
 ** Endpoint action from objects click
@@ -103,7 +90,6 @@ func (M *Menu) NewPlayer(values ...interface{}) {
 	}
 	p := database.CreatePlayer(name)
 	M.data.AddPlayer(p)
-	fmt.Println("il y a ", len(M.data.Players), "players dans la base into menu_event")
 	M.input.Reset(M.renderer)
 
 	if err = M.addUIPlayer(nbPlayer, p); err != nil {

@@ -13,39 +13,6 @@ import (
 	"github.com/ymohl-cl/game-builder/objects/text"
 )
 
-func (M *Menu) build() error {
-	var err error
-
-	if err = M.addMusic(); err != nil {
-		return err
-	}
-	if err = M.addBackground(); err != nil {
-		return err
-	}
-	if err = M.addStructuresPage(); err != nil {
-		return err
-	}
-	if err = M.addButtons(); err != nil {
-		return err
-	}
-	if err = M.addNotice(); err != nil {
-		return err
-	}
-	if err = M.addText(); err != nil {
-		return err
-	}
-	if err = M.addVS(); err != nil {
-		return err
-	}
-	if err = M.addInput(); err != nil {
-		return err
-	}
-	if err = M.addPlayers(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (M *Menu) addMusic() error {
 	var err error
 

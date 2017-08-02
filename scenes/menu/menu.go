@@ -2,7 +2,6 @@ package menu
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/audio"
@@ -24,85 +23,41 @@ const (
 	layerPlayers    = 7
 )
 
+// Menu is a scene
 type Menu struct {
+	/* infos scene */
+	initialized bool
+	closer      chan (uint8)
+
+	/* objects by layers */
 	layers map[uint8][]objects.Object
-	// initialized
 
-	// channelSceneCloser is a channel herit by scene
-	// and return uint8 scene need closure when start a new
-	// initialization scene
-
+	/* specific objects */
 	input  *input.Input
 	notice *text.Text
 	music  *audio.Audio
 	vs     *text.Text
-	data   *database.Data
 
-	/* sdl objects */
+	/* sdl ressources */
 	renderer *sdl.Renderer
+	/* data game */
+	data *database.Data
 }
 
 /*
-** Functions
+** constructor
  */
 
-func (M *Menu) Init(d *database.Data, r *sdl.Renderer) error {
-	var err error
-
+// New provide a new object
+func New(d *database.Data, r *sdl.Renderer) (*Menu, error) {
 	if r == nil {
-		return errors.New(objects.ErrorRenderer)
+		return nil, errors.New(objects.ErrorRenderer)
 	}
-	M.renderer = r
-	M.data = d
-
-	M.layers = make(map[uint8][]objects.Object)
-
-	if err = M.build(); err != nil {
-		return err
+	if d == nil {
+		return nil, errors.New(objects.ErrorData)
 	}
 
-	if err = M.check(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (M Menu) Run() error {
-	var wg sync.WaitGroup
-
-	if ok := M.music.IsInit(); ok {
-		wg.Add(1)
-		go M.music.Draw(&wg, M.renderer)
-		wg.Wait()
-	}
-	return nil
-}
-
-func (M Menu) Close() error {
-	var err error
-
-	if ok := M.music.IsInit(); ok {
-		if err = M.music.Close(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (M Menu) GetLayers() map[uint8][]objects.Object {
-	return M.layers
-}
-
-func (M Menu) check() error {
-	if M.layers == nil {
-		return errors.New("Objects not define for menu scene")
-	}
-	if M.input == nil {
-		return errors.New("Object to input not define")
-	}
-	if M.notice == nil {
-		return errors.New("Object to notice not define")
-	}
-
-	return nil
+	m := Menu{renderer: r, data: d}
+	m.layers = make(map[uint8][]objects.Object)
+	return &m, nil
 }

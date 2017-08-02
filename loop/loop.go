@@ -3,7 +3,7 @@ package loop
 import (
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/drivers"
-	"github.com/ymohl-cl/game-builder/scenes"
+	"github.com/ymohl-cl/game-builder/script"
 )
 
 const (
@@ -12,14 +12,14 @@ const (
 
 type LoopGame struct {
 	close  bool
-	script *scenes.Scenes
+	script *script.Script
 }
 
 func newLoopGame(r *sdl.Renderer) (LoopGame, error) {
 	var LG LoopGame
 	var err error
 
-	if LG.script, err = scenes.Build(r); err != nil {
+	if LG.script, err = script.Build(r); err != nil {
 		return LG, err
 	}
 

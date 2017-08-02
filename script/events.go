@@ -1,4 +1,4 @@
-package scenes
+package script
 
 import (
 	"github.com/veandco/go-sdl2/sdl"
@@ -6,7 +6,7 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
-func (S *Scenes) Events(E sdl.Event) {
+func (S *Script) Events(E sdl.Event) {
 	var err error
 
 	switch E.(type) {
@@ -24,7 +24,7 @@ func (S *Scenes) Events(E sdl.Event) {
 	}
 }
 
-func (S *Scenes) mouseMotionEvent(mouse *sdl.MouseMotionEvent) error {
+func (S *Script) mouseMotionEvent(mouse *sdl.MouseMotionEvent) error {
 	layers := S.list[conf.Current].GetLayers()
 
 	size := len(layers)
@@ -43,7 +43,7 @@ func (S *Scenes) mouseMotionEvent(mouse *sdl.MouseMotionEvent) error {
 	return nil
 }
 
-func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
+func (S *Script) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 	if button.Button == sdl.BUTTON_LEFT {
 
 		layers := S.list[conf.Current].GetLayers()
@@ -70,13 +70,13 @@ func (S *Scenes) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 	return nil
 }
 
-func (S *Scenes) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
+func (S *Script) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
 	go S.list[conf.Current].KeyDownEvent(keyDown)
 	//	fmt.Println("Key down: ", keyDown)
 	return nil
 }
 
-func (S *Scenes) keyUpEvent(keyUp *sdl.KeyUpEvent) error {
+func (S *Script) keyUpEvent(keyUp *sdl.KeyUpEvent) error {
 	//	fmt.Println("HELLO KEY UP: ", keyUp.Keysym.Scancode)
 	/*	if keyUp.Keysym.Scancode == sdl.SDL_SCANCODE_RETURN {
 		if sdl.IsTextInputActive() == true {

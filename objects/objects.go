@@ -29,13 +29,8 @@ const (
 	ErrorStyle = "object does not know style"
 	// ErrorBuild (object empty)
 	ErrorBuild = "object don't build with new constructor"
-
-/*	ErrorColor       = "object has no defined color"
-	ErrorTxt         = "object has no defined text"
-	ErrorPosition    = "object has no defined position"
-	ErrorSize        = "object has no defined size"
-	ErrorObjectStyle = "object does not know this style"
-	ErrorData        = "data is empty"*/
+	// ErrorData (data empty)
+	ErrorData = "data scene not loaded"
 )
 
 // Object interface it's a model to the game builder.
