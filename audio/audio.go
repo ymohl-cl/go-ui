@@ -2,6 +2,7 @@ package audio
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/mix"
@@ -14,16 +15,17 @@ type Audio struct {
 	// infos object
 	status      uint8
 	initialized bool
+	channel     int
 
 	// content object
 	url string
 
 	// sdl objects
-	music *mix.Music
+	music *mix.Chunk
 }
 
 // New create a new object
-func New(url string) (*Audio, error) {
+func New(url string, channel int) (*Audio, error) {
 	a := new(Audio)
 
 	if url == "" {
@@ -42,8 +44,8 @@ func (A *Audio) Init(r *sdl.Renderer) error {
 	if r == nil {
 		return errors.New(objects.ErrorRenderer)
 	}
-
-	A.music, err = mix.LoadMUS(A.url)
+	fmt.Println("channel: ", mix.CHANNELS)
+	A.music, err = mix.LoadWAV(A.url)
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,7 @@ func (A Audio) IsInit() bool {
 func (A *Audio) Close() error {
 	A.initialized = false
 	if A.music != nil {
+		mix.HaltChannel(A.channel)
 		A.music.Free()
 	}
 	return nil
@@ -77,6 +80,6 @@ func (A *Audio) Play(wg *sync.WaitGroup, r *sdl.Renderer) {
 		if r == nil {
 			panic(errors.New(objects.ErrorRenderer))
 		}
-		A.music.Play(1)
+		A.music.Play(A.channel, -1)
 	})
 }

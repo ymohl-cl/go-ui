@@ -1,6 +1,8 @@
 package loader
 
 import (
+	"time"
+
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/objects"
 	"github.com/ymohl-cl/game-builder/objects/block"
@@ -19,23 +21,21 @@ func (L *Load) addLoadingBar() {
 	for loop {
 		select {
 		case <-L.closer:
-			L.resetLoadingBlock()
 			loop = false
 		default:
-			L.initialized = false
 			if b, err = L.lastLoadBlock.Clone(L.renderer); err != nil {
 				panic(err)
 			}
 			x, y := L.lastLoadBlock.GetPosition()
 			if x+conf.LoadBlockWidth > conf.WindowWidth {
-				L.resetLoadingBlock()
+				L.refresh = true
 			} else {
 				b.UpdatePosition(x+conf.LoadBlockWidth, y)
 				L.layers[layerLoadingBar] = append(L.layers[layerLoadingBar], b)
 				L.lastLoadBlock = b
 			}
-			L.initialized = true
 		}
+		time.Sleep(30 * time.Millisecond)
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/ymohl-cl/game-builder/objects"
 )
 
+// Events : catch mouse and keyboard events
 func (S *Script) Events(E sdl.Event) {
 	var err error
 

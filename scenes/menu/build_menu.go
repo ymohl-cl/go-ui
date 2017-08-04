@@ -16,7 +16,7 @@ import (
 func (M *Menu) addMusic() error {
 	var err error
 
-	M.music, err = audio.New(conf.MenuMusic)
+	M.music, err = audio.New(conf.MenuMusic, 1)
 	if err != nil {
 		return err
 	}

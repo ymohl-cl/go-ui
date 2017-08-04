@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/objects"
 )
@@ -13,10 +14,12 @@ import (
 ** Endpoint action from objects click
  */
 
+// LoadGame : start a new party
 func (M *Menu) LoadGame(values ...interface{}) {
 	fmt.Println("Load Game")
 }
 
+// DeletePlayer : _
 func (M *Menu) DeletePlayer(values ...interface{}) {
 	var p *database.Player
 	var err error
@@ -42,10 +45,12 @@ func (M *Menu) DeletePlayer(values ...interface{}) {
 	M.updateVS()
 }
 
+// DrawStat : on user selected
 func (M *Menu) DrawStat(values ...interface{}) {
 	fmt.Println("Draw stat")
 }
 
+// SelectPlayer : to the futur game
 func (M *Menu) SelectPlayer(values ...interface{}) {
 	var p *database.Player
 	var err error
@@ -66,6 +71,7 @@ func (M *Menu) SelectPlayer(values ...interface{}) {
 	M.updateVS()
 }
 
+// NewPlayer : on the database
 func (M *Menu) NewPlayer(values ...interface{}) {
 	var name string
 	var nbPlayer int
@@ -97,15 +103,22 @@ func (M *Menu) NewPlayer(values ...interface{}) {
 	}
 }
 
+// Play start the game
 func (M *Menu) Play(values ...interface{}) {
-	fmt.Println("Play")
-	go M.setNotice("Play")
+	var err error
+
+	conf.Current = conf.SGame
+	if err = M.Close(); err != nil {
+		panic(err)
+	}
 }
 
+// ResetName : reset the input value
 func (M *Menu) ResetName(values ...interface{}) {
 	M.input.Reset(M.renderer)
 }
 
+// DefaultPlayer : init the defaults player to the game
 func (M *Menu) DefaultPlayer(values ...interface{}) {
 	var err error
 

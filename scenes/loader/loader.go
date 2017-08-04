@@ -13,7 +13,9 @@ import (
 const (
 	// order layers of scene
 	layerBackground = 0
-	layerLoadingBar = 1
+	layerStructure  = 1
+	layerText       = 2
+	layerLoadingBar = 3
 )
 
 // Load is a scene which used when build other scene
@@ -21,6 +23,7 @@ type Load struct {
 	/* infos scene */
 	initialized bool
 	closer      chan (bool)
+	refresh     bool
 
 	/* objects by layers */
 	layers        map[uint8][]objects.Object

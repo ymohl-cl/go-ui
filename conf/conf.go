@@ -59,7 +59,7 @@ const (
 
 // Menu
 const (
-	MenuMusic          = ressources + "ambiant.wav"
+	MenuMusic          = ressources + "menuambiant.wav"
 	MenuBackground     = ressources + "background.bmp"
 	MenuIconDelete     = ressources + "delete1.bmp"
 	MenuIconOverDelete = ressources + "delete2.bmp"
@@ -84,11 +84,13 @@ const (
 const ()
 
 // Game
-const ()
+const (
+	GameMusic = ressources + "game_ambiant.wav"
+)
 
 // Load
 const (
-	LoadMusic       = ressources + "chill.wav"
+	LoadMusic       = ressources + "ambiant.wav"
 	LoadBlockWidth  = 20
 	LoadBlockHeight = 20
 )

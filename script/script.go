@@ -10,11 +10,12 @@ import (
 	"github.com/ymohl-cl/game-builder/conf"
 	"github.com/ymohl-cl/game-builder/database"
 	"github.com/ymohl-cl/game-builder/scenes"
+	"github.com/ymohl-cl/game-builder/scenes/gomoku"
 	"github.com/ymohl-cl/game-builder/scenes/loader"
 	"github.com/ymohl-cl/game-builder/scenes/menu"
 )
 
-// Scenes manage the specific game.
+// Script manage the specific game.
 type Script struct {
 	Data   *database.Data
 	list   map[uint8]scenes.Scene
@@ -47,14 +48,51 @@ func Build(r *sdl.Renderer) (*Script, error) {
 		if err = s.list[conf.SMenu].Init(); err != nil {
 			panic(err)
 		}
-		time.Sleep(10 * time.Second)
+		if s.list[conf.SGame], err = gomoku.New(s.Data, r); err != nil {
+			panic(err)
+		}
+		time.Sleep(5 * time.Second)
 		conf.Current = conf.SMenu
+		if err = s.list[conf.SMenu].Run(); err != nil {
+			panic(err)
+		}
+		if err = s.list[conf.Current].Close(); err != nil {
+			panic(err)
+		}
 	}()
 
 	return s, nil
 }
 
+// Draw : current scene loaded
 func (S Script) Draw(r *sdl.Renderer) {
+	var err error
+
+	if S.list[conf.Current].IsInit() == false {
+		fmt.Println("IS FALSE")
+		saveScene := conf.Current
+		conf.Current = conf.Sload
+		if err = S.list[conf.Current].Init(); err != nil {
+			panic(err)
+		}
+		if err = S.list[conf.Current].Run(); err != nil {
+			panic(err)
+		}
+
+		go func() {
+			if err = S.list[saveScene].Init(); err != nil {
+				panic(err)
+			}
+			time.Sleep(5 * time.Second)
+			if err = S.list[conf.Current].Close(); err != nil {
+				panic(err)
+			}
+			if err = S.list[saveScene].Run(); err != nil {
+				panic(err)
+			}
+			conf.Current = saveScene
+		}()
+	}
 	layers := S.list[conf.Current].GetLayers()
 
 	var wg sync.WaitGroup
@@ -67,14 +105,13 @@ func (S Script) Draw(r *sdl.Renderer) {
 		for _, object := range layer {
 			wg.Add(1)
 			go object.Draw(&wg, r)
-			x, y := object.GetPosition()
-			fmt.Println("draw on position: ", x, " - ", y)
 		}
 		wg.Wait()
 	}
 	S.activeDraw(r)
 }
 
+// activeDraw : call Present() to apply the new screen
 func (S Script) activeDraw(r *sdl.Renderer) {
 	sdl.Do(func() {
 		r.Present()
@@ -95,6 +132,7 @@ func (S Script) clearDraw(r *sdl.Renderer, wg *sync.WaitGroup) {
 	})
 }
 
+// Run : current scene loaded
 func (S Script) Run(r *sdl.Renderer) error {
 	if _, ok := S.list[conf.Current]; ok == false {
 		return errors.New("Scene tried to execute don't exist")
@@ -104,6 +142,7 @@ func (S Script) Run(r *sdl.Renderer) error {
 	return nil
 }
 
+// Close : current scene loaded
 func (S Script) Close() error {
 	var err error
 

@@ -48,6 +48,7 @@ func Init() (VSdl, error) {
 		return V, err
 	}
 
+	mix.AllocateChannels(255)
 	if err := mix.OpenAudio(48000, mix.DEFAULT_FORMAT, mix.DEFAULT_CHANNELS, mix.DEFAULT_CHUNKSIZE); err != nil {
 		return V, err
 	}
@@ -61,6 +62,7 @@ func Init() (VSdl, error) {
 	return V, nil
 }
 
+// GetRenderer : return renderer SDL2
 func (V *VSdl) GetRenderer() *sdl.Renderer {
 	return V.renderer
 }

@@ -2,6 +2,7 @@ package loader
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/ymohl-cl/game-builder/objects"
@@ -16,10 +17,16 @@ import (
 func (L *Load) Build() error {
 	var err error
 
-	/*	if err = L.addMusic(); err != nil {
+	if err = L.addMusic(); err != nil {
 		return err
-	}*/
+	}
 	if err = L.addBackground(); err != nil {
+		return err
+	}
+	if err = L.addStructure(); err != nil {
+		return err
+	}
+	if err = L.addTxt(); err != nil {
 		return err
 	}
 	if err = L.addBlockLoading(); err != nil {
@@ -43,11 +50,11 @@ func (L *Load) Init() error {
 	if L.layers == nil {
 		return errors.New(scenes.ErrorLayers)
 	}
-	/*
-		if L.music == nil {
-			return errors.New(scenes.ErrorMissing)
-		}
-	*/
+
+	if L.music == nil {
+		return errors.New(scenes.ErrorMissing)
+	}
+
 	L.initialized = true
 	return nil
 }
@@ -58,15 +65,15 @@ func (L Load) IsInit() bool {
 }
 
 // Run the scene
-func (L Load) Run() error {
+func (L *Load) Run() error {
 	//	var err error
-	//	var wg sync.WaitGroup
+	var wg sync.WaitGroup
 
-	/*	if ok := L.music.IsInit(); ok {
+	if ok := L.music.IsInit(); ok {
 		wg.Add(1)
 		go L.music.Play(&wg, L.renderer)
 		wg.Wait()
-	}*/
+	}
 	go L.addLoadingBar()
 	return nil
 }
@@ -75,12 +82,14 @@ func (L Load) Run() error {
 func (L *Load) Close() error {
 	var err error
 
+	L.initialized = false
 	L.closer <- true
-	if ok := L.music.IsInit(); !ok {
+	if ok := L.music.IsInit(); ok {
 		if err = L.music.Close(); err != nil {
 			return err
 		}
 	}
+	L.resetLoadingBlock()
 	if err = L.lastLoadBlock.Close(); err != nil {
 		return err
 	}
@@ -89,7 +98,11 @@ func (L *Load) Close() error {
 }
 
 // GetLayers provide all scene's objects to draw them
-func (L Load) GetLayers() map[uint8][]objects.Object {
+func (L *Load) GetLayers() map[uint8][]objects.Object {
+	if L.refresh == true {
+		L.resetLoadingBlock()
+		L.refresh = false
+	}
 	return L.layers
 }
 
