@@ -4,17 +4,16 @@ import (
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"github.com/ymohl-cl/game-builder/conf"
 )
 
-// VSdl veandco sdl drivers
-type VSdl struct {
+// VSDL veandco sdl drivers
+type VSDL struct {
 	window   *sdl.Window
 	renderer *sdl.Renderer
 }
 
 // Destroy close sdl objects correctly
-func (V *VSdl) Destroy() {
+func (V *VSDL) Destroy() {
 	if V.renderer != nil {
 		V.renderer.Destroy()
 	}
@@ -28,13 +27,13 @@ func (V *VSdl) Destroy() {
 }
 
 // Init create sdl window and the renderer objects
-func Init() (VSdl, error) {
-	var V VSdl
+func Init(width, height int, title string) (VSDL, error) {
+	var V VSDL
 	var err error
 
 	sdl.Init(sdl.INIT_EVERYTHING)
 
-	V.window, err = sdl.CreateWindow(conf.Title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, conf.WindowWidth, conf.WindowHeight, sdl.WINDOW_OPENGL)
+	V.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
 		return V, err
 	}
@@ -63,6 +62,6 @@ func Init() (VSdl, error) {
 }
 
 // GetRenderer : return renderer SDL2
-func (V *VSdl) GetRenderer() *sdl.Renderer {
+func (V *VSDL) GetRenderer() *sdl.Renderer {
 	return V.renderer
 }
