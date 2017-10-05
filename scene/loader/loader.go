@@ -69,7 +69,6 @@ func New(r *sdl.Renderer, width, height int32) (*DefaultLoader, error) {
 	}
 
 	l := DefaultLoader{renderer: r}
-	l.layers = make(map[uint8][]objects.Object)
 	l.m = new(sync.Mutex)
 	l.widthScreen = width
 	l.heightScreen = height

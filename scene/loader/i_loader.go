@@ -16,6 +16,8 @@ import (
 func (l *DefaultLoader) Build() error {
 	var err error
 
+	l.layers = make(map[uint8][]objects.Object)
+
 	if err = l.addTxt(); err != nil {
 		return err
 	}
@@ -69,6 +71,7 @@ func (l *DefaultLoader) Close() error {
 		return err
 	}
 
+	l.layers = nil
 	return nil
 }
 
