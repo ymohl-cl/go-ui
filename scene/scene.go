@@ -28,6 +28,8 @@ type Scene interface {
 	// SetSwitcher can be called to change scene with index scene on
 	// first parameter and flag on true to close old scene and false to stop it only
 	SetSwitcher(func(uint8, bool) error)
+	// SetCloser quit the application
+	SetCloser(func())
 	// Update : called on each frame
 	Update()
 }

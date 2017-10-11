@@ -88,3 +88,7 @@ func (s *Script) Switch(index uint8, closeOld bool) error {
 	s.list[layerLoading].Stop()
 	return nil
 }
+
+func (s *Script) StopRun() {
+	s.running = false
+}

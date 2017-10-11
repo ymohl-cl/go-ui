@@ -95,3 +95,8 @@ func (l *DefaultLoader) Update() {
 	l.addLoadingBar()
 	return
 }
+
+// SetCloser : allow quit the application
+func (l *DefaultLoader) SetCloser(f func()) {
+	// nothing to do
+}

@@ -14,6 +14,7 @@ func (s *Script) buildNewScene(index uint8) error {
 
 	// set switcher function
 	s.list[index].SetSwitcher(s.Switch)
+	s.list[index].SetCloser(s.StopRun)
 	// build scene
 	if err = s.list[index].Build(); err != nil {
 		return err
@@ -108,7 +109,6 @@ func (s Script) drawScene(r *sdl.Renderer) {
 	s.drawLayers(layers, r)
 	// Unlock layers data
 	m.Unlock()
-
 	s.appliesScreen(r)
 }
 

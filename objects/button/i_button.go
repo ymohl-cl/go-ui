@@ -47,7 +47,6 @@ func (B *Button) Close() error {
 	var err error
 
 	B.initialized = false
-
 	if B.block != nil {
 		if err = B.block.Close(); err != nil {
 			return err
