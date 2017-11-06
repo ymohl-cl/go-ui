@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -73,9 +72,7 @@ type Object interface {
 func Closer(layers map[uint8][]Object) error {
 	var err error
 
-	fmt.Println("len: ", len(layers))
-	for id, layer := range layers {
-		fmt.Println("len: ", len(layer), " id: ", id)
+	for _, layer := range layers {
 		for _, obj := range layer {
 			if err = obj.Close(); err != nil {
 				return err
