@@ -80,8 +80,8 @@ func (l *DefaultLoader) GetLayers() (map[uint8][]objects.Object, *sync.Mutex) {
 	return l.layers, l.m
 }
 
-// KeyDownEvent provide key down to the scene
-func (l *DefaultLoader) KeyDownEvent(keyDown *sdl.KeyDownEvent) {
+// KeyboardEvent provide key down to the scene
+func (l *DefaultLoader) KeyboardEvent(keyboard *sdl.KeyboardEvent) {
 	return
 }
 

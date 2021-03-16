@@ -89,6 +89,7 @@ func (s *Script) Switch(index uint8, closeOld bool) error {
 	return nil
 }
 
+// StopRun close the script
 func (s *Script) StopRun() {
 	s.running = false
 }

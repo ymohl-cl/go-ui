@@ -38,7 +38,7 @@ func Init(width, height int32, title string) (VSDL, error) {
 	V.widthScreen = width
 	V.heightScreen = height
 
-	V.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, int(V.widthScreen), int(V.heightScreen), sdl.WINDOW_OPENGL)
+	V.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, V.widthScreen, V.heightScreen, sdl.WINDOW_OPENGL)
 	if err != nil {
 		return V, err
 	}

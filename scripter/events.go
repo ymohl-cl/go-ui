@@ -16,10 +16,8 @@ func (s *Script) events(E sdl.Event) {
 		err = s.mouseMotionEvent(E.(*sdl.MouseMotionEvent))
 	case *sdl.MouseButtonEvent:
 		err = s.mouseButtonEvent(E.(*sdl.MouseButtonEvent))
-	case *sdl.KeyDownEvent:
-		err = s.keyDownEvent(E.(*sdl.KeyDownEvent))
-	case *sdl.KeyUpEvent:
-		err = s.keyUpEvent(E.(*sdl.KeyUpEvent))
+	case *sdl.KeyboardEvent:
+		err = s.keyboardEvent(E.(*sdl.KeyboardEvent))
 	}
 	if err != nil {
 		panic(err)
@@ -82,20 +80,11 @@ func (s *Script) mouseButtonEvent(button *sdl.MouseButtonEvent) error {
 	return nil
 }
 
-// keyDownEvent : _
-func (s *Script) keyDownEvent(keyDown *sdl.KeyDownEvent) error {
+// keyboardEvent : _
+func (s *Script) keyboardEvent(keyDown *sdl.KeyboardEvent) error {
 	if _, ok := s.list[s.current]; !ok {
 		return errors.New(errorIndexUndefined)
 	}
-	go s.list[s.current].KeyDownEvent(keyDown)
-	return nil
-}
-
-// keyUpEvent : _
-func (s *Script) keyUpEvent(keyUp *sdl.KeyUpEvent) error {
-	if _, ok := s.list[s.current]; !ok {
-		return errors.New(errorIndexUndefined)
-	}
-	//	go s.list[s.current].KeyDownEvent(keyDown)
+	go s.list[s.current].KeyboardEvent(keyDown)
 	return nil
 }

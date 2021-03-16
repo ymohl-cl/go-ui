@@ -7,7 +7,7 @@ func (T *Text) updateTextures(r *sdl.Renderer) error {
 	var surface *sdl.Surface
 
 	for id, color := range T.colors {
-		if surface, err = T.font.RenderUTF8_Solid(T.txt, color); err != nil {
+		if surface, err = T.font.RenderUTF8Solid(T.txt, color); err != nil {
 			return err
 		}
 		defer surface.Free()
@@ -23,7 +23,7 @@ func (T *Text) updateTextures(r *sdl.Renderer) error {
 	}
 
 	for id, color := range T.underColors {
-		if surface, err = T.font.RenderUTF8_Solid(T.txt, color); err != nil {
+		if surface, err = T.font.RenderUTF8Solid(T.txt, color); err != nil {
 			return err
 		}
 		defer surface.Free()
@@ -44,7 +44,7 @@ func (T *Text) updateTextureByStatus(s uint8, r *sdl.Renderer) error {
 	var surface *sdl.Surface
 
 	T.textures[s].Destroy()
-	if surface, err = T.font.RenderUTF8_Solid(T.txt, T.colors[s]); err != nil {
+	if surface, err = T.font.RenderUTF8Solid(T.txt, T.colors[s]); err != nil {
 		return err
 	}
 	defer surface.Free()

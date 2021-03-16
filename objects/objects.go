@@ -69,6 +69,7 @@ type Object interface {
 	Draw(*sync.WaitGroup, *sdl.Renderer)
 }
 
+// Closer objects
 func Closer(layers map[uint8][]Object) error {
 	var err error
 
