@@ -2,9 +2,9 @@ package button
 
 import (
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/objects/block"
-	"github.com/ymohl-cl/game-builder/objects/image"
-	"github.com/ymohl-cl/game-builder/objects/text"
+	"github.com/ymohl-cl/go-ui/objects/block"
+	"github.com/ymohl-cl/go-ui/objects/image"
+	"github.com/ymohl-cl/go-ui/objects/text"
 )
 
 // Button object implementation

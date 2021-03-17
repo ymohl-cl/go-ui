@@ -6,7 +6,7 @@ import (
 
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/go-ui/objects"
 )
 
 // Audio structure

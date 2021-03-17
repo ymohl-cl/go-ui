@@ -1,10 +1,10 @@
-package scene
+package gamebuilder
 
 import (
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/go-ui/objects"
 )
 
 // Scene is a interface and define the design model to your scenes.
@@ -26,10 +26,9 @@ type Scene interface {
 	// KeyboardEvent provide key down to the scene
 	KeyboardEvent(*sdl.KeyboardEvent)
 	// SetSwitcher can be called to change scene with index scene on
-	// first parameter and flag on true to close old scene and false to stop it only
-	SetSwitcher(func(uint8, bool) error)
-	// SetCloser quit the application
-	SetCloser(func())
+	SetSwitcher(func(indexScene string) error)
+	// SetCloser call the closer scene
+	SetCloser(func(indexScene string) error)
 	// Update : called on each frame
 	Update()
 }

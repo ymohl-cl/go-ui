@@ -1,7 +1,7 @@
 package image
 
 import (
-	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/go-ui/objects"
 )
 
 /*

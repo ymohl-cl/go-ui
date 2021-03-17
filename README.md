@@ -1,5 +1,6 @@
-# game-builder
-Game-builder is a game builder lite using [SDL2 veandco](https://github.com/veandco/go-sdl2).
+# Go-ui
+
+go-ui is a game builder lite using [SDL2 veandco](https://github.com/veandco/go-sdl2).
 It's not convention to compose a game, just proof of concept today.
 
 The wrapper is implemented with goroutines.
@@ -12,35 +13,39 @@ I would be pleased to talk about that with you on mail:
 `mohl.clauzade@gmail.com`
 
 # Requirements
+
 See official github to SDL2 binding for Go by [veandco](https://github.com/veandco/go-sdl2).
 
 # Installation
+
 To install Golang see [getting started](https://golang.org/doc/install)
 
 To get SDL2 wrapper see [veandco](https://github.com/veandco/go-sdl2)
 
 `go get -v github.com/veandco/go-sdl2/{sdl,mix,img,ttf}`
 
-To get Game-Builder:
+To get go-ui:
 
-`go get -v github.com/ymohl-cl/game-builder`
+`go get -v github.com/ymohl-cl/go-ui`
 
 #### OSX
+
 Install SDL2:
 
 `brew install sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_net sdl2_ttf`
 
 # Example
+
 You can view implementation example on this project [gomoku game](https://github.com/ymohl-cl/gomoku)
 
 Please, read godoc to know the specifications
 
-```
+``` GOLANG
 package main
 
 import (
-	"github.com/ymohl-cl/game-builder/drivers"
-	"github.com/ymohl-cl/game-builder/scripter"
+	"github.com/ymohl-cl/go-ui/drivers"
+	"github.com/ymohl-cl/go-ui/scripter"
 	"github.com/ymohl-cl/gomoku/database"
 	"github.com/ymohl-cl/gomoku/scenes/gomoku"
 	"github.com/ymohl-cl/gomoku/scenes/loader"
@@ -60,7 +65,7 @@ func main() {
 	var d drivers.VSDL
 	var data *database.Data
 
-	// init drivers sdl from game-builder
+	// init drivers sdl from go-ui
 	if d, err = drivers.Init(windowWidth, windowHeight, "Title of my windows"); err != nil {
 		panic(err)
 	}
@@ -71,7 +76,7 @@ func main() {
 		panic(err)
 	}
 
-	// get new scripter application from game-builder
+	// get new scripter application from go-ui
 	s := scripter.New()
 
 	// get loader scene from my app
@@ -79,7 +84,7 @@ func main() {
 	if loaderScene, err = loader.New(nil, d.GetRenderer()); err != nil {
 		panic(err)
 	}
-	// add scene on the scripter (game-builder)
+	// add scene on the scripter (go-ui)
 	if err = s.AddLoader(loaderScene); err != nil {
 		panic(err)
 	}
@@ -89,7 +94,7 @@ func main() {
 	if menuScene, err = menu.New(data, d.GetRenderer()); err != nil {
 		panic(err)
 	}
-	// add scene on the scripter (game-builder)
+	// add scene on the scripter (go-ui)
 	if err = s.AddScene(menuScene, indexMenu, true); err != nil {
 		panic(err)
 	}
@@ -99,29 +104,35 @@ func main() {
 	if gameScene, err = gomoku.New(data, d.GetRenderer()); err != nil {
 		panic(err)
 	}
-	// add scene on the scripter (game-builder)
+	// add scene on the scripter (go-ui)
 	if err = s.AddScene(gameScene, indexGomoku, false); err != nil {
 		panic(err)
 	}
 
-	// run application from game-builder
+	// run application from go-ui
 	s.Run(d)
 }
 ```
 
 # FAQ
+
 #### Why shaders aren't implemented ?
-Game-builder is a proof of concept for the moment. This lib provide that which are needest to make a simple project.
+
+go-ui is a proof of concept for the moment. This lib provide that which are needest to make a simple project.
 If you need shaders, please contact us.
 
 #### How do I contribute ?
+
 Contact me by mail: `mohl.clauzade@gmail.com`
 
 # Acknowledgment
+
 Thanks at [veandco](https://github.com/veandco/go-sdl2) for their work.
 
 # License
-game-builder is BSD 3-clause licensed.
+
+go-ui is BSD 3-clause licensed.
 
 # Version
-V-0.1.1: implement library game-builder
+
+V-0.1.1: implement library go-ui

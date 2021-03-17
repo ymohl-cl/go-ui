@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/go-ui/objects"
 )
 
 // Init object to draw it. If error occurred, object can't be drawn

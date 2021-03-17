@@ -33,6 +33,8 @@ const (
 	ErrorData = "data scene not loaded"
 )
 
+type Test struct{}
+
 // Object interface it's a model to the game builder.
 type Object interface {
 	// Init object to draw it. If error occurred, object can't be drawn

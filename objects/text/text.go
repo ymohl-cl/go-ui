@@ -5,7 +5,7 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"github.com/ymohl-cl/game-builder/objects"
+	"github.com/ymohl-cl/go-ui/objects"
 )
 
 // Text object implementation
