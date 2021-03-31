@@ -1,4 +1,4 @@
-package gamebuilder
+package goui
 
 // Window configuration
 type Window struct {

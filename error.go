@@ -1,4 +1,4 @@
-package gamebuilder
+package goui
 
 const (
 	errorScriptModifier = "the script configuration can't be updated after to have start the app/game"

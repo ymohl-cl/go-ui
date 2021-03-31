@@ -1,15 +1,12 @@
-package gamebuilder
+package goui
 
 import (
-	"sync"
-
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 // Renderer type to manage the drawing
 type Renderer interface {
 	Close()
-	Scene(s Scene)
 	Clear() error
 	Draw()
 	Driver() *sdl.Renderer
@@ -48,27 +45,6 @@ func (r *renderer) Close() {
 	}
 	if r.window != nil {
 		r.window.Destroy()
-	}
-}
-
-// Scene renderer prepare
-func (r *renderer) Scene(s Scene) {
-	layers, m := s.GetLayers()
-	m.Lock()
-	defer m.Unlock()
-
-	var wg sync.WaitGroup
-
-	//	fmt.Println("DrawLayer")
-	for i := 0; layers[uint8(i)] != nil; i++ {
-		layer := layers[uint8(i)]
-		for _, object := range layer {
-			if object.IsInit() {
-				wg.Add(1)
-				go object.Draw(&wg, r.driver)
-			}
-		}
-		wg.Wait()
 	}
 }
 
