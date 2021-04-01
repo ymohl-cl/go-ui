@@ -1,8 +1,6 @@
 package widget
 
 import (
-	"fmt"
-
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -44,10 +42,8 @@ func NewText(txt string, font Font) (*Text, error) {
 	if w, h, err = t.font.driver.SizeUTF8(t.str); err != nil {
 		return nil, err
 	}
-	t.block.width = int32(w)
-	t.block.height = int32(h)
 
-	t.state = StateBase
+	t.SetSize(int32(w), int32(h))
 	return &t, nil
 }
 
@@ -55,14 +51,19 @@ func (t *Text) Close() {
 	t.font.Close()
 }
 
-func (t *Text) Update(txt string) {
+func (t *Text) Set(txt string) {
 	t.str = txt
 }
 
-func (t *Text) Render(r *sdl.Renderer) {
+func (t *Text) Render(r *sdl.Renderer) error {
 	var surface *sdl.Surface
 	var texture *sdl.Texture
 	var err error
+
+	// skip empty text
+	if len(t.str) == 0 {
+		return nil
+	}
 
 	myColor := t.Color(t.state)
 	color := sdl.Color{
@@ -74,24 +75,20 @@ func (t *Text) Render(r *sdl.Renderer) {
 
 	var str string
 	if str, err = t.strRenderable(); err != nil {
-		fmt.Printf("error occured to return the STR: %s", err.Error())
-		return
+		return err
 	}
 	if surface, err = t.font.driver.RenderUTF8Blended(str, color); err != nil {
-		fmt.Printf("error occured while renderUTF8Blended: %s", err.Error())
-		return
+		return err
 	}
 	defer surface.Free()
 	if texture, err = r.CreateTextureFromSurface(surface); err != nil {
-		fmt.Printf("error occured while create texture from surface: %s", err.Error())
-		return
+		return err
 	}
 	defer texture.Destroy()
 
 	var w, h int
 	if w, h, err = t.font.driver.SizeUTF8(str); err != nil {
-		fmt.Printf("error occured while get size utf8: %s", err.Error())
-		return
+		return err
 	}
 	if err = r.Copy(texture, nil, &sdl.Rect{
 		X: t.position.X,
@@ -99,10 +96,9 @@ func (t *Text) Render(r *sdl.Renderer) {
 		W: int32(w),
 		H: int32(h),
 	}); err != nil {
-		fmt.Printf("error occured while copy sdl texture: %s", err.Error())
-		return
+		return err
 	}
-	return
+	return nil
 }
 
 func (t *Text) strRenderable() (string, error) {
@@ -111,7 +107,6 @@ func (t *Text) strRenderable() (string, error) {
 	str := t.str
 
 	for w, _, err = t.font.driver.SizeUTF8(str); err == nil && w > int(t.block.width); w, _, err = t.font.driver.SizeUTF8(str) {
-		fmt.Printf("w: %d and t.block.width: %d\n", w, t.block.width)
 		str = str[:len(str)-1]
 	}
 	if err != nil {

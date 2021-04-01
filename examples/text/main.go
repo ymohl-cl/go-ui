@@ -35,7 +35,7 @@ func main() {
 	var f widget.Font
 	var t *widget.Text
 
-	if f, err = widget.NewFont("NewYork.otf", 22); err != nil {
+	if f, err = widget.NewFont("../resource/NewYork.otf", 22); err != nil {
 		panic(err)
 	}
 	if t, err = widget.NewText("Ceci est un message", f); err != nil {

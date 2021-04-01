@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	StateBase   StateWidget = "base"
-	StateHover  StateWidget = "hover"
-	StateAction StateWidget = "action"
+	StateBase StateWidget = iota
+	StateHover
+	StateAction
 )
 
-type StateWidget string
+type StateWidget uint8
 
 type Widget interface {
 	SetColor(c Color)
@@ -24,9 +24,12 @@ type Widget interface {
 	SetPosition(x, y int32)
 	IsHover(x, y int32) bool
 	SetState(s StateWidget)
+	SetSize(w, h int32)
 	Click()
+	Unfocus()
+	KeyboardEvent(key *sdl.KeyboardEvent)
 
-	Render(r *sdl.Renderer)
+	Render(r *sdl.Renderer) error
 	Close()
 }
 
@@ -36,6 +39,7 @@ type widget struct {
 	position Position
 	block    Block
 	state    StateWidget
+	focus    bool
 }
 
 func (w *widget) SetColor(c Color) {
@@ -79,10 +83,14 @@ func (w widget) Color(state StateWidget) Color {
 	case StateHover:
 		if w.colors.hover != nil {
 			return *w.colors.hover
+		} else if w.colors.base != nil {
+			return *w.colors.base
 		}
 	case StateAction:
 		if w.colors.action != nil {
 			return *w.colors.action
+		} else if w.colors.base != nil {
+			return *w.colors.base
 		}
 	}
 	return Color{}
@@ -101,6 +109,12 @@ func (w widget) IsHover(x, y int32) bool {
 	return false
 }
 
+// Unfocus remove the focus on the widget
+// focus define the last interaction with the widget (ex with input)
+func (w *widget) Unfocus() {
+	w.focus = false
+}
+
 func (w *widget) SetState(s StateWidget) {
 	w.state = s
 }
@@ -109,7 +123,13 @@ func (w *widget) SetAction(a Action) {
 	w.action = a
 }
 
+func (w *widget) SetSize(width, height int32) {
+	w.block.width = width
+	w.block.height = height
+}
+
 func (w *widget) Click() {
+	w.focus = true
 	if w.action == nil {
 		return
 	}
@@ -118,3 +138,5 @@ func (w *widget) Click() {
 		fmt.Printf("error to click action")
 	}
 }
+
+func (w *widget) KeyboardEvent(key *sdl.KeyboardEvent) {}

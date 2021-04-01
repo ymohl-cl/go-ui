@@ -1,6 +1,7 @@
 package goui
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -52,10 +53,12 @@ func (s *scene) Render(r *sdl.Renderer) {
 	for _, l := range s.layers {
 		for _, w := range s.widgets[l] {
 			wg.Add(1)
-			go func() {
+			go func(myWidget widget.Widget) {
 				defer wg.Done()
-				w.Render(r)
-			}()
+				if err := myWidget.Render(r); err != nil {
+					fmt.Printf("widget render failed: %s\n", err.Error())
+				}
+			}(w)
 		}
 		wg.Wait()
 	}
@@ -81,9 +84,13 @@ func (s *scene) NewEvent(e sdl.Event) error {
 						w.SetState(widget.StateHover)
 						w.Click()
 					}
+				} else {
+					if mouseEvent.State == sdl.RELEASED {
+						w.Unfocus()
+					}
 				}
 			case *sdl.KeyboardEvent:
-				// w.KeyEvent()
+				w.KeyboardEvent(e.(*sdl.KeyboardEvent))
 			}
 		}
 	}
