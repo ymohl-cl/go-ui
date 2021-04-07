@@ -10,6 +10,7 @@ const (
 	StateBase StateWidget = iota
 	StateHover
 	StateAction
+	StateOff
 )
 
 type StateWidget uint8
@@ -24,10 +25,12 @@ type Widget interface {
 	SetPosition(x, y int32)
 	IsHover(x, y int32) bool
 	SetState(s StateWidget)
+	State() StateWidget
 	SetSize(w, h int32)
 	Click()
 	Unfocus()
 	KeyboardEvent(key *sdl.KeyboardEvent)
+	Size() (int32, int32)
 
 	Render(r *sdl.Renderer) error
 	Close()
@@ -119,6 +122,11 @@ func (w *widget) SetState(s StateWidget) {
 	w.state = s
 }
 
+// State getter
+func (w widget) State() StateWidget {
+	return w.state
+}
+
 func (w *widget) SetAction(a Action) {
 	w.action = a
 }
@@ -126,6 +134,11 @@ func (w *widget) SetAction(a Action) {
 func (w *widget) SetSize(width, height int32) {
 	w.block.width = width
 	w.block.height = height
+}
+
+// Size return the width and height block
+func (w widget) Size() (int32, int32) {
+	return w.block.width, w.block.height
 }
 
 func (w *widget) Click() {

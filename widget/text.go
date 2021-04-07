@@ -101,6 +101,15 @@ func (t *Text) Render(r *sdl.Renderer) error {
 	return nil
 }
 
+// SizeSTR getter
+func (t *Text) SizeSTR() (int32, int32, error) {
+	w, h, err := t.font.driver.SizeUTF8(t.str)
+	if err != nil {
+		return 0, 0, err
+	}
+	return int32(w), int32(h), nil
+}
+
 func (t *Text) strRenderable() (string, error) {
 	var w int
 	var err error

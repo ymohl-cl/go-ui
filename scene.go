@@ -52,12 +52,18 @@ func (s *scene) Render(r *sdl.Renderer) {
 
 	for _, l := range s.layers {
 		for _, w := range s.widgets[l] {
+			if w.State() == widget.StateOff {
+				// skip the disables widgets
+				continue
+			}
 			wg.Add(1)
 			go func(myWidget widget.Widget) {
-				defer wg.Done()
-				if err := myWidget.Render(r); err != nil {
-					fmt.Printf("widget render failed: %s\n", err.Error())
-				}
+				sdl.Do(func() {
+					defer wg.Done()
+					if err := myWidget.Render(r); err != nil {
+						fmt.Printf("widget render failed: %s\n", err.Error())
+					}
+				})
 			}(w)
 		}
 		wg.Wait()
@@ -67,6 +73,11 @@ func (s *scene) Render(r *sdl.Renderer) {
 func (s *scene) NewEvent(e sdl.Event) error {
 	for _, l := range s.layers {
 		for _, w := range s.widgets[l] {
+			if w.State() == widget.StateOff {
+				// skip the disables widgets
+				continue
+			}
+
 			switch e.(type) {
 			case *sdl.MouseMotionEvent:
 				mouseEvent := e.(*sdl.MouseMotionEvent)

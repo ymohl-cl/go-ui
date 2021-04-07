@@ -34,6 +34,12 @@ var (
 		Blue:  255,
 		Alpha: 255,
 	}
+	ColorNoColor Color = Color{
+		Red:   0,
+		Green: 0,
+		Blue:  0,
+		Alpha: 0,
+	}
 )
 
 type Colors struct {
